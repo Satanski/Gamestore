@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Gamestore.Repository\Gamestore.Repository.csproj" />
+    <ProjectReference Include="..\Gamestore.Repository\Gamestore.DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

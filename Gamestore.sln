@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.WebApi", "Gamesto
 		{D02D013D-D736-4BBC-B78E-C1CC67B6E437} = {D02D013D-D736-4BBC-B78E-C1CC67B6E437}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.Repository", "Gamestore.Repository\Gamestore.Repository.csproj", "{19A5E727-4788-475F-A97B-D84AF4CEABE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.DAL", "Gamestore.Repository\Gamestore.DAL.csproj", "{19A5E727-4788-475F-A97B-D84AF4CEABE1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.Services", "Gamestore.Services\Gamestore.Services.csproj", "{D02D013D-D736-4BBC-B78E-C1CC67B6E437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.BLL", "Gamestore.Services\Gamestore.BLL.csproj", "{D02D013D-D736-4BBC-B78E-C1CC67B6E437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
