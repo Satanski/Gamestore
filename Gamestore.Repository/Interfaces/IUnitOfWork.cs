@@ -6,5 +6,7 @@ public interface IUnitOfWork
 
     IPlatformRepository PlatformRepository { get; }
 
+    IGenreRepository GenreRepository { get; }
+
     Task SaveAsync();
 }

@@ -24,6 +24,7 @@ public static class Program
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IGameService, GameService>();
         builder.Services.AddScoped<IPlatformService, PlatformService>();
+        builder.Services.AddScoped<IGenreService, GenreService>();
 
         builder.Services.AddControllers();
 

@@ -7,20 +7,20 @@ namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class PlatformsController([FromServices] IPlatformService platformService) : ControllerBase
+public class GenresController([FromServices] IGenreService genreService) : ControllerBase
 {
-    private readonly IPlatformService _platformService = platformService;
+    private readonly IGenreService _genreService = genreService;
 
-    // GET: platforms/GUID/games
+    // GET: genres/GUID/games
     [HttpGet("{id}/games")]
     [ResponseCache(Duration = 60)]
-    public async Task<ActionResult<GameModel>> GetGamesByPlatform(Guid id)
+    public async Task<ActionResult<GameModel>> GetGamesByGenre(Guid id)
     {
         IEnumerable<GameModel> games;
 
         try
         {
-            games = await _platformService.GetGamesByPlatformAsync(id);
+            games = await _genreService.GetGamesByGenreAsync(id);
         }
         catch (GamestoreException)
         {
@@ -34,13 +34,36 @@ public class PlatformsController([FromServices] IPlatformService platformService
         return Ok(games);
     }
 
-    // POST: platforms
+    // GET: genres/GUID/games
+    [HttpGet("{id}/genres")]
+    [ResponseCache(Duration = 60)]
+    public async Task<ActionResult<IEnumerable<GenreModel>>> GetGenresByParentGenre(Guid id)
+    {
+        IEnumerable<GenreModel> genres;
+
+        try
+        {
+            genres = await _genreService.GetGenresByParentGenreAsync(id);
+        }
+        catch (GamestoreException)
+        {
+            return NotFound();
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+
+        return Ok(genres);
+    }
+
+    // POST: genres
     [HttpPost]
-    public async Task<ActionResult> Add([FromBody] PlatformModel platformModel)
+    public async Task<ActionResult> Add([FromBody] GenreModel genreModel)
     {
         try
         {
-            await _platformService.AddPlatformAsync(platformModel);
+            await _genreService.AddGenreAsync(genreModel);
         }
         catch (GamestoreException)
         {
@@ -54,16 +77,16 @@ public class PlatformsController([FromServices] IPlatformService platformService
         return Ok();
     }
 
-    // GET: platforms/GUID
+    // GET: genres/GUID
     [HttpGet("{id}")]
     [ResponseCache(Duration = 60)]
-    public async Task<ActionResult<PlatformModel>> Get(Guid id)
+    public async Task<ActionResult<GenreModel>> Get(Guid id)
     {
-        PlatformModel platform;
+        GenreModel genre;
 
         try
         {
-            platform = await _platformService.GetPlatformByIdAsync(id);
+            genre = await _genreService.GetGenreByIdAsync(id);
         }
         catch (GamestoreException)
         {
@@ -74,19 +97,19 @@ public class PlatformsController([FromServices] IPlatformService platformService
             return BadRequest();
         }
 
-        return Ok(platform);
+        return Ok(genre);
     }
 
-    // GET: platforms
+    // GET: genres
     [HttpGet]
     [ResponseCache(Duration = 60)]
-    public async Task<ActionResult<IEnumerable<PlatformModel>>> Get()
+    public async Task<ActionResult<IEnumerable<GenreModel>>> Get()
     {
-        IEnumerable<PlatformModel> platforms;
+        IEnumerable<GenreModel> genres;
 
         try
         {
-            platforms = await _platformService.GetAllPlatformsAsync();
+            genres = await _genreService.GetAllGenresAsync();
         }
         catch (GamestoreException)
         {
@@ -97,16 +120,16 @@ public class PlatformsController([FromServices] IPlatformService platformService
             return BadRequest();
         }
 
-        return Ok(platforms);
+        return Ok(genres);
     }
 
-    // PUT: platforms
+    // PUT: genres
     [HttpPut]
-    public async Task<ActionResult> Update([FromBody] DetailedPlatformModel platformModel)
+    public async Task<ActionResult> Update([FromBody] DetailedGenreModel genreModel)
     {
         try
         {
-            await _platformService.UpdatePlatformAsync(platformModel);
+            await _genreService.UpdateGenreAsync(genreModel);
         }
         catch (GamestoreException)
         {
@@ -120,13 +143,13 @@ public class PlatformsController([FromServices] IPlatformService platformService
         return Ok();
     }
 
-    // DELETE: platforms
+    // DELETE: genres
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(Guid id)
     {
         try
         {
-            await _platformService.DeletePlatformAsync(id);
+            await _genreService.DeleteGenreAsync(id);
         }
         catch (GamestoreException)
         {

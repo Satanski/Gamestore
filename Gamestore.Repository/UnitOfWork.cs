@@ -12,6 +12,8 @@ public class UnitOfWork(GamestoreContext context) : IUnitOfWork
 
     public IPlatformRepository PlatformRepository { get; } = new PlatformRepository(context);
 
+    public IGenreRepository GenreRepository { get; } = new GenreRepository(context);
+
     public Task SaveAsync()
     {
         Task t = Task.Run(() => _context.SaveChangesAsync());

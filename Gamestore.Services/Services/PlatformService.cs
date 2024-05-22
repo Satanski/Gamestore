@@ -52,7 +52,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
             {
                 var platform = x.Result;
 
-                return platform == null ? throw new GamestoreException($"No game found with given id: {id}") : MappingHelpers.CreatePlatformModel(platform);
+                return platform == null ? throw new GamestoreException($"No platform found with given id: {id}") : MappingHelpers.CreatePlatformModel(platform);
             });
 
         return task;

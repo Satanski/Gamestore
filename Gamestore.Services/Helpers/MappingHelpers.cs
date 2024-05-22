@@ -83,4 +83,59 @@ internal static class MappingHelpers
 
         return platformModel;
     }
+
+    internal static DetailedPlatformModel CreateDetailedPlatformModel(Platform platform)
+    {
+        DetailedPlatformModel platformModel = new DetailedPlatformModel()
+        {
+            Id = platform.Id,
+            Type = platform.Type,
+        };
+
+        return platformModel;
+    }
+
+    internal static Genre CreateGenre(GenreModel genreModel)
+    {
+        Genre genre = new Genre()
+        {
+            Name = genreModel.Name,
+        };
+
+        return genre;
+    }
+
+    internal static Genre CreateDetailedGenre(DetailedGenreModel genreModel)
+    {
+        Genre genre = new Genre()
+        {
+            Id = genreModel.Id,
+            Name = genreModel.Name,
+            ParentGenreId = genreModel.ParentGenreId,
+        };
+
+        return genre;
+    }
+
+    internal static GenreModel CreateGenreModel(Genre genre)
+    {
+        GenreModel genreModel = new GenreModel()
+        {
+            Name = genre.Name,
+        };
+
+        return genreModel;
+    }
+
+    internal static DetailedGenreModel CreateDetailedGenreModel(Genre genre)
+    {
+        DetailedGenreModel genreModel = new DetailedGenreModel()
+        {
+            Id = genre.Id,
+            Name = genre.Name,
+            ParentGenreId = genre.ParentGenreId,
+        };
+
+        return genreModel;
+    }
 }

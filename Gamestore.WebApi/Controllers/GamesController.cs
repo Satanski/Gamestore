@@ -81,6 +81,52 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         return Ok(game);
     }
 
+    // GET: games/GUID/genres
+    [HttpGet("{id}/genres")]
+    [ResponseCache(Duration = 60)]
+    public async Task<ActionResult<IEnumerable<DetailedGenreModel>>> GetGenresByGame(Guid id)
+    {
+        IEnumerable<DetailedGenreModel> genres;
+
+        try
+        {
+            genres = await _gameService.GetGenresByGameAsync(id);
+        }
+        catch (GamestoreException)
+        {
+            return NotFound();
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+
+        return Ok(genres);
+    }
+
+    // GET: games/GUID/platforms
+    [HttpGet("{id}/platforms")]
+    [ResponseCache(Duration = 60)]
+    public async Task<ActionResult<IEnumerable<DetailedPlatformModel>>> GetPlatformsByGame(Guid id)
+    {
+        IEnumerable<DetailedPlatformModel> platforms;
+
+        try
+        {
+            platforms = await _gameService.GetPlatformsByGameAsync(id);
+        }
+        catch (GamestoreException)
+        {
+            return NotFound();
+        }
+        catch (Exception)
+        {
+            return BadRequest();
+        }
+
+        return Ok(platforms);
+    }
+
     // https://localhost:44394/games/baldursgate/file
     // GET: games/STRING/file
     [HttpGet("{key}/file")]

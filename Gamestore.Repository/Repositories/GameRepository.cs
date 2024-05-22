@@ -14,6 +14,48 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         return task;
     }
 
+    public Task<IEnumerable<Genre>> GetGenresByGameAsync(Guid id)
+    {
+        var task = Task.Run(() =>
+        {
+            var genres = from g in _context.Genres
+                         join gg in _context.GameGenres on g.Id equals gg.GenreId
+                         where gg.GameId == id
+                         select new { g.Id, g.Name, g.ParentGenreId };
+
+            List<Genre> result = [];
+            foreach (var g in genres)
+            {
+                result.Add(new Genre() { Id = g.Id, Name = g.Name, ParentGenreId = g.ParentGenreId });
+            }
+
+            return result.AsEnumerable();
+        });
+
+        return task;
+    }
+
+    public Task<IEnumerable<Platform>> GetPlatformsByGameAsync(Guid id)
+    {
+        var task = Task.Run(() =>
+        {
+            var platforms = from p in _context.Platforms
+                            join gp in _context.GamePlatforms on p.Id equals gp.Platform
+                            where gp.GameId == id
+                            select new { p.Id, p.Type };
+
+            List<Platform> result = [];
+            foreach (var p in platforms)
+            {
+                result.Add(new Platform() { Id = p.Id, Type = p.Type });
+            }
+
+            return result.AsEnumerable();
+        });
+
+        return task;
+    }
+
     public Task<Game?> GetGameByIdAsync(Guid id)
     {
         var task = Task.Run(() => _context.Games.Where(x => x.Id == id).FirstOrDefault());

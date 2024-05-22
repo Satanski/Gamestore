@@ -14,5 +14,9 @@ public interface IGameService
 
     Task<GameModel> GetGameByKeyAsync(string key);
 
+    Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid id);
+
+    Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid id);
+
     Task UpdateGameAsync(DetailedGameModel gameModel);
 }

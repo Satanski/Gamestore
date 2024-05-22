@@ -34,6 +34,54 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return task;
     }
 
+    public Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid id)
+    {
+        var task = Task.Run(() => _unitOfWork.GameRepository.GetGenresByGameAsync(id))
+           .ContinueWith(x =>
+           {
+               var genres = x.Result.ToList();
+               List<DetailedGenreModel> genreModels = [];
+
+               if (genres.Count == 0)
+               {
+                   throw new GamestoreException("No games found");
+               }
+
+               foreach (var genre in genres)
+               {
+                   genreModels.Add(MappingHelpers.CreateDetailedGenreModel(genre));
+               }
+
+               return genreModels.AsEnumerable();
+           });
+
+        return task;
+    }
+
+    public Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid id)
+    {
+        var task = Task.Run(() => _unitOfWork.GameRepository.GetPlatformsByGameAsync(id))
+           .ContinueWith(x =>
+           {
+               var platforms = x.Result.ToList();
+               List<DetailedPlatformModel> platformModels = [];
+
+               if (platforms.Count == 0)
+               {
+                   throw new GamestoreException("No games found");
+               }
+
+               foreach (var platform in platforms)
+               {
+                   platformModels.Add(MappingHelpers.CreateDetailedPlatformModel(platform));
+               }
+
+               return platformModels.AsEnumerable();
+           });
+
+        return task;
+    }
+
     public Task<GameModel> GetGameByIdAsync(Guid id)
     {
         var task = Task.Run(() => _unitOfWork.GameRepository.GetGameByIdAsync(id))

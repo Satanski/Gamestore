@@ -37,4 +37,20 @@ internal static class ValidationHelpers
             throw new GamestoreException("Platform model invalid");
         }
     }
+
+    internal static void ValidateGenreModel(GenreModel genreModel)
+    {
+        if (genreModel == null || string.IsNullOrEmpty(genreModel.Name))
+        {
+            throw new GamestoreException("Genre model invalid");
+        }
+    }
+
+    internal static void ValidateDetailedGenreModel(DetailedGenreModel genreModel)
+    {
+        if (genreModel == null || string.IsNullOrEmpty(genreModel.Name) || genreModel.Id == Guid.Empty)
+        {
+            throw new GamestoreException("Genre model invalid");
+        }
+    }
 }
