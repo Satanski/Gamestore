@@ -4,10 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.WebApi", "Gamestore.WebApi\Gamestore.WebApi.csproj", "{E5A410FD-833E-4BEF-8441-1261D9863FB1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{19A5E727-4788-475F-A97B-D84AF4CEABE1} = {19A5E727-4788-475F-A97B-D84AF4CEABE1}
+		{D02D013D-D736-4BBC-B78E-C1CC67B6E437} = {D02D013D-D736-4BBC-B78E-C1CC67B6E437}
+	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.Repository", "Gamestore.Repository\Gamestore.Repository.csproj", "{19A5E727-4788-475F-A97B-D84AF4CEABE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.DAL", "Gamestore.Repository\Gamestore.DAL.csproj", "{19A5E727-4788-475F-A97B-D84AF4CEABE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.Services", "Gamestore.Services\Gamestore.Services.csproj", "{D02D013D-D736-4BBC-B78E-C1CC67B6E437}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.BLL", "Gamestore.Services\Gamestore.BLL.csproj", "{D02D013D-D736-4BBC-B78E-C1CC67B6E437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
