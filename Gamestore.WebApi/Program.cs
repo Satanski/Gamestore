@@ -41,6 +41,16 @@ public static class Program
             app.UseSwaggerUI();
         }
 
+        app.Use(async (context, next) =>
+        {
+            var dbContext = context.RequestServices.GetRequiredService<GamestoreContext>();
+
+            int numberOfGames = dbContext.Games.Count();
+
+            context.Response.Headers.Append("x-total-number-of-games", $"{numberOfGames}");
+            await next.Invoke();
+        });
+
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();

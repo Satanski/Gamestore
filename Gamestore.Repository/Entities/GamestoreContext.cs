@@ -46,8 +46,5 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Platform>().HasData(new Platform() { Id = Guid.NewGuid(), Type = "Browser" });
         modelBuilder.Entity<Platform>().HasData(new Platform() { Id = Guid.NewGuid(), Type = "Desktop" });
         modelBuilder.Entity<Platform>().HasData(new Platform() { Id = Guid.NewGuid(), Type = "Console" });
-
-        // Games
-        modelBuilder.Entity<Game>().HasData(new Game() { Id = Guid.NewGuid(), Name = "Gra testowa nazwa", Description = "Desc", Key = "Key" });
     }
 }
