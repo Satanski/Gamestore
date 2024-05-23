@@ -74,7 +74,7 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId);
+        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
 
         // Act
         await _gameRepository.DeleteGameAsync(expectedGameId);
@@ -89,7 +89,7 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId);
+        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
 
         // Act
         var resultGame = await _gameRepository.GetGameByIdAsync(expectedGameId);
@@ -98,13 +98,100 @@ public class DALTests : IDisposable
         Assert.Equal(expectedGameId, resultGame.Id);
     }
 
+    [Fact]
+    public async Task GetGameByKeyAsyncShouldReturnCorrectGame()
+    {
+        // Arrange
+        var expectedGameId = Guid.NewGuid();
+        string expectedGameKey = "Key";
+        AddTestGame(expectedGameId, "Baldurs Gate", expectedGameKey, "Rpg game");
+
+        // Act
+        var resultGame = await _gameRepository.GetGameByIdAsync(expectedGameId);
+
+        // Assert
+        Assert.Equal(expectedGameKey, resultGame.Key);
+    }
+
+    [Fact]
+    public async Task GetPlatformsByGameAsyncShouldReturnCorrectPlatform()
+    {
+        // Arrange
+        var expectedGameId = Guid.NewGuid();
+        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        var expectedPlatform = _context.Platforms.First();
+
+        // Act
+        var resultPlatforms = await _gameRepository.GetPlatformsByGameAsync(expectedGameId);
+
+        // Assert
+        Assert.Equal(expectedPlatform.Id, resultPlatforms.First().Id);
+        Assert.Equal(expectedPlatform.Type, resultPlatforms.First().Type);
+    }
+
+    [Fact]
+    public async Task GetGenresByGameShouldReturnCorrectGenre()
+    {
+        // Arrange
+        var expectedGameId = Guid.NewGuid();
+        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        var expectedGenre = _context.Genres.First();
+
+        // Act
+        var resultGenres = await _gameRepository.GetGenresByGameAsync(expectedGameId);
+
+        // Assert
+        Assert.Equal(expectedGenre.Id, resultGenres.First().Id);
+        Assert.Equal(expectedGenre.Name, resultGenres.First().Name);
+    }
+
+    [Fact]
+    public async Task GetAllGamesAsyncShouldreturnAllGames()
+    {
+        // Arrange
+        var expectedGameId1 = Guid.NewGuid();
+        AddTestGame(expectedGameId1, "Baldurs Gate", "BG", "Rpg game");
+
+        var expectedGameId2 = Guid.NewGuid();
+        AddTestGame(expectedGameId2, "Digital Combat Simulator", "DCS", "Flight sim");
+
+        // Act
+        var games = await _gameRepository.GetAllGamesAsync();
+
+        // Assert
+        Assert.Equal(2, games.Count());
+    }
+
+    [Fact]
+    public async Task UpdateGameAsyncShouldUpdateGame()
+    {
+        // Arrange
+        var expectedGameId = Guid.NewGuid();
+        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        var gameToUpdate = _context.Games.First();
+
+        string expectedName = "Digital Combat Simulator";
+        string expectedKey = "DCS";
+        string expectedDescription = "Flight sim";
+
+        gameToUpdate.Name = expectedName;
+        gameToUpdate.Key = expectedKey;
+        gameToUpdate.Description = expectedDescription;
+
+        // Act
+        await _gameRepository.UpdateGameAsync(gameToUpdate);
+
+        // Assert
+        Assert.Equal(expectedName, gameToUpdate.Name);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private void AddTestGame(Guid expectedGameId)
+    private void AddTestGame(Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription)
     {
         var genre = _context.Genres.First();
         var expectedGenreId = genre.Id;
@@ -113,10 +200,6 @@ public class DALTests : IDisposable
         var platform = _context.Platforms.First();
         var expectedPlatformId = platform.Id;
         GamePlatform expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
-
-        string expectedName = "Baldurs Gate";
-        string expectedKey = "BG";
-        string expectedDescription = "Rpg game";
 
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         List<GameGenre> gameGenres = [expectedGameGenre];
