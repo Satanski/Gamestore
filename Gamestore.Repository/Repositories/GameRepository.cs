@@ -129,13 +129,13 @@ public class GameRepository(GamestoreContext context) : IGameRepository
 
             if (game != null)
             {
-                _context.Games.Remove(game);
-
                 var gameGenres = _context.GameGenres.Where(x => x.GameId == gameId);
                 _context.GameGenres.RemoveRange(gameGenres);
 
                 var gamePlatforms = _context.GamePlatforms.Where(x => x.GameId == gameId);
                 _context.GamePlatforms.RemoveRange(gamePlatforms);
+
+                _context.Games.Remove(game);
 
                 _context.SaveChanges();
             }
