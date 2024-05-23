@@ -12,7 +12,7 @@ public class PlatformRepository(GamestoreContext context) : IPlatformRepository
         var task = Task.Run(() =>
         {
             var games = from g in _context.Games
-                        where g.GamePlatforms.Any(x => x.Platform == platformId)
+                        where g.GamePlatforms.Any(x => x.PlatformId == platformId)
                         select g;
 
             return games.AsEnumerable();
@@ -33,9 +33,9 @@ public class PlatformRepository(GamestoreContext context) : IPlatformRepository
         return task;
     }
 
-    public Task<Platform?> GetPlatformByIdAsync(Guid id)
+    public Task<Platform?> GetPlatformByIdAsync(Guid platformId)
     {
-        var task = Task.Run(() => _context.Platforms.Where(x => x.Id == id).FirstOrDefault());
+        var task = Task.Run(() => _context.Platforms.Where(x => x.Id == platformId).FirstOrDefault());
 
         return task;
     }
@@ -60,18 +60,15 @@ public class PlatformRepository(GamestoreContext context) : IPlatformRepository
         return task;
     }
 
-    public Task DeletePlatformAsync(Guid id)
+    public Task DeletePlatformAsync(Guid platformId)
     {
         var task = Task.Run(() =>
         {
-            var platform = _context.Platforms.Find(id);
+            var platform = _context.Platforms.Find(platformId);
 
             if (platform != null)
             {
                 _context.Platforms.Remove(platform);
-
-                var gamePlatforms = _context.GamePlatforms.Where(x => x.Platform == id);
-                _context.GamePlatforms.RemoveRange(gamePlatforms);
 
                 _context.SaveChanges();
             }

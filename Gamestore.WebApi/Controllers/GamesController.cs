@@ -14,7 +14,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games
     [HttpGet]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<IEnumerable<GameModel>>> Get()
     {
         IEnumerable<GameModel> games;
@@ -37,7 +37,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/find/GUID
     [HttpGet("find/{id}")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<GameModel>> Get(Guid id)
     {
         GameModel game;
@@ -60,7 +60,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/STRING
     [HttpGet("{key}")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<GameModel>> Get(string key)
     {
         GameModel game;
@@ -83,7 +83,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/GUID/genres
     [HttpGet("{id}/genres")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<IEnumerable<DetailedGenreModel>>> GetGenresByGame(Guid id)
     {
         IEnumerable<DetailedGenreModel> genres;
@@ -106,7 +106,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/GUID/platforms
     [HttpGet("{id}/platforms")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<IEnumerable<DetailedPlatformModel>>> GetPlatformsByGame(Guid id)
     {
         IEnumerable<DetailedPlatformModel> platforms;
@@ -130,7 +130,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     // https://localhost:44394/games/baldursgate/file
     // GET: games/STRING/file
     [HttpGet("{key}/file")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult> Download(string key)
     {
         string fileName;

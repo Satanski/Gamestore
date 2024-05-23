@@ -15,4 +15,6 @@ public class Platform
 
     [Required]
     public string Type { get; set; }
+
+    public ICollection<GamePlatform> GamePlatforms { get; set; }
 }

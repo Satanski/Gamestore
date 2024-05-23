@@ -39,7 +39,7 @@ internal static class MappingHelpers
 
         foreach (var platform in gameModel.Plaftorms)
         {
-            gamePlatforms.Add(new GamePlatform() { GameId = gameModel.Id, Platform = platform });
+            gamePlatforms.Add(new GamePlatform() { GameId = gameModel.Id, PlatformId = platform });
         }
 
         return new Game()

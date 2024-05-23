@@ -34,9 +34,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return task;
     }
 
-    public Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid id)
+    public Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid gameId)
     {
-        var task = Task.Run(() => _unitOfWork.GameRepository.GetGenresByGameAsync(id))
+        var task = Task.Run(() => _unitOfWork.GameRepository.GetGenresByGameAsync(gameId))
            .ContinueWith(x =>
            {
                var genres = x.Result.ToList();
@@ -44,7 +44,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
                if (genres.Count == 0)
                {
-                   throw new GamestoreException("No games found");
+                   throw new GamestoreException("No genres found");
                }
 
                foreach (var genre in genres)
@@ -58,9 +58,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return task;
     }
 
-    public Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid id)
+    public Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid gameId)
     {
-        var task = Task.Run(() => _unitOfWork.GameRepository.GetPlatformsByGameAsync(id))
+        var task = Task.Run(() => _unitOfWork.GameRepository.GetPlatformsByGameAsync(gameId))
            .ContinueWith(x =>
            {
                var platforms = x.Result.ToList();
@@ -68,7 +68,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
                if (platforms.Count == 0)
                {
-                   throw new GamestoreException("No games found");
+                   throw new GamestoreException("No platforms found");
                }
 
                foreach (var platform in platforms)
@@ -82,14 +82,14 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return task;
     }
 
-    public Task<GameModel> GetGameByIdAsync(Guid id)
+    public Task<GameModel> GetGameByIdAsync(Guid gameId)
     {
-        var task = Task.Run(() => _unitOfWork.GameRepository.GetGameByIdAsync(id))
+        var task = Task.Run(() => _unitOfWork.GameRepository.GetGameByIdAsync(gameId))
             .ContinueWith(x =>
             {
                 var game = x.Result;
 
-                return game == null ? throw new GamestoreException($"No game found with given id: {id}") : MappingHelpers.CreateGameModel(game);
+                return game == null ? throw new GamestoreException($"No game found with given id: {gameId}") : MappingHelpers.CreateGameModel(game);
             });
 
         return task;
@@ -128,9 +128,9 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return task;
     }
 
-    public Task DeleteGameAsync(Guid id)
+    public Task DeleteGameAsync(Guid gameId)
     {
-        var task = Task.Run(() => _unitOfWork.GameRepository.DeleteGameAsync(id));
+        var task = Task.Run(() => _unitOfWork.GameRepository.DeleteGameAsync(gameId));
 
         return task;
     }

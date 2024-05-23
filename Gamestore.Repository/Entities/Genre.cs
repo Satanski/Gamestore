@@ -16,4 +16,6 @@ public class Genre
     public string Name { get; set; }
 
     public Guid? ParentGenreId { get; set; } = null!;
+
+    public ICollection<GameGenre> GameGenres { get; set; }
 }

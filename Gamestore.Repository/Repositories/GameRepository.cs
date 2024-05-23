@@ -14,13 +14,13 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         return task;
     }
 
-    public Task<IEnumerable<Genre>> GetGenresByGameAsync(Guid id)
+    public Task<IEnumerable<Genre>> GetGenresByGameAsync(Guid gameId)
     {
         var task = Task.Run(() =>
         {
             var genres = from g in _context.Genres
                          join gg in _context.GameGenres on g.Id equals gg.GenreId
-                         where gg.GameId == id
+                         where gg.GameId == gameId
                          select new { g.Id, g.Name, g.ParentGenreId };
 
             List<Genre> result = [];
@@ -35,13 +35,13 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         return task;
     }
 
-    public Task<IEnumerable<Platform>> GetPlatformsByGameAsync(Guid id)
+    public Task<IEnumerable<Platform>> GetPlatformsByGameAsync(Guid gameId)
     {
         var task = Task.Run(() =>
         {
             var platforms = from p in _context.Platforms
-                            join gp in _context.GamePlatforms on p.Id equals gp.Platform
-                            where gp.GameId == id
+                            join gp in _context.GamePlatforms on p.Id equals gp.PlatformId
+                            where gp.GameId == gameId
                             select new { p.Id, p.Type };
 
             List<Platform> result = [];
@@ -56,9 +56,9 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         return task;
     }
 
-    public Task<Game?> GetGameByIdAsync(Guid id)
+    public Task<Game?> GetGameByIdAsync(Guid gameId)
     {
-        var task = Task.Run(() => _context.Games.Where(x => x.Id == id).FirstOrDefault());
+        var task = Task.Run(() => _context.Games.Where(x => x.Id == gameId).FirstOrDefault());
 
         return task;
     }
@@ -121,20 +121,20 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         return task;
     }
 
-    public Task DeleteGameAsync(Guid id)
+    public Task DeleteGameAsync(Guid gameId)
     {
         var task = Task.Run(() =>
         {
-            var game = _context.Games.Find(id);
+            var game = _context.Games.Find(gameId);
 
             if (game != null)
             {
                 _context.Games.Remove(game);
 
-                var gameGenres = _context.GameGenres.Where(x => x.GameId == id);
+                var gameGenres = _context.GameGenres.Where(x => x.GameId == gameId);
                 _context.GameGenres.RemoveRange(gameGenres);
 
-                var gamePlatforms = _context.GamePlatforms.Where(x => x.GameId == id);
+                var gamePlatforms = _context.GamePlatforms.Where(x => x.GameId == gameId);
                 _context.GamePlatforms.RemoveRange(gamePlatforms);
 
                 _context.SaveChanges();

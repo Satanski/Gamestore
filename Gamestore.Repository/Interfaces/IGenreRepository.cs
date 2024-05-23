@@ -6,15 +6,15 @@ public interface IGenreRepository
 {
     Task AddGenreAsync(Genre genre);
 
-    Task<IEnumerable<Game>> GetGamesByGenreAsync(Guid id);
+    Task<IEnumerable<Game>> GetGamesByGenreAsync(Guid genreId);
 
-    Task<Genre?> GetGenreByIdAsync(Guid id);
+    Task<Genre?> GetGenreByIdAsync(Guid genreId);
 
     Task<IEnumerable<Genre>> GetAllGenresAsync();
 
     Task UpdateGenreAsync(Genre genre);
 
-    Task DeleteGenreAsync(Guid id);
+    Task DeleteGenreAsync(Guid genreId);
 
-    Task<IEnumerable<Genre>> GetGenresByParentGenreAsync(Guid id);
+    Task<IEnumerable<Genre>> GetGenresByParentGenreAsync(Guid genreId);
 }

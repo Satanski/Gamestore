@@ -13,7 +13,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<GameModel>> GetGamesByGenre(Guid id)
     {
         IEnumerable<GameModel> games;
@@ -36,7 +36,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID/games
     [HttpGet("{id}/genres")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<IEnumerable<GenreModel>>> GetGenresByParentGenre(Guid id)
     {
         IEnumerable<GenreModel> genres;
@@ -79,7 +79,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<GenreModel>> Get(Guid id)
     {
         GenreModel genre;
@@ -102,7 +102,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres
     [HttpGet]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<IEnumerable<GenreModel>>> Get()
     {
         IEnumerable<GenreModel> genres;

@@ -6,17 +6,17 @@ public interface IGameService
 {
     Task AddGameAsync(DetailedGameModel gameModel);
 
-    Task DeleteGameAsync(Guid id);
+    Task DeleteGameAsync(Guid gameId);
 
     Task<IEnumerable<GameModel>> GetAllGamesAsync();
 
-    Task<GameModel> GetGameByIdAsync(Guid id);
+    Task<GameModel> GetGameByIdAsync(Guid gameId);
 
     Task<GameModel> GetGameByKeyAsync(string key);
 
-    Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid id);
+    Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid gameId);
 
-    Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid id);
+    Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid gameId);
 
     Task UpdateGameAsync(DetailedGameModel gameModel);
 }

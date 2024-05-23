@@ -8,11 +8,11 @@ public interface IPlatformService
 
     Task<IEnumerable<GameModel>> GetGamesByPlatformAsync(Guid platformId);
 
-    Task<PlatformModel> GetPlatformByIdAsync(Guid id);
+    Task<PlatformModel> GetPlatformByIdAsync(Guid platformId);
 
     Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync();
 
     Task UpdatePlatformAsync(DetailedPlatformModel platformModel);
 
-    Task DeletePlatformAsync(Guid id);
+    Task DeletePlatformAsync(Guid platformId);
 }

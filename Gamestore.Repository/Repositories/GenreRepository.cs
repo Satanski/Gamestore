@@ -19,18 +19,15 @@ public class GenreRepository(GamestoreContext context) : IGenreRepository
         return task;
     }
 
-    public Task DeleteGenreAsync(Guid id)
+    public Task DeleteGenreAsync(Guid genreId)
     {
         var task = Task.Run(() =>
         {
-            var genre = _context.Genres.Find(id);
+            var genre = _context.Genres.Find(genreId);
 
             if (genre != null)
             {
                 _context.Genres.Remove(genre);
-
-                var gameGenres = _context.GameGenres.Where(x => x.GenreId == id);
-                _context.GameGenres.RemoveRange(gameGenres);
 
                 _context.SaveChanges();
             }
@@ -46,12 +43,12 @@ public class GenreRepository(GamestoreContext context) : IGenreRepository
         return task;
     }
 
-    public Task<IEnumerable<Game>> GetGamesByGenreAsync(Guid id)
+    public Task<IEnumerable<Game>> GetGamesByGenreAsync(Guid genreId)
     {
         var task = Task.Run(() =>
         {
             var games = from g in _context.Games
-                        where g.GameGenres.Any(x => x.GenreId == id)
+                        where g.GameGenres.Any(x => x.GenreId == genreId)
                         select g;
 
             return games.AsEnumerable();
@@ -60,16 +57,16 @@ public class GenreRepository(GamestoreContext context) : IGenreRepository
         return task;
     }
 
-    public Task<IEnumerable<Genre>> GetGenresByParentGenreAsync(Guid id)
+    public Task<IEnumerable<Genre>> GetGenresByParentGenreAsync(Guid genreId)
     {
-        var task = Task.Run(() => _context.Genres.Where(x => x.ParentGenreId == id).AsEnumerable());
+        var task = Task.Run(() => _context.Genres.Where(x => x.ParentGenreId == genreId).AsEnumerable());
 
         return task;
     }
 
-    public Task<Genre?> GetGenreByIdAsync(Guid id)
+    public Task<Genre?> GetGenreByIdAsync(Guid genreId)
     {
-        var task = Task.Run(() => _context.Genres.Where(x => x.Id == id).FirstOrDefault());
+        var task = Task.Run(() => _context.Genres.Where(x => x.Id == genreId).FirstOrDefault());
 
         return task;
     }

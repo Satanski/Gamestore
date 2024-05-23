@@ -13,7 +13,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // GET: platforms/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<GameModel>> GetGamesByPlatform(Guid id)
     {
         IEnumerable<GameModel> games;
@@ -56,7 +56,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // GET: platforms/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<PlatformModel>> Get(Guid id)
     {
         PlatformModel platform;
@@ -79,7 +79,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // GET: platforms
     [HttpGet]
-    [ResponseCache(Duration = 60)]
+    [ResponseCache(Duration = 1)]
     public async Task<ActionResult<IEnumerable<PlatformModel>>> Get()
     {
         IEnumerable<PlatformModel> platforms;

@@ -20,9 +20,9 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         return task;
     }
 
-    public Task DeleteGenreAsync(Guid id)
+    public Task DeleteGenreAsync(Guid genreId)
     {
-        var task = Task.Run(() => _unitOfWork.GenreRepository.DeleteGenreAsync(id));
+        var task = Task.Run(() => _unitOfWork.GenreRepository.DeleteGenreAsync(genreId));
 
         return task;
     }
@@ -51,9 +51,9 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         return task;
     }
 
-    public Task<IEnumerable<GameModel>> GetGamesByGenreAsync(Guid id)
+    public Task<IEnumerable<GameModel>> GetGamesByGenreAsync(Guid genreId)
     {
-        var task = Task.Run(() => _unitOfWork.GenreRepository.GetGamesByGenreAsync(id))
+        var task = Task.Run(() => _unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId))
             .ContinueWith(x =>
        {
            var games = x.Result.ToList();
@@ -76,22 +76,22 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         return task;
     }
 
-    public Task<GenreModel> GetGenreByIdAsync(Guid id)
+    public Task<GenreModel> GetGenreByIdAsync(Guid genreId)
     {
-        var task = Task.Run(() => _unitOfWork.GenreRepository.GetGenreByIdAsync(id))
+        var task = Task.Run(() => _unitOfWork.GenreRepository.GetGenreByIdAsync(genreId))
             .ContinueWith(x =>
             {
                 var genre = x.Result;
 
-                return genre == null ? throw new GamestoreException($"No genre found with given id: {id}") : MappingHelpers.CreateGenreModel(genre);
+                return genre == null ? throw new GamestoreException($"No genre found with given id: {genreId}") : MappingHelpers.CreateGenreModel(genre);
             });
 
         return task;
     }
 
-    public Task<IEnumerable<GenreModel>> GetGenresByParentGenreAsync(Guid id)
+    public Task<IEnumerable<GenreModel>> GetGenresByParentGenreAsync(Guid genreId)
     {
-        var task = Task.Run(() => _unitOfWork.GenreRepository.GetGenresByParentGenreAsync(id))
+        var task = Task.Run(() => _unitOfWork.GenreRepository.GetGenresByParentGenreAsync(genreId))
             .ContinueWith(x =>
             {
                 var genres = x.Result.ToList();

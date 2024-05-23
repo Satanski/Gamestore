@@ -45,14 +45,14 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
         return task;
     }
 
-    public Task<PlatformModel> GetPlatformByIdAsync(Guid id)
+    public Task<PlatformModel> GetPlatformByIdAsync(Guid platformId)
     {
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.GetPlatformByIdAsync(id))
+        var task = Task.Run(() => _unitOfWork.PlatformRepository.GetPlatformByIdAsync(platformId))
             .ContinueWith(x =>
             {
                 var platform = x.Result;
 
-                return platform == null ? throw new GamestoreException($"No platform found with given id: {id}") : MappingHelpers.CreatePlatformModel(platform);
+                return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : MappingHelpers.CreatePlatformModel(platform);
             });
 
         return task;
@@ -92,9 +92,9 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
         return task;
     }
 
-    public Task DeletePlatformAsync(Guid id)
+    public Task DeletePlatformAsync(Guid platformId)
     {
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.DeletePlatformAsync(id));
+        var task = Task.Run(() => _unitOfWork.PlatformRepository.DeletePlatformAsync(platformId));
 
         return task;
     }
