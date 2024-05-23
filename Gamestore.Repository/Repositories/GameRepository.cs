@@ -105,6 +105,8 @@ public class GameRepository(GamestoreContext context) : IGameRepository
             var gamePlatforms = _context.GamePlatforms.Where(x => x.GameId == game.Id);
             _context.GamePlatforms.RemoveRange(gamePlatforms);
 
+            _context.SaveChanges();
+
             foreach (var item in game.GameGenres)
             {
                 _context.GameGenres.Add(item);
