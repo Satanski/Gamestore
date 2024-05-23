@@ -10,6 +10,7 @@ public class DALTests : IDisposable
 {
     private readonly GamestoreContext _context;
     private readonly GameRepository _gameRepository;
+    private readonly GenreRepository _genreRepository;
 
     public DALTests()
     {
@@ -19,6 +20,7 @@ public class DALTests : IDisposable
 
         _context = new GamestoreContext(options);
         _gameRepository = new(_context);
+        _genreRepository = new(_context);
 
         _context.Database.EnsureDeleted();
         _context.Database.EnsureCreated();
@@ -185,20 +187,141 @@ public class DALTests : IDisposable
         Assert.Equal(expectedName, gameToUpdate.Name);
     }
 
+    [Fact]
+    public async Task GetAllGenresAsyncShouldReturnAllGenres()
+    {
+        // Arrange
+        var expectedGenres = _context.Genres;
+
+        // Act
+        var actualGenres = await _genreRepository.GetAllGenresAsync();
+
+        // Assert
+        Assert.True(actualGenres.Any());
+        Assert.Equal(expectedGenres.Count(), actualGenres.Count());
+    }
+
+    [Fact]
+    public async Task GetGenreByIdAsyncShoudReturnCorrectGenre()
+    {
+        // Arrange
+        var expectedGenre = _context.Genres.First();
+        var expectedGenreId = expectedGenre.Id;
+
+        // Act
+        var actualGenre = await _genreRepository.GetGenreByIdAsync(expectedGenreId);
+
+        // Assert
+        Assert.Equal(expectedGenre, actualGenre);
+    }
+
+    [Fact]
+    public async Task GetGamesByGenreAsyncShouldReturnCorrectGame()
+    {
+        // Arrange
+        Guid id = Guid.NewGuid();
+        AddTestGame(id, "Baldurs Gate", "BG", "Rpg game");
+
+        Guid expectedGameId = Guid.NewGuid();
+        var expectedGenre = _context.Genres.First(x => x.Name == "Races");
+        var expectedGenreId = expectedGenre.Id;
+        AddTestGame(expectedGameId, "Test Drive", "TD", "Racing game", expectedGenre);
+
+        // Act
+        var actualGames = await _genreRepository.GetGamesByGenreAsync(expectedGenreId);
+        var actualGenreId = actualGames.First().GameGenres.First().GenreId;
+
+        // Assert
+        Assert.Single(actualGames);
+        Assert.Equal(expectedGenre.Id, actualGenreId);
+    }
+
+    [Fact]
+    public async Task GetGenresByParentGenreAsyncShouldReturnCorrectGenres()
+    {
+        // Arrange
+        var parentGenre = _context.Genres.First(x => x.Name == "Races");
+        var expectedGenres = _context.Genres.Where(x => x.ParentGenreId == parentGenre.Id);
+
+        // Act
+        var actualGenres = await _genreRepository.GetGenresByParentGenreAsync(parentGenre.Id);
+
+        // Assert
+        Assert.Equal(expectedGenres.Count(), actualGenres.Count());
+    }
+
+    [Fact]
+    public async Task AddGenreAsyncShouldAddGenre()
+    {
+        // Arrange
+        var startingGenres = _context.Genres;
+        int expectedGenreCount = startingGenres.Count() + 1;
+
+        Genre expectedGenre = new Genre()
+        {
+            Id = Guid.NewGuid(),
+            Name = "New Genre",
+        };
+
+        // Act
+        await _genreRepository.AddGenreAsync(expectedGenre);
+        var actualGenres = _context.Genres;
+
+        // Assert
+        Assert.Equal(expectedGenreCount, actualGenres.Count());
+        Assert.Contains(expectedGenre, actualGenres);
+    }
+
+    [Fact]
+    public async Task DeleteGenreAsyncShouldDeleteCorrectGenre()
+    {
+        // Arrange
+        var startingGenres = _context.Genres;
+        var genreToDelete = _context.Genres.First();
+        int expectedGenreCount = startingGenres.Count() - 1;
+
+        // Act
+        await _genreRepository.DeleteGenreAsync(genreToDelete.Id);
+        var actualGenres = _context.Genres;
+
+        // Assert
+        Assert.Equal(expectedGenreCount, actualGenres.Count());
+        Assert.DoesNotContain(genreToDelete, _context.Genres);
+    }
+
+    [Fact]
+    public async Task UpdateGenreAsyncShouldUpdateGenre()
+    {
+        // Arrange
+        var genreToUpdate = _context.Genres.First();
+        var genreToUpdateId = genreToUpdate.Id;
+        string expectedName = "New name";
+        genreToUpdate.Name = expectedName;
+
+        // Act
+        await _genreRepository.UpdateGenreAsync(genreToUpdate);
+        var actualGenre = _context.Genres.First(x => x.Id == genreToUpdateId);
+
+        // Assert
+        Assert.Equal(expectedName, actualGenre.Name);
+    }
+
     public void Dispose()
     {
         _context.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    private void AddTestGame(Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription)
+    private void AddTestGame(Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Genre expectedGenre = null, Platform expectedPlatform = null)
     {
-        var genre = _context.Genres.First();
-        var expectedGenreId = genre.Id;
+        expectedGenre ??= _context.Genres.First();
+        expectedPlatform ??= _context.Platforms.First();
+
+        var expectedGenreId = expectedGenre.Id;
+
         GameGenre expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
 
-        var platform = _context.Platforms.First();
-        var expectedPlatformId = platform.Id;
+        var expectedPlatformId = expectedPlatform.Id;
         GamePlatform expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
 
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
