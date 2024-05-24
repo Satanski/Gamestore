@@ -1,4 +1,4 @@
-﻿using Gamestore.Repository.Interfaces;
+﻿using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Helpers;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;

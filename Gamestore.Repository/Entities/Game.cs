@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Gamestore.Repository.Entities;
+namespace Gamestore.DAL.Entities;
 
 [Table("Games")]
 [Index(nameof(Key), IsUnique = true)]

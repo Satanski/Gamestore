@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Gamestore.Repository.Entities;
+namespace Gamestore.DAL.Entities;
 
 public class GamestoreContext(DbContextOptions options) : DbContext(options)
 {

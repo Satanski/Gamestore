@@ -1,7 +1,7 @@
-﻿using Gamestore.Repository.Entities;
-using Gamestore.Repository.Interfaces;
+﻿using Gamestore.DAL.Entities;
+using Gamestore.DAL.Interfaces;
 
-namespace Gamestore.Repository.Repositories;
+namespace Gamestore.DAL.Repositories;
 
 public class PlatformRepository(GamestoreContext context) : IPlatformRepository
 {

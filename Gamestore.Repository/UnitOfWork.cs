@@ -1,8 +1,8 @@
-﻿using Gamestore.Repository.Entities;
-using Gamestore.Repository.Interfaces;
-using Gamestore.Repository.Repositories;
+﻿using Gamestore.DAL.Entities;
+using Gamestore.DAL.Interfaces;
+using Gamestore.DAL.Repositories;
 
-namespace Gamestore.Repository;
+namespace Gamestore.DAL;
 
 public class UnitOfWork(GamestoreContext context) : IUnitOfWork
 {

@@ -1,6 +1,6 @@
-﻿using Gamestore.Repository;
-using Gamestore.Repository.Entities;
-using Gamestore.Repository.Interfaces;
+﻿using Gamestore.DAL;
+using Gamestore.DAL.Entities;
+using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Services;
 using Microsoft.EntityFrameworkCore;

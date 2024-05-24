@@ -1,6 +1,6 @@
-﻿using Gamestore.Repository.Entities;
+﻿using Gamestore.DAL.Entities;
 
-namespace Gamestore.Repository.Interfaces;
+namespace Gamestore.DAL.Interfaces;
 
 public interface IPlatformRepository
 {

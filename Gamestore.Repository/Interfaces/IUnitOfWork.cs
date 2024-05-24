@@ -1,4 +1,4 @@
-﻿namespace Gamestore.Repository.Interfaces;
+﻿namespace Gamestore.DAL.Interfaces;
 
 public interface IUnitOfWork
 {

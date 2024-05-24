@@ -1,4 +1,4 @@
-﻿using Gamestore.Repository.Entities;
+﻿using Gamestore.DAL.Entities;
 using Gamestore.Services.Models;
 
 namespace Gamestore.Services.Helpers;
