@@ -10,92 +10,70 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public Task<IEnumerable<GameModel>> GetGamesByPlatformAsync(Guid platformId)
+    public async Task<IEnumerable<GameModel>> GetGamesByPlatformAsync(Guid platformId)
     {
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId))
-        .ContinueWith(x =>
+        var games = await _unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId);
+
+        List<GameModel> gameModels = [];
+
+        if (games.Count == 0)
         {
-            var games = x.Result.ToList();
+            throw new GamestoreException("No games found");
+        }
 
-            List<GameModel> gameModels = [];
+        foreach (var game in games)
+        {
+            gameModels.Add(MappingHelpers.CreateGameModel(game));
+        }
 
-            if (games.Count == 0)
-            {
-                throw new GamestoreException("No games found");
-            }
-
-            foreach (var game in games)
-            {
-                gameModels.Add(MappingHelpers.CreateGameModel(game));
-            }
-
-            return gameModels.AsEnumerable();
-        });
-
-        return task;
+        return gameModels.AsEnumerable();
     }
 
-    public Task AddPlatformAsync(PlatformModel platformModel)
+    public async Task AddPlatformAsync(PlatformModel platformModel)
     {
         ValidationHelpers.ValidatePlatformModel(platformModel);
         var platform = MappingHelpers.CreatePlatform(platformModel);
 
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.AddPlatformAsync(platform));
-
-        return task;
+        await _unitOfWork.PlatformRepository.AddAsync(platform);
+        await _unitOfWork.SaveAsync();
     }
 
-    public Task<PlatformModel> GetPlatformByIdAsync(Guid platformId)
+    public async Task<PlatformModel> GetPlatformByIdAsync(Guid platformId)
     {
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.GetPlatformByIdAsync(platformId))
-            .ContinueWith(x =>
-            {
-                var platform = x.Result;
+        var platform = await _unitOfWork.PlatformRepository.GetByIdAsync(platformId);
 
-                return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : MappingHelpers.CreatePlatformModel(platform);
-            });
-
-        return task;
+        return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : MappingHelpers.CreatePlatformModel(platform);
     }
 
-    public Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync()
+    public async Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync()
     {
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.GetAllPlatformsAsync())
-            .ContinueWith(x =>
-            {
-                var platforms = x.Result.ToList();
-                List<PlatformModel> platformModels = [];
+        var platforms = await _unitOfWork.PlatformRepository.GetAllAsync();
+        List<PlatformModel> platformModels = [];
 
-                if (platforms.Count == 0)
-                {
-                    throw new GamestoreException("No platforms found");
-                }
+        if (platforms.Count == 0)
+        {
+            throw new GamestoreException("No platforms found");
+        }
 
-                foreach (var platform in platforms)
-                {
-                    platformModels.Add(MappingHelpers.CreatePlatformModel(platform));
-                }
+        foreach (var platform in platforms)
+        {
+            platformModels.Add(MappingHelpers.CreatePlatformModel(platform));
+        }
 
-                return platformModels.AsEnumerable();
-            });
-
-        return task;
+        return platformModels.AsEnumerable();
     }
 
-    public Task UpdatePlatformAsync(DetailedPlatformModel platformModel)
+    public async Task UpdatePlatformAsync(DetailedPlatformModel platformModel)
     {
         ValidationHelpers.ValidateDetailedPlatformModel(platformModel);
         var platform = MappingHelpers.CreateDetailedPlatform(platformModel);
 
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.UpdatePlatformAsync(platform));
-
-        return task;
+        await _unitOfWork.PlatformRepository.UpdateAsync(platform);
+        await _unitOfWork.SaveAsync();
     }
 
-    public Task DeletePlatformAsync(Guid platformId)
+    public async Task DeletePlatformAsync(Guid platformId)
     {
-        var task = Task.Run(() => _unitOfWork.PlatformRepository.DeletePlatformAsync(platformId));
-
-        return task;
+        await _unitOfWork.PlatformRepository.DeleteAsync(platformId);
     }
 }

@@ -38,7 +38,7 @@ public class GameRepository(GamestoreContext context) : IGameRepository
         }
     }
 
-    public async Task Delete(Guid id)
+    public async Task DeleteAsync(Guid id)
     {
         var game = _context.Games.Find(id);
 

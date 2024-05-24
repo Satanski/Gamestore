@@ -1,5 +1,6 @@
 ﻿using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Repositories;
 
@@ -7,18 +8,9 @@ public class PlatformRepository(GamestoreContext context) : IPlatformRepository
 {
     private readonly GamestoreContext _context = context;
 
-    public Task<IEnumerable<Game>> GetGamesByPlatformAsync(Guid platformId)
+    public async Task<List<Game>> GetGamesByPlatformAsync(Guid id)
     {
-        var task = Task.Run(() =>
-        {
-            var games = from g in _context.Games
-                        where g.GamePlatforms.Any(x => x.PlatformId == platformId)
-                        select g;
-
-            return games.AsEnumerable();
-        });
-
-        return task;
+        return await _context.GamePlatforms.Where(x => x.PlatformId == id).Include(x => x.Game).Select(x => x.Game).ToListAsync();
     }
 
     public Task AddPlatformAsync(Platform platform)
@@ -75,5 +67,36 @@ public class PlatformRepository(GamestoreContext context) : IPlatformRepository
         });
 
         return task;
+    }
+
+    public async Task AddAsync(Platform entity)
+    {
+        await _context.Platforms.AddAsync(entity);
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var platform = await _context.Platforms.FindAsync(id);
+
+        if (platform != null)
+        {
+            _context.Platforms.Remove(platform);
+        }
+    }
+
+    public async Task<List<Platform>> GetAllAsync()
+    {
+        return await _context.Platforms.ToListAsync();
+    }
+
+    public async Task<Platform?> GetByIdAsync(Guid id)
+    {
+        return await _context.Platforms.Where(x => x.Id == id).FirstOrDefaultAsync();
+    }
+
+    public async Task UpdateAsync(Platform entity)
+    {
+        var g = await _context.Platforms.Where(p => p.Id == entity.Id).FirstAsync();
+        _context.Entry(g).CurrentValues.SetValues(entity);
     }
 }

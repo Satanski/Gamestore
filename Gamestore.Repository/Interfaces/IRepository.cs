@@ -4,7 +4,7 @@ public interface IRepository<T>
 {
     Task AddAsync(T entity);
 
-    Task Delete(Guid id);
+    Task DeleteAsync(Guid id);
 
     Task<List<T>> GetAllAsync();
 

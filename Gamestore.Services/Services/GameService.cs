@@ -98,7 +98,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
 
     public async Task DeleteGameAsync(Guid gameId)
     {
-        await _unitOfWork.GameRepository.Delete(gameId);
+        await _unitOfWork.GameRepository.DeleteAsync(gameId);
         await _unitOfWork.SaveAsync();
     }
 }

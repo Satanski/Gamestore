@@ -22,7 +22,7 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
 
     public async Task DeleteGenreAsync(Guid genreId)
     {
-        _unitOfWork.GenreRepository.Delete(genreId);
+        await _unitOfWork.GenreRepository.DeleteAsync(genreId);
 
         await _unitOfWork.SaveAsync();
     }
