@@ -15,11 +15,14 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         var connectionString = builder.Configuration.GetConnectionString("GamestoreDatabase");
-
-        if (connectionString != null)
+        if (connectionString == null)
         {
-            builder.Services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
+            throw new NullReferenceException(nameof(connectionString));
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
         }
+
+        builder.Services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
 
         builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
         builder.Services.AddScoped<IGameService, GameService>();

@@ -34,12 +34,12 @@ internal static class MappingHelpers
 
         foreach (var genre in gameModel.Genres)
         {
-            gameGenres.Add(new GameGenre() { GameId = gameModel.Id, GenreId = genre });
+            gameGenres.Add(new GameGenre() { GameId = gameModel.Id, GenreId = genre.Id });
         }
 
         foreach (var platform in gameModel.Plaftorms)
         {
-            gamePlatforms.Add(new GamePlatform() { GameId = gameModel.Id, PlatformId = platform });
+            gamePlatforms.Add(new GamePlatform() { GameId = gameModel.Id, PlatformId = platform.Id });
         }
 
         return new Game()

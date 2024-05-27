@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
-using Gamestore.Services.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -19,20 +18,14 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         IEnumerable<GameModel> games;
 
-        try
+        games = await _gameService.GetAllGamesAsync();
+
+        if (games.Any())
         {
-            games = await _gameService.GetAllGamesAsync();
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
+            return Ok(games);
         }
 
-        return Ok(games);
+        return NotFound();
     }
 
     // GET: games/find/GUID
@@ -42,17 +35,11 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         GameModel game;
 
-        try
-        {
-            game = await _gameService.GetGameByIdAsync(id);
-        }
-        catch (GamestoreException)
+        game = await _gameService.GetGameByIdAsync(id);
+
+        if (game == null)
         {
             return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
         }
 
         return Ok(game);
@@ -65,17 +52,11 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         GameModel game;
 
-        try
-        {
-            game = await _gameService.GetGameByKeyAsync(key);
-        }
-        catch (GamestoreException)
+        game = await _gameService.GetGameByKeyAsync(key);
+
+        if (game == null)
         {
             return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
         }
 
         return Ok(game);
@@ -88,20 +69,14 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         IEnumerable<GenreModelDto> genres;
 
-        try
+        genres = await _gameService.GetGenresByGameAsync(id);
+
+        if (genres.Any())
         {
-            genres = await _gameService.GetGenresByGameAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
+            return Ok(genres);
         }
 
-        return Ok(genres);
+        return NotFound();
     }
 
     // GET: games/GUID/platforms
@@ -111,20 +86,14 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         IEnumerable<PlatformModelDto> platforms;
 
-        try
+        platforms = await _gameService.GetPlatformsByGameAsync(id);
+
+        if (platforms.Any())
         {
-            platforms = await _gameService.GetPlatformsByGameAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
+            return Ok(platforms);
         }
 
-        return Ok(platforms);
+        return NotFound();
     }
 
     // https://localhost:44394/games/baldursgate/file
@@ -136,21 +105,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         string fileName;
         byte[] serialized;
 
-        try
-        {
-            var game = await _gameService.GetGameByKeyAsync(key);
+        var game = await _gameService.GetGameByKeyAsync(key);
 
-            fileName = $"{game.Name}_{DateTime.Now}.txt";
-            serialized = JsonSerializer.SerializeToUtf8Bytes(game);
-        }
-        catch (GamestoreException)
+        if (game == null)
         {
             return NotFound();
         }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+
+        fileName = $"{game.Name}_{DateTime.Now}.txt";
+        serialized = JsonSerializer.SerializeToUtf8Bytes(game);
 
         return File(serialized, "txt/json", fileName);
     }
@@ -159,18 +122,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpPost]
     public async Task<IActionResult> AddAsync([FromBody] GameModelDto gameModel)
     {
-        try
-        {
-            await _gameService.AddGameAsync(gameModel);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _gameService.AddGameAsync(gameModel);
 
         return Ok();
     }
@@ -179,18 +131,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpPut]
     public async Task<IActionResult> UpdateAsync([FromBody] GameModelDto gameModel)
     {
-        try
-        {
-            await _gameService.UpdateGameAsync(gameModel);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _gameService.UpdateGameAsync(gameModel);
 
         return Ok();
     }
@@ -199,18 +140,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        try
-        {
-            await _gameService.DeleteGameAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _gameService.DeleteGameAsync(id);
 
         return Ok();
     }
