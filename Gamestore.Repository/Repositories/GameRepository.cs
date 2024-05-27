@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Repositories;
 
-public class GameRepository(GamestoreContext context) : IGameRepository
+public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(context), IGameRepository
 {
     private readonly GamestoreContext _context = context;
 
@@ -21,21 +21,6 @@ public class GameRepository(GamestoreContext context) : IGameRepository
     public async Task<Game?> GetGameByKeyAsync(string key)
     {
         return await _context.Games.Where(x => x.Key == key).FirstOrDefaultAsync();
-    }
-
-    public async Task AddAsync(Game entity)
-    {
-        await _context.Games.AddAsync(entity);
-    }
-
-    public void Delete(Game entity)
-    {
-        _context.Games.Remove(entity);
-    }
-
-    public async Task<List<Game>> GetAllAsync()
-    {
-        return await _context.Games.Include(x => x.GameGenres).ToListAsync();
     }
 
     public async Task<Game?> GetByIdAsync(Guid id)

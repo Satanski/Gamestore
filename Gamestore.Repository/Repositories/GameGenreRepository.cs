@@ -18,23 +18,13 @@ public class GameGenreRepository(GamestoreContext context) : IGameGenreRepositor
         _context.GameGenres.Remove(entity);
     }
 
-    public Task<List<GameGenre>> GetAllAsync()
+    public async Task<List<GameGenre>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _context.GameGenres.ToListAsync();
     }
 
     public async Task<List<GameGenre>> GetByGameIdAsync(Guid id)
     {
         return await _context.GameGenres.Where(x => x.GameId == id).ToListAsync();
-    }
-
-    public Task<GameGenre?> GetByIdAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(GameGenre entity)
-    {
-        throw new NotImplementedException();
     }
 }

@@ -18,23 +18,13 @@ public class GamePlatformRepository(GamestoreContext context) : IGamePlatformRep
         _context.GamePlatforms.Remove(entity);
     }
 
-    public Task<List<GamePlatform>> GetAllAsync()
+    public async Task<List<GamePlatform>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _context.GamePlatforms.ToListAsync();
     }
 
     public async Task<List<GamePlatform>> GetByGameIdAsync(Guid id)
     {
         return await _context.GamePlatforms.Where(x => x.GameId == id).ToListAsync();
-    }
-
-    public Task<GamePlatform?> GetByIdAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(GamePlatform entity)
-    {
-        throw new NotImplementedException();
     }
 }

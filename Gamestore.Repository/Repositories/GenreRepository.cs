@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Repositories;
 
-public class GenreRepository(GamestoreContext context) : IGenreRepository
+public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(context), IGenreRepository
 {
     private readonly GamestoreContext _context = context;
 
@@ -16,21 +16,6 @@ public class GenreRepository(GamestoreContext context) : IGenreRepository
     public async Task<List<Genre>> GetGenresByParentGenreAsync(Guid id)
     {
         return await _context.Genres.Where(x => x.ParentGenreId == id).ToListAsync();
-    }
-
-    public async Task AddAsync(Genre entity)
-    {
-        await _context.Genres.AddAsync(entity);
-    }
-
-    public void Delete(Genre entity)
-    {
-        _context.Genres.Remove(entity);
-    }
-
-    public async Task<List<Genre>> GetAllAsync()
-    {
-        return await _context.Genres.ToListAsync();
     }
 
     public async Task<Genre?> GetByIdAsync(Guid id)
