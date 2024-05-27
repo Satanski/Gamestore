@@ -26,37 +26,16 @@ public class GameRepository(GamestoreContext context) : IGameRepository
     public async Task AddAsync(Game entity)
     {
         await _context.Games.AddAsync(entity);
-
-        foreach (var item in entity.GameGenres)
-        {
-            await _context.GameGenres.AddAsync(item);
-        }
-
-        foreach (var item in entity.GamePlatforms)
-        {
-            await _context.GamePlatforms.AddAsync(item);
-        }
     }
 
-    public async Task DeleteAsync(Guid id)
+    public void Delete(Game entity)
     {
-        var game = _context.Games.Find(id);
-
-        if (game != null)
-        {
-            var gameGenres = await _context.GameGenres.Where(x => x.GameId == id).ToListAsync();
-            _context.GameGenres.RemoveRange(gameGenres);
-
-            var gamePlatforms = await _context.GamePlatforms.Where(x => x.GameId == id).ToListAsync();
-            _context.GamePlatforms.RemoveRange(gamePlatforms);
-
-            _context.Games.Remove(game);
-        }
+        _context.Games.Remove(entity);
     }
 
     public async Task<List<Game>> GetAllAsync()
     {
-        return await _context.Games.ToListAsync();
+        return await _context.Games.Include(x => x.GameGenres).ToListAsync();
     }
 
     public async Task<Game?> GetByIdAsync(Guid id)
@@ -68,21 +47,5 @@ public class GameRepository(GamestoreContext context) : IGameRepository
     {
         var g = await _context.Games.Where(p => p.Id == entity.Id).FirstAsync();
         _context.Entry(g).CurrentValues.SetValues(entity);
-
-        var gameGenres = await _context.GameGenres.Where(x => x.GameId == entity.Id).ToListAsync();
-        _context.GameGenres.RemoveRange(gameGenres);
-
-        var gamePlatforms = await _context.GamePlatforms.Where(x => x.GameId == entity.Id).ToListAsync();
-        _context.GamePlatforms.RemoveRange(gamePlatforms);
-
-        foreach (var item in entity.GameGenres)
-        {
-            await _context.GameGenres.AddAsync(item);
-        }
-
-        foreach (var item in entity.GamePlatforms)
-        {
-            await _context.GamePlatforms.AddAsync(item);
-        }
     }
 }

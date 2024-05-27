@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.WebApi.Configs;
 
-internal static class DllServices
+internal static class DAlServices
 {
     internal static void Congigure(IServiceCollection services, string connectionString)
     {
@@ -14,6 +14,8 @@ internal static class DllServices
         services.AddScoped<IGenreRepository, GenreRepository>();
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IPlatformRepository, PlatformRepository>();
+        services.AddScoped<IGameGenreRepository, GameGenreRepository>();
+        services.AddScoped<IGamePlatformRepository, GamePlatformRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }

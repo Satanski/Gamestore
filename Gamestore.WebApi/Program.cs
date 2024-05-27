@@ -17,7 +17,7 @@ public static class Program
 #pragma warning restore S112 // General or reserved exceptions should never be thrown
         }
 
-        DllServices.Congigure(builder.Services, connectionString);
+        DAlServices.Congigure(builder.Services, connectionString);
         BllServices.Congigure(builder.Services);
 
         builder.Services.AddControllers();

@@ -3,7 +3,8 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.DAL;
 
-public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository, IGenreRepository genreRepository, IPlatformRepository platformRepository) : IUnitOfWork
+public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository, IGenreRepository genreRepository,
+    IPlatformRepository platformRepository, IGameGenreRepository gameGenreRepository, IGamePlatformRepository gamePlatformRepository) : IUnitOfWork
 {
     private readonly GamestoreContext _context = context;
 
@@ -12,6 +13,10 @@ public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository
     public IGenreRepository GenreRepository { get; } = genreRepository;
 
     public IPlatformRepository PlatformRepository { get; } = platformRepository;
+
+    public IGameGenreRepository GameGenreRepository { get; } = gameGenreRepository;
+
+    public IGamePlatformRepository GamePlatformRepository { get; } = gamePlatformRepository;
 
     public Task SaveAsync()
     {

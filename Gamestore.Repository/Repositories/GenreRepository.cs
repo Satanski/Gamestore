@@ -23,14 +23,9 @@ public class GenreRepository(GamestoreContext context) : IGenreRepository
         await _context.Genres.AddAsync(entity);
     }
 
-    public async Task DeleteAsync(Guid id)
+    public void Delete(Genre entity)
     {
-        var genre = await _context.Genres.FindAsync(id);
-
-        if (genre != null)
-        {
-            _context.Genres.Remove(genre);
-        }
+        _context.Genres.Remove(entity);
     }
 
     public async Task<List<Genre>> GetAllAsync()

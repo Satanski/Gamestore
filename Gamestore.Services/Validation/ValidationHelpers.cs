@@ -16,7 +16,7 @@ internal static class ValidationHelpers
     public static void ValidateDetailedGameModel(GameModelDto gameModel)
     {
         if (gameModel == null || gameModel.Id == Guid.Empty || string.IsNullOrEmpty(gameModel.Name) || string.IsNullOrEmpty(gameModel.Key)
-            || gameModel.Plaftorms.Count == 0 || gameModel.Genres.Count == 0)
+            || gameModel.GamePlaftorms.Count == 0 || gameModel.GameGenres.Count == 0)
         {
             throw new GamestoreException("Detailed game model invalid");
         }

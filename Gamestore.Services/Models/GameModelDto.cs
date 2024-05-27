@@ -10,7 +10,7 @@ public record GameModelDto
 
     public string Description { get; set; }
 
-    public List<GenreModelDto> Genres { get; set; }
+    public List<GenreModelDto> GameGenres { get; set; }
 
-    public List<GenreModelDto> Plaftorms { get; set; }
+    public List<GenreModelDto> GamePlaftorms { get; set; }
 }

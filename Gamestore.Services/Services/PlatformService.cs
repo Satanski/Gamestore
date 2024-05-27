@@ -1,4 +1,6 @@
-﻿using Gamestore.DAL.Interfaces;
+﻿using AutoMapper;
+using Gamestore.DAL.Entities;
+using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Helpers;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
@@ -6,9 +8,10 @@ using Gamestore.Services.Validation;
 
 namespace Gamestore.Services.Services;
 
-public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
+public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper) : IPlatformService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _automapper = automapper;
 
     public async Task<IEnumerable<GameModel>> GetGamesByPlatformAsync(Guid platformId)
     {
@@ -18,7 +21,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 
         foreach (var game in games)
         {
-            gameModels.Add(MappingHelpers.CreateGameModel(game));
+            gameModels.Add(_automapper.Map<GameModel>(game));
         }
 
         return gameModels.AsEnumerable();
@@ -27,7 +30,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
     public async Task AddPlatformAsync(PlatformModel platformModel)
     {
         ValidationHelpers.ValidatePlatformModel(platformModel);
-        var platform = MappingHelpers.CreatePlatform(platformModel);
+        var platform = _automapper.Map<Platform>(platformModel);
 
         await _unitOfWork.PlatformRepository.AddAsync(platform);
         await _unitOfWork.SaveAsync();
@@ -37,7 +40,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
     {
         var platform = await _unitOfWork.PlatformRepository.GetByIdAsync(platformId);
 
-        return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : MappingHelpers.CreatePlatformModel(platform);
+        return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : _automapper.Map<PlatformModel>(platform);
     }
 
     public async Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync()
@@ -47,7 +50,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 
         foreach (var platform in platforms)
         {
-            platformModels.Add(MappingHelpers.CreatePlatformModel(platform));
+            platformModels.Add(_automapper.Map<PlatformModel>(platform));
         }
 
         return platformModels.AsEnumerable();
@@ -56,7 +59,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
     public async Task UpdatePlatformAsync(PlatformModelDto platformModel)
     {
         ValidationHelpers.ValidateDetailedPlatformModel(platformModel);
-        var platform = MappingHelpers.CreateDetailedPlatform(platformModel);
+        var platform = _automapper.Map<Platform>(platformModel);
 
         await _unitOfWork.PlatformRepository.UpdateAsync(platform);
         await _unitOfWork.SaveAsync();
@@ -64,6 +67,15 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 
     public async Task DeletePlatformAsync(Guid platformId)
     {
-        await _unitOfWork.PlatformRepository.DeleteAsync(platformId);
+        var platform = await _unitOfWork.PlatformRepository.GetByIdAsync(platformId);
+        if (platform != null)
+        {
+            _unitOfWork.PlatformRepository.Delete(platform);
+            await _unitOfWork.SaveAsync();
+        }
+        else
+        {
+            throw new GamestoreException($"No platform found with given id: {platformId}");
+        }
     }
 }

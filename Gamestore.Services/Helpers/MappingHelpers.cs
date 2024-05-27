@@ -32,12 +32,12 @@ internal static class MappingHelpers
         var gameGenres = new List<GameGenre>();
         var gamePlatforms = new List<GamePlatform>();
 
-        foreach (var genre in gameModel.Genres)
+        foreach (var genre in gameModel.GameGenres)
         {
             gameGenres.Add(new GameGenre() { GameId = gameModel.Id, GenreId = genre.Id });
         }
 
-        foreach (var platform in gameModel.Plaftorms)
+        foreach (var platform in gameModel.GamePlaftorms)
         {
             gamePlatforms.Add(new GamePlatform() { GameId = gameModel.Id, PlatformId = platform.Id });
         }

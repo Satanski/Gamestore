@@ -8,5 +8,9 @@ public interface IUnitOfWork
 
     IGenreRepository GenreRepository { get; }
 
+    IGameGenreRepository GameGenreRepository { get; }
+
+    IGamePlatformRepository GamePlatformRepository { get; }
+
     Task SaveAsync();
 }
