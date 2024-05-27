@@ -1,9 +1,4 @@
-﻿using Gamestore.DAL;
-using Gamestore.DAL.Entities;
-using Gamestore.DAL.Interfaces;
-using Gamestore.DAL.Repositories;
-using Gamestore.Services.Interfaces;
-using Gamestore.Services.Services;
+﻿using Gamestore.WebApi.Configs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.WebApi;
@@ -22,15 +17,8 @@ public static class Program
 #pragma warning restore S112 // General or reserved exceptions should never be thrown
         }
 
-        builder.Services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
-
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IGameService, GameService>();
-        builder.Services.AddScoped<IPlatformService, PlatformService>();
-        builder.Services.AddScoped<IGenreService, GenreService>();
-        builder.Services.AddScoped<IGenreRepository, GenreRepository>();
-        builder.Services.AddScoped<IGameRepository, GameRepository>();
-        builder.Services.AddScoped<IPlatformRepository, PlatformRepository>();
+        DllServices.Congigure(builder.Services, connectionString);
+        BllServices.Congigure(builder.Services);
 
         builder.Services.AddControllers();
 
