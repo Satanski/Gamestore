@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public class DetailedGenreModel
+public record GenreModelDto
 {
     public Guid Id { get; set; }
 

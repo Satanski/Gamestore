@@ -32,11 +32,6 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         var genres = await _unitOfWork.GenreRepository.GetAllAsync();
         List<GenreModel> genreModels = [];
 
-        if (genres.Count == 0)
-        {
-            throw new GamestoreException("No genres found");
-        }
-
         foreach (var genre in genres)
         {
             genreModels.Add(MappingHelpers.CreateGenreModel(genre));
@@ -50,11 +45,6 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         var games = await _unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId);
 
         List<GameModel> gameModels = [];
-
-        if (games.Count == 0)
-        {
-            throw new GamestoreException("No games found");
-        }
 
         foreach (var game in games)
         {
@@ -76,11 +66,6 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         var genres = await _unitOfWork.GenreRepository.GetGenresByParentGenreAsync(genreId);
         List<GenreModel> genreModels = [];
 
-        if (genres.Count == 0)
-        {
-            throw new GamestoreException("No genres found");
-        }
-
         foreach (var genre in genres)
         {
             genreModels.Add(MappingHelpers.CreateGenreModel(genre));
@@ -89,7 +74,7 @@ public class GenreService(IUnitOfWork unitOfWork) : IGenreService
         return genreModels.AsEnumerable();
     }
 
-    public async Task UpdateGenreAsync(DetailedGenreModel genreModel)
+    public async Task UpdateGenreAsync(GenreModelDto genreModel)
     {
         ValidationHelpers.ValidateDetailedGenreModel(genreModel);
         var genre = MappingHelpers.CreateDetailedGenre(genreModel);

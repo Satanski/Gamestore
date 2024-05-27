@@ -13,7 +13,7 @@ internal static class ValidationHelpers
         }
     }
 
-    public static void ValidateDetailedGameModel(DetailedGameModel gameModel)
+    public static void ValidateDetailedGameModel(GameModelDto gameModel)
     {
         if (gameModel == null || gameModel.Id == Guid.Empty || string.IsNullOrEmpty(gameModel.Name) || string.IsNullOrEmpty(gameModel.Key)
             || gameModel.Plaftorms.Count == 0 || gameModel.Genres.Count == 0)
@@ -30,7 +30,7 @@ internal static class ValidationHelpers
         }
     }
 
-    internal static void ValidateDetailedPlatformModel(DetailedPlatformModel platformModel)
+    internal static void ValidateDetailedPlatformModel(PlatformModelDto platformModel)
     {
         if (platformModel == null || string.IsNullOrEmpty(platformModel.Type) || platformModel.Id == Guid.Empty)
         {
@@ -46,7 +46,7 @@ internal static class ValidationHelpers
         }
     }
 
-    internal static void ValidateDetailedGenreModel(DetailedGenreModel genreModel)
+    internal static void ValidateDetailedGenreModel(GenreModelDto genreModel)
     {
         if (genreModel == null || string.IsNullOrEmpty(genreModel.Name) || genreModel.Id == Guid.Empty)
         {

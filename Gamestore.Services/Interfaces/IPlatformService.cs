@@ -12,7 +12,7 @@ public interface IPlatformService
 
     Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync();
 
-    Task UpdatePlatformAsync(DetailedPlatformModel platformModel);
+    Task UpdatePlatformAsync(PlatformModelDto platformModel);
 
     Task DeletePlatformAsync(Guid platformId);
 }

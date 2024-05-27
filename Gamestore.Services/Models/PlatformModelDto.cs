@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public class DetailedPlatformModel
+public record PlatformModelDto
 {
     public Guid Id { get; set; }
 

@@ -16,11 +16,6 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
 
         List<GameModel> gameModels = [];
 
-        if (games.Count == 0)
-        {
-            throw new GamestoreException("No games found");
-        }
-
         foreach (var game in games)
         {
             gameModels.Add(MappingHelpers.CreateGameModel(game));
@@ -50,11 +45,6 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
         var platforms = await _unitOfWork.PlatformRepository.GetAllAsync();
         List<PlatformModel> platformModels = [];
 
-        if (platforms.Count == 0)
-        {
-            throw new GamestoreException("No platforms found");
-        }
-
         foreach (var platform in platforms)
         {
             platformModels.Add(MappingHelpers.CreatePlatformModel(platform));
@@ -63,7 +53,7 @@ public class PlatformService(IUnitOfWork unitOfWork) : IPlatformService
         return platformModels.AsEnumerable();
     }
 
-    public async Task UpdatePlatformAsync(DetailedPlatformModel platformModel)
+    public async Task UpdatePlatformAsync(PlatformModelDto platformModel)
     {
         ValidationHelpers.ValidateDetailedPlatformModel(platformModel);
         var platform = MappingHelpers.CreateDetailedPlatform(platformModel);

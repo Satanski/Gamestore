@@ -27,7 +27,7 @@ internal static class MappingHelpers
         };
     }
 
-    internal static Game CreateDetailedGame(DetailedGameModel gameModel)
+    internal static Game CreateDetailedGame(GameModelDto gameModel)
     {
         var gameGenres = new List<GameGenre>();
         var gamePlatforms = new List<GamePlatform>();
@@ -63,7 +63,7 @@ internal static class MappingHelpers
         return platform;
     }
 
-    internal static Platform CreateDetailedPlatform(DetailedPlatformModel platformModel)
+    internal static Platform CreateDetailedPlatform(PlatformModelDto platformModel)
     {
         Platform platform = new Platform()
         {
@@ -84,9 +84,9 @@ internal static class MappingHelpers
         return platformModel;
     }
 
-    internal static DetailedPlatformModel CreateDetailedPlatformModel(Platform platform)
+    internal static PlatformModelDto CreateDetailedPlatformModel(Platform platform)
     {
-        DetailedPlatformModel platformModel = new DetailedPlatformModel()
+        PlatformModelDto platformModel = new PlatformModelDto()
         {
             Id = platform.Id,
             Type = platform.Type,
@@ -105,7 +105,7 @@ internal static class MappingHelpers
         return genre;
     }
 
-    internal static Genre CreateDetailedGenre(DetailedGenreModel genreModel)
+    internal static Genre CreateDetailedGenre(GenreModelDto genreModel)
     {
         Genre genre = new Genre()
         {
@@ -127,9 +127,9 @@ internal static class MappingHelpers
         return genreModel;
     }
 
-    internal static DetailedGenreModel CreateDetailedGenreModel(Genre genre)
+    internal static GenreModelDto CreateDetailedGenreModel(Genre genre)
     {
-        DetailedGenreModel genreModel = new DetailedGenreModel()
+        GenreModelDto genreModel = new GenreModelDto()
         {
             Id = genre.Id,
             Name = genre.Name,

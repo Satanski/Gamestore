@@ -15,11 +15,6 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         var games = await _unitOfWork.GameRepository.GetAllAsync();
         List<GameModel> gameModels = [];
 
-        if (games.Count == 0)
-        {
-            throw new GamestoreException("No games found");
-        }
-
         foreach (var game in games)
         {
             gameModels.Add(MappingHelpers.CreateGameModel(game));
@@ -28,15 +23,10 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return gameModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid gameId)
+    public async Task<IEnumerable<GenreModelDto>> GetGenresByGameAsync(Guid gameId)
     {
         var genres = await _unitOfWork.GameRepository.GetGenresByGameAsync(gameId);
-        List<DetailedGenreModel> genreModels = [];
-
-        if (genres.Count == 0)
-        {
-            throw new GamestoreException("No genres found");
-        }
+        List<GenreModelDto> genreModels = [];
 
         foreach (var genre in genres)
         {
@@ -46,15 +36,10 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return genreModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid gameId)
+    public async Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameAsync(Guid gameId)
     {
         var platforms = await _unitOfWork.GameRepository.GetPlatformsByGameAsync(gameId);
-        List<DetailedPlatformModel> platformModels = [];
-
-        if (platforms.Count == 0)
-        {
-            throw new GamestoreException("No platforms found");
-        }
+        List<PlatformModelDto> platformModels = [];
 
         foreach (var platform in platforms)
         {
@@ -78,7 +63,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         return game == null ? throw new GamestoreException($"No game found with given key: {key}") : MappingHelpers.CreateGameModel(game);
     }
 
-    public async Task AddGameAsync(DetailedGameModel gameModel)
+    public async Task AddGameAsync(GameModelDto gameModel)
     {
         ValidationHelpers.ValidateDetailedGameModel(gameModel);
         var game = MappingHelpers.CreateDetailedGame(gameModel);
@@ -87,7 +72,7 @@ public class GameService(IUnitOfWork unitOfWork) : IGameService
         await _unitOfWork.SaveAsync();
     }
 
-    public async Task UpdateGameAsync(DetailedGameModel gameModel)
+    public async Task UpdateGameAsync(GameModelDto gameModel)
     {
         ValidationHelpers.ValidateDetailedGameModel(gameModel);
         var game = MappingHelpers.CreateDetailedGame(gameModel);

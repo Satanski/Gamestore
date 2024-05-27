@@ -1,6 +1,7 @@
 ﻿using Gamestore.DAL;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.DAL.Repositories;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Services;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,6 @@ public static class Program
 
         var connectionString = builder.Configuration.GetConnectionString("GamestoreDatabase");
 
-        // Add services to the container.
         if (connectionString != null)
         {
             builder.Services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
@@ -25,6 +25,9 @@ public static class Program
         builder.Services.AddScoped<IGameService, GameService>();
         builder.Services.AddScoped<IPlatformService, PlatformService>();
         builder.Services.AddScoped<IGenreService, GenreService>();
+        builder.Services.AddScoped<IGenreRepository, GenreRepository>();
+        builder.Services.AddScoped<IGameRepository, GameRepository>();
+        builder.Services.AddScoped<IPlatformRepository, PlatformRepository>();
 
         builder.Services.AddControllers();
 
