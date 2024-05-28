@@ -90,21 +90,33 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
             throw new ArgumentException(result.Errors[0].ToString());
         }
 
-        var game = _automapper.Map<Game>(gameModel);
-
-        var genres = await _unitOfWork.GameGenreRepository.GetByGameIdAsync(game.Id);
-        foreach (var item in genres)
+        var gameGenres = await _unitOfWork.GameGenreRepository.GetByGameIdAsync(gameModel.Id);
+        foreach (var item in gameGenres)
         {
             _unitOfWork.GameGenreRepository.Delete(item);
         }
 
-        var platforms = await _unitOfWork.GamePlatformRepository.GetByGameIdAsync(game.Id);
-        foreach (var item in platforms)
+        var gamePlatforms = await _unitOfWork.GamePlatformRepository.GetByGameIdAsync(gameModel.Id);
+        foreach (var item in gamePlatforms)
         {
             _unitOfWork.GamePlatformRepository.Delete(item);
         }
 
         await _unitOfWork.SaveAsync();
+
+        var game = _automapper.Map<Game>(gameModel);
+
+        foreach (var item in game.GameGenres)
+        {
+            item.GameId = gameModel.Id;
+            await _unitOfWork.GameGenreRepository.AddAsync(item);
+        }
+
+        foreach (var item in game.GamePlatforms)
+        {
+            item.GameId = gameModel.Id;
+            await _unitOfWork.GamePlatformRepository.AddAsync(item);
+        }
 
         await _unitOfWork.GameRepository.UpdateAsync(game);
 

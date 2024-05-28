@@ -16,7 +16,7 @@ internal class GameModelDtoValidator : AbstractValidator<GameModelDto>
         RuleFor(x => x.Id).MustAsync(async (id, cancellation) =>
            {
                var existingGame = await unitOfWork.GameRepository.GetByIdAsync(id);
-               return existingGame != null;
-           }).WithMessage("Game with given id doesn't exists");
+               return existingGame == null;
+           }).WithMessage("Game with given id already exists");
     }
 }

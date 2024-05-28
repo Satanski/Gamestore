@@ -30,7 +30,7 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
 
     public async Task UpdateAsync(Game entity)
     {
-        var g = await _context.Games.Where(p => p.Id == entity.Id).FirstAsync();
+        var g = await _context.Games.Include(x => x.GameGenres).Include(x => x.GamePlatforms).Where(p => p.Id == entity.Id).FirstAsync();
         _context.Entry(g).CurrentValues.SetValues(entity);
     }
 }
