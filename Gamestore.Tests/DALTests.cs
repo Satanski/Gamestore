@@ -11,16 +11,16 @@ public class DALTests : IDisposable
     private readonly GamestoreContext _context;
     private readonly GameRepository _gameRepository;
     private readonly GenreRepository _genreRepository;
+    private readonly PlatformRepository _platformRepository;
 
     public DALTests()
     {
-        var options = new DbContextOptionsBuilder().
-        UseSqlite("Data Source = testDb.db")
-        .Options;
+        var options = new DbContextOptionsBuilder().UseSqlite("Data Source = testDb.db").Options;
 
         _context = new GamestoreContext(options);
         _gameRepository = new(_context);
         _genreRepository = new(_context);
+        _platformRepository = new(_context);
 
         _context.Database.EnsureDeleted();
         _context.Database.EnsureCreated();
@@ -304,6 +304,111 @@ public class DALTests : IDisposable
 
         // Assert
         Assert.Equal(expectedName, actualGenre.Name);
+    }
+
+    [Fact]
+    public async Task GetAllPlatformsAsyncShouldReturnAllPlatforms()
+    {
+        // Arrange
+        var expectedGenres = _context.Platforms;
+
+        // Act
+        var actualGenres = await _platformRepository.GetAllPlatformsAsync();
+
+        // Assert
+        Assert.True(actualGenres.Any());
+        Assert.Equal(expectedGenres.Count(), actualGenres.Count());
+    }
+
+    [Fact]
+    public async Task GetPlatformByIdAsyncShoudReturnCorrectPlatform()
+    {
+        // Arrange
+        var expectedPlatform = _context.Platforms.First();
+        var expectedPlatformId = expectedPlatform.Id;
+
+        // Act
+        var actualPlatform = await _platformRepository.GetPlatformByIdAsync(expectedPlatformId);
+
+        // Assert
+        Assert.Equal(expectedPlatform, actualPlatform);
+    }
+
+    [Fact]
+    public async Task GetGamesByPlatformAsyncShouldReturnCorrectGame()
+    {
+        // Arrange
+        Guid id = Guid.NewGuid();
+        AddTestGame(id, "Baldurs Gate", "BG", "Rpg game");
+
+        Guid expectedGameId = Guid.NewGuid();
+        var expectedPlatform = _context.Platforms.First(x => x.Type == "Mobile");
+        var expectedPlatformId = expectedPlatform.Id;
+        AddTestGame(expectedGameId, "Test Drive", "TD", "Racing game", null, expectedPlatform);
+
+        // Act
+        var actualGames = await _platformRepository.GetGamesByPlatformAsync(expectedPlatformId);
+        var actualPlatformId = actualGames.First().GamePlatforms.First().PlatformId;
+
+        // Assert
+        Assert.Single(actualGames);
+        Assert.Equal(expectedPlatform.Id, actualPlatformId);
+    }
+
+    [Fact]
+    public async Task AddPlatformAsyncShouldAddPlatform()
+    {
+        // Arrange
+        var startingPlatforms = _context.Platforms;
+        int expectedPlatformCount = startingPlatforms.Count() + 1;
+
+        Platform expectedPlatform = new Platform()
+        {
+            Id = Guid.NewGuid(),
+            Type = "New Platform",
+        };
+
+        // Act
+        await _platformRepository.AddPlatformAsync(expectedPlatform);
+        var actualPlatforms = _context.Platforms;
+
+        // Assert
+        Assert.Equal(expectedPlatformCount, actualPlatforms.Count());
+        Assert.Contains(expectedPlatform, actualPlatforms);
+    }
+
+    [Fact]
+    public async Task DeletePlatformAsyncShouldDeleteCorrectPlatform()
+    {
+        // Arrange
+        var startingPlatforms = _context.Platforms;
+        var platformToDelete = _context.Platforms.First();
+        int expectedPlatformCount = startingPlatforms.Count() - 1;
+
+        // Act
+        await _platformRepository.DeletePlatformAsync(platformToDelete.Id);
+        var actualPlatforms = _context.Platforms;
+
+        // Assert
+        Assert.Equal(expectedPlatformCount, actualPlatforms.Count());
+        Assert.DoesNotContain(platformToDelete, _context.Platforms);
+    }
+
+    [Fact]
+    public async Task UpdatePlatformAsyncShouldUpdatePlatform()
+    {
+        // Arrange
+        var platformToUpdate = _context.Platforms.First();
+        var platformToUpdateId = platformToUpdate.Id;
+        string expectedType = "New type";
+        platformToUpdate.Type = expectedType;
+
+        // Act
+        await _platformRepository.UpdatePlatformAsync(platformToUpdate);
+        var actualPlatform = _context.Platforms.First(x => x.Id == platformToUpdateId);
+
+        // Assert
+        Assert.Equal(expectedType, actualPlatform.Type);
     }
 
     public void Dispose()
