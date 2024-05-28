@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
+using Gamestore.WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.WebApi;
@@ -30,6 +31,8 @@ public static class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
+        app.UseMiddleware<ExceptionHandlerMiddleware>();
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
