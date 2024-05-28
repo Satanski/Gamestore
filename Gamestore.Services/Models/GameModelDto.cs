@@ -12,5 +12,5 @@ public record GameModelDto
 
     public List<GenreModelDto> GameGenres { get; set; }
 
-    public List<GenreModelDto> GamePlaftorms { get; set; }
+    public List<PlatformModelDto> GamePlatforms { get; set; }
 }

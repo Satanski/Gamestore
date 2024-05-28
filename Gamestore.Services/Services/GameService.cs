@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.Services.Helpers;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
-using Gamestore.Services.Validation;
 
 namespace Gamestore.Services.Services;
 
@@ -12,6 +12,8 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _automapper = automapper;
+    private readonly GameModelDtoValidator _gameModelDtoValidator = new(unitOfWork);
+    private readonly GameModelDtoUpdateValidator _gameModelDtoUpdateValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModel>> GetAllGamesAsync()
     {
@@ -68,18 +70,13 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task AddGameAsync(GameModelDto gameModel)
     {
-        ValidationHelpers.ValidateDetailedGameModel(gameModel);
+        var result = await _gameModelDtoValidator.ValidateAsync(gameModel);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+
         var game = _automapper.Map<Game>(gameModel);
-
-        foreach (var item in gameModel.GameGenres)
-        {
-            await _unitOfWork.GameGenreRepository.AddAsync(_automapper.Map<GameGenre>(item));
-        }
-
-        foreach (var item in gameModel.GamePlaftorms)
-        {
-            await _unitOfWork.GamePlatformRepository.AddAsync(_automapper.Map<GamePlatform>(item));
-        }
 
         await _unitOfWork.GameRepository.AddAsync(game);
         await _unitOfWork.SaveAsync();
@@ -87,7 +84,12 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task UpdateGameAsync(GameModelDto gameModel)
     {
-        ValidationHelpers.ValidateDetailedGameModel(gameModel);
+        var result = await _gameModelDtoUpdateValidator.ValidateAsync(gameModel);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+
         var game = _automapper.Map<Game>(gameModel);
 
         var genres = await _unitOfWork.GameGenreRepository.GetByGameIdAsync(game.Id);
@@ -104,17 +106,8 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
         await _unitOfWork.SaveAsync();
 
-        foreach (var item in game.GameGenres)
-        {
-            await _unitOfWork.GameGenreRepository.AddAsync(item);
-        }
-
-        foreach (var item in game.GamePlatforms)
-        {
-            await _unitOfWork.GamePlatformRepository.AddAsync(item);
-        }
-
         await _unitOfWork.GameRepository.UpdateAsync(game);
+
         await _unitOfWork.SaveAsync();
     }
 

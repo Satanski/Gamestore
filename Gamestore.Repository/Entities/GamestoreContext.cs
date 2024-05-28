@@ -1,4 +1,4 @@
-﻿using Gamestore.DAL.Helpers;
+﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Entities;
@@ -17,7 +17,6 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        EntitiesConfigurator.Configure(modelBuilder);
-        DataSeeder.Seed(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

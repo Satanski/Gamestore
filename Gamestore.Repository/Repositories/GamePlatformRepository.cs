@@ -4,24 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Repositories;
 
-public class GamePlatformRepository(GamestoreContext context) : IGamePlatformRepository
+public class GamePlatformRepository(GamestoreContext context) : RepositoryBase<GamePlatform>(context), IGamePlatformRepository
 {
     private readonly GamestoreContext _context = context;
-
-    public async Task AddAsync(GamePlatform entity)
-    {
-        await _context.GamePlatforms.AddAsync(entity);
-    }
-
-    public void Delete(GamePlatform entity)
-    {
-        _context.GamePlatforms.Remove(entity);
-    }
-
-    public async Task<List<GamePlatform>> GetAllAsync()
-    {
-        return await _context.GamePlatforms.ToListAsync();
-    }
 
     public async Task<List<GamePlatform>> GetByGameIdAsync(Guid id)
     {

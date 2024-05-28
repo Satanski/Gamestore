@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.Services.Helpers;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
-using Gamestore.Services.Validation;
 
 namespace Gamestore.Services.Services;
 
@@ -12,10 +12,17 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper) : IGenreSe
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _automapper = automapper;
+    private readonly GenreModelValidator _genreModelValidator = new(unitOfWork);
+    private readonly GenreModelDtoValidator _genreModelDtoValidator = new(unitOfWork);
 
     public async Task AddGenreAsync(GenreModel genreModel)
     {
-        ValidationHelpers.ValidateGenreModel(genreModel);
+        var result = await _genreModelValidator.ValidateAsync(genreModel);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+
         var genre = _automapper.Map<Genre>(genreModel);
 
         await _unitOfWork.GenreRepository.AddAsync(genre);
@@ -86,7 +93,12 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper) : IGenreSe
 
     public async Task UpdateGenreAsync(GenreModelDto genreModel)
     {
-        ValidationHelpers.ValidateDetailedGenreModel(genreModel);
+        var result = await _genreModelDtoValidator.ValidateAsync(genreModel);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+
         var genre = _automapper.Map<Genre>(genreModel);
 
         await _unitOfWork.GenreRepository.UpdateAsync(genre);

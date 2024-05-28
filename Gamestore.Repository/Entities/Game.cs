@@ -20,7 +20,7 @@ public class Game
 
     public string? Description { get; set; } = null!;
 
-    public ICollection<GameGenre> GameGenres { get; set; }
+    public List<GameGenre> GameGenres { get; set; }
 
-    public ICollection<GamePlatform> GamePlatforms { get; set; }
+    public List<GamePlatform> GamePlatforms { get; set; }
 }

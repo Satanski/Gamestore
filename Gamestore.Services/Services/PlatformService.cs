@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.Services.Helpers;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
-using Gamestore.Services.Validation;
 
 namespace Gamestore.Services.Services;
 
@@ -12,6 +12,8 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper) : IPlat
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _automapper = automapper;
+    private readonly PlatformModelValidator _platformModelValidator = new(unitOfWork);
+    private readonly PlatformModelDtoValidator _platformModelDtoValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModel>> GetGamesByPlatformAsync(Guid platformId)
     {
@@ -29,7 +31,12 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper) : IPlat
 
     public async Task AddPlatformAsync(PlatformModel platformModel)
     {
-        ValidationHelpers.ValidatePlatformModel(platformModel);
+        var result = await _platformModelValidator.ValidateAsync(platformModel);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+
         var platform = _automapper.Map<Platform>(platformModel);
 
         await _unitOfWork.PlatformRepository.AddAsync(platform);
@@ -58,7 +65,12 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper) : IPlat
 
     public async Task UpdatePlatformAsync(PlatformModelDto platformModel)
     {
-        ValidationHelpers.ValidateDetailedPlatformModel(platformModel);
+        var result = await _platformModelDtoValidator.ValidateAsync(platformModel);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+
         var platform = _automapper.Map<Platform>(platformModel);
 
         await _unitOfWork.PlatformRepository.UpdateAsync(platform);

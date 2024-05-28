@@ -1,6 +1,6 @@
-﻿using Gamestore.Services.Interfaces;
+﻿using Gamestore.BLL.Exceptions;
+using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
-using Gamestore.Services.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
