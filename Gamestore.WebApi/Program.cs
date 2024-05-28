@@ -1,4 +1,5 @@
-﻿using Gamestore.WebApi.Configs;
+﻿using Gamestore.BLL.DiRegistrations;
+using Gamestore.DAL.DIRegistrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.WebApi;
@@ -36,7 +37,6 @@ public static class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseAuthorization();
         app.MapControllers();
 
         app.Run();

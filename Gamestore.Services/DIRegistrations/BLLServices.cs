@@ -2,12 +2,13 @@
 using Gamestore.BLL.Helpers;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Services;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Gamestore.WebApi.Configs;
+namespace Gamestore.BLL.DiRegistrations;
 
-internal static class BllServices
+public static class BllServices
 {
-    internal static void Congigure(IServiceCollection services)
+    public static void Congigure(IServiceCollection services)
     {
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<IPlatformService, PlatformService>();

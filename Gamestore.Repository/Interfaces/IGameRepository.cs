@@ -2,7 +2,7 @@
 
 namespace Gamestore.DAL.Interfaces;
 
-public interface IGameRepository : IRepository<Game>
+public interface IGameRepository : IRepository<Game>, IRepositoryBase<Game>
 {
     Task<Game?> GetGameByKeyAsync(string key);
 

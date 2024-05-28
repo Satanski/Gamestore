@@ -18,10 +18,8 @@ public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository
 
     public IGamePlatformRepository GamePlatformRepository { get; } = gamePlatformRepository;
 
-    public Task SaveAsync()
+    public async Task SaveAsync()
     {
-        Task t = Task.Run(() => _context.SaveChangesAsync());
-
-        return t;
+        await _context.SaveChangesAsync();
     }
 }

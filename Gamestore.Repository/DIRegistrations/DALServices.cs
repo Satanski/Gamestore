@@ -1,14 +1,14 @@
-﻿using Gamestore.DAL;
-using Gamestore.DAL.Entities;
+﻿using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Gamestore.WebApi.Configs;
+namespace Gamestore.DAL.DIRegistrations;
 
-internal static class DAlServices
+public static class DAlServices
 {
-    internal static void Congigure(IServiceCollection services, string connectionString)
+    public static void Congigure(IServiceCollection services, string connectionString)
     {
         services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<IGenreRepository, GenreRepository>();
