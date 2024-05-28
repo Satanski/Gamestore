@@ -1,5 +1,5 @@
-﻿using Gamestore.Repository.Entities;
-using Gamestore.Repository.Repositories;
+﻿using Gamestore.DAL.Entities;
+using Gamestore.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.Tests;
@@ -24,6 +24,10 @@ public class DALTests : IDisposable
 
         _context.Database.EnsureDeleted();
         _context.Database.EnsureCreated();
+
+        var games = _context.Games;
+        _context.Games.RemoveRange(games);
+        _context.SaveChanges();
     }
 
     [Fact]
@@ -49,7 +53,7 @@ public class DALTests : IDisposable
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
         // Act
-        await _gameRepository.AddGameAsync(new Game()
+        await _gameRepository.AddAsync(new Game()
         {
             Id = expectedGameId,
             Name = expectedName,
@@ -58,6 +62,7 @@ public class DALTests : IDisposable
             GameGenres = gameGenres,
             GamePlatforms = gamePlatforms,
         });
+        await _context.SaveChangesAsync();
 
         // Assert
         var gamesInDatabase = _context.Games;
@@ -72,18 +77,20 @@ public class DALTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteGameAsyncShouldDeleteGameFromDb()
+    public void DeleteGameAsyncThrowsExceptionWhenAssociationIsSevered()
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+#pragma warning disable xUnit1031 // Do not use blocking task operations in test method
+        var game = AddTestGameAsync(expectedGameId, "Baldurs Gate", "BG", "Rpg game").Result;
+#pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
         // Act
-        await _gameRepository.DeleteGameAsync(expectedGameId);
-
-        // Assert
-        var gamesInDatabase = _context.Games;
-        Assert.Equal(0, gamesInDatabase.Count());
+        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        {
+            _gameRepository.Delete(game);
+            await _context.SaveChangesAsync();
+        });
     }
 
     [Fact]
@@ -91,10 +98,10 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
 
         // Act
-        var resultGame = await _gameRepository.GetGameByIdAsync(expectedGameId);
+        var resultGame = await _gameRepository.GetByIdAsync(expectedGameId);
 
         // Assert
         Assert.Equal(expectedGameId, resultGame.Id);
@@ -106,10 +113,10 @@ public class DALTests : IDisposable
         // Arrange
         var expectedGameId = Guid.NewGuid();
         string expectedGameKey = "Key";
-        AddTestGame(expectedGameId, "Baldurs Gate", expectedGameKey, "Rpg game");
+        await AddTestGameAsync(expectedGameId, "Baldurs Gate", expectedGameKey, "Rpg game");
 
         // Act
-        var resultGame = await _gameRepository.GetGameByIdAsync(expectedGameId);
+        var resultGame = await _gameRepository.GetByIdAsync(expectedGameId);
 
         // Assert
         Assert.Equal(expectedGameKey, resultGame.Key);
@@ -120,15 +127,15 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
         var expectedPlatform = _context.Platforms.First();
 
         // Act
         var resultPlatforms = await _gameRepository.GetPlatformsByGameAsync(expectedGameId);
 
         // Assert
-        Assert.Equal(expectedPlatform.Id, resultPlatforms.First().Id);
-        Assert.Equal(expectedPlatform.Type, resultPlatforms.First().Type);
+        Assert.Equal(expectedPlatform.Id, resultPlatforms[0].Id);
+        Assert.Equal(expectedPlatform.Type, resultPlatforms[0].Type);
     }
 
     [Fact]
@@ -136,15 +143,15 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
         var expectedGenre = _context.Genres.First();
 
         // Act
         var resultGenres = await _gameRepository.GetGenresByGameAsync(expectedGameId);
 
         // Assert
-        Assert.Equal(expectedGenre.Id, resultGenres.First().Id);
-        Assert.Equal(expectedGenre.Name, resultGenres.First().Name);
+        Assert.Equal(expectedGenre.Id, resultGenres[0].Id);
+        Assert.Equal(expectedGenre.Name, resultGenres[0].Name);
     }
 
     [Fact]
@@ -152,16 +159,16 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId1 = Guid.NewGuid();
-        AddTestGame(expectedGameId1, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(expectedGameId1, "Baldurs Gate", "BG", "Rpg game");
 
         var expectedGameId2 = Guid.NewGuid();
-        AddTestGame(expectedGameId2, "Digital Combat Simulator", "DCS", "Flight sim");
+        await AddTestGameAsync(expectedGameId2, "Digital Combat Simulator", "DCS", "Flight sim");
 
         // Act
-        var games = await _gameRepository.GetAllGamesAsync();
+        var games = await _gameRepository.GetAllAsync();
 
         // Assert
-        Assert.Equal(2, games.Count());
+        Assert.Equal(2, games.Count);
     }
 
     [Fact]
@@ -169,7 +176,7 @@ public class DALTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        AddTestGame(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(expectedGameId, "Baldurs Gate", "BG", "Rpg game");
         var gameToUpdate = _context.Games.First();
 
         string expectedName = "Digital Combat Simulator";
@@ -181,7 +188,7 @@ public class DALTests : IDisposable
         gameToUpdate.Description = expectedDescription;
 
         // Act
-        await _gameRepository.UpdateGameAsync(gameToUpdate);
+        await _gameRepository.UpdateAsync(gameToUpdate);
 
         // Assert
         Assert.Equal(expectedName, gameToUpdate.Name);
@@ -194,11 +201,11 @@ public class DALTests : IDisposable
         var expectedGenres = _context.Genres;
 
         // Act
-        var actualGenres = await _genreRepository.GetAllGenresAsync();
+        var actualGenres = await _genreRepository.GetAllAsync();
 
         // Assert
-        Assert.True(actualGenres.Any());
-        Assert.Equal(expectedGenres.Count(), actualGenres.Count());
+        Assert.True(actualGenres.Count != 0);
+        Assert.Equal(expectedGenres.Count(), actualGenres.Count);
     }
 
     [Fact]
@@ -209,7 +216,7 @@ public class DALTests : IDisposable
         var expectedGenreId = expectedGenre.Id;
 
         // Act
-        var actualGenre = await _genreRepository.GetGenreByIdAsync(expectedGenreId);
+        var actualGenre = await _genreRepository.GetByIdAsync(expectedGenreId);
 
         // Assert
         Assert.Equal(expectedGenre, actualGenre);
@@ -220,16 +227,16 @@ public class DALTests : IDisposable
     {
         // Arrange
         Guid id = Guid.NewGuid();
-        AddTestGame(id, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(id, "Baldurs Gate", "BG", "Rpg game");
 
         Guid expectedGameId = Guid.NewGuid();
         var expectedGenre = _context.Genres.First(x => x.Name == "Races");
         var expectedGenreId = expectedGenre.Id;
-        AddTestGame(expectedGameId, "Test Drive", "TD", "Racing game", expectedGenre);
+        await AddTestGameAsync(expectedGameId, "Test Drive", "TD", "Racing game", expectedGenre);
 
         // Act
         var actualGames = await _genreRepository.GetGamesByGenreAsync(expectedGenreId);
-        var actualGenreId = actualGames.First().GameGenres.First().GenreId;
+        var actualGenreId = actualGames[0].GameGenres[0].GenreId;
 
         // Assert
         Assert.Single(actualGames);
@@ -247,7 +254,7 @@ public class DALTests : IDisposable
         var actualGenres = await _genreRepository.GetGenresByParentGenreAsync(parentGenre.Id);
 
         // Assert
-        Assert.Equal(expectedGenres.Count(), actualGenres.Count());
+        Assert.Equal(expectedGenres.Count(), actualGenres.Count);
     }
 
     [Fact]
@@ -264,7 +271,8 @@ public class DALTests : IDisposable
         };
 
         // Act
-        await _genreRepository.AddGenreAsync(expectedGenre);
+        await _genreRepository.AddAsync(expectedGenre);
+        await _context.SaveChangesAsync();
         var actualGenres = _context.Genres;
 
         // Assert
@@ -273,7 +281,7 @@ public class DALTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteGenreAsyncShouldDeleteCorrectGenre()
+    public void DeleteGenreAsyncShouldDeleteCorrectGenre()
     {
         // Arrange
         var startingGenres = _context.Genres;
@@ -281,7 +289,8 @@ public class DALTests : IDisposable
         int expectedGenreCount = startingGenres.Count() - 1;
 
         // Act
-        await _genreRepository.DeleteGenreAsync(genreToDelete.Id);
+        _genreRepository.Delete(genreToDelete);
+        _context.SaveChanges();
         var actualGenres = _context.Genres;
 
         // Assert
@@ -299,7 +308,7 @@ public class DALTests : IDisposable
         genreToUpdate.Name = expectedName;
 
         // Act
-        await _genreRepository.UpdateGenreAsync(genreToUpdate);
+        await _genreRepository.UpdateAsync(genreToUpdate);
         var actualGenre = _context.Genres.First(x => x.Id == genreToUpdateId);
 
         // Assert
@@ -313,11 +322,11 @@ public class DALTests : IDisposable
         var expectedGenres = _context.Platforms;
 
         // Act
-        var actualGenres = await _platformRepository.GetAllPlatformsAsync();
+        var actualGenres = await _platformRepository.GetAllAsync();
 
         // Assert
-        Assert.True(actualGenres.Any());
-        Assert.Equal(expectedGenres.Count(), actualGenres.Count());
+        Assert.True(actualGenres.Count != 0);
+        Assert.Equal(expectedGenres.Count(), actualGenres.Count);
     }
 
     [Fact]
@@ -328,7 +337,7 @@ public class DALTests : IDisposable
         var expectedPlatformId = expectedPlatform.Id;
 
         // Act
-        var actualPlatform = await _platformRepository.GetPlatformByIdAsync(expectedPlatformId);
+        var actualPlatform = await _platformRepository.GetByIdAsync(expectedPlatformId);
 
         // Assert
         Assert.Equal(expectedPlatform, actualPlatform);
@@ -339,16 +348,16 @@ public class DALTests : IDisposable
     {
         // Arrange
         Guid id = Guid.NewGuid();
-        AddTestGame(id, "Baldurs Gate", "BG", "Rpg game");
+        await AddTestGameAsync(id, "Baldurs Gate", "BG", "Rpg game");
 
         Guid expectedGameId = Guid.NewGuid();
-        var expectedPlatform = _context.Platforms.First(x => x.Type == "Mobile");
+        var expectedPlatform = _context.Platforms.First(x => x.Type == "Console");
         var expectedPlatformId = expectedPlatform.Id;
-        AddTestGame(expectedGameId, "Test Drive", "TD", "Racing game", null, expectedPlatform);
+        await AddTestGameAsync(expectedGameId, "Test Drive", "TD", "Racing game", null, expectedPlatform);
 
         // Act
         var actualGames = await _platformRepository.GetGamesByPlatformAsync(expectedPlatformId);
-        var actualPlatformId = actualGames.First().GamePlatforms.First().PlatformId;
+        var actualPlatformId = actualGames[0].GamePlatforms[0].PlatformId;
 
         // Assert
         Assert.Single(actualGames);
@@ -369,7 +378,8 @@ public class DALTests : IDisposable
         };
 
         // Act
-        await _platformRepository.AddPlatformAsync(expectedPlatform);
+        await _platformRepository.AddAsync(expectedPlatform);
+        await _context.SaveChangesAsync();
         var actualPlatforms = _context.Platforms;
 
         // Assert
@@ -378,7 +388,7 @@ public class DALTests : IDisposable
     }
 
     [Fact]
-    public async Task DeletePlatformAsyncShouldDeleteCorrectPlatform()
+    public void DeletePlatformAsyncShouldDeleteCorrectPlatform()
     {
         // Arrange
         var startingPlatforms = _context.Platforms;
@@ -386,7 +396,8 @@ public class DALTests : IDisposable
         int expectedPlatformCount = startingPlatforms.Count() - 1;
 
         // Act
-        await _platformRepository.DeletePlatformAsync(platformToDelete.Id);
+        _platformRepository.Delete(platformToDelete);
+        _context.SaveChanges();
         var actualPlatforms = _context.Platforms;
 
         // Assert
@@ -404,7 +415,7 @@ public class DALTests : IDisposable
         platformToUpdate.Type = expectedType;
 
         // Act
-        await _platformRepository.UpdatePlatformAsync(platformToUpdate);
+        await _platformRepository.UpdateAsync(platformToUpdate);
         var actualPlatform = _context.Platforms.First(x => x.Id == platformToUpdateId);
 
         // Assert
@@ -417,7 +428,7 @@ public class DALTests : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void AddTestGame(Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Genre expectedGenre = null, Platform expectedPlatform = null)
+    private async Task<Game> AddTestGameAsync(Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Genre expectedGenre = null, Platform expectedPlatform = null)
     {
         expectedGenre ??= _context.Genres.First();
         expectedPlatform ??= _context.Platforms.First();
@@ -444,7 +455,8 @@ public class DALTests : IDisposable
             GamePlatforms = gamePlatforms,
         };
 
-        _context.Games.Add(game);
-        _context.SaveChanges();
+        await _context.Games.AddAsync(game);
+        await _context.SaveChangesAsync();
+        return game;
     }
 }

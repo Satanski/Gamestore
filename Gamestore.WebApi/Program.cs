@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
+using Gamestore.DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.WebApi;
