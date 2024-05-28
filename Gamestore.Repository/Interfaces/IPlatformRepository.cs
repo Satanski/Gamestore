@@ -1,18 +1,8 @@
-﻿using Gamestore.Repository.Entities;
+﻿using Gamestore.DAL.Entities;
 
-namespace Gamestore.Repository.Interfaces;
+namespace Gamestore.DAL.Interfaces;
 
-public interface IPlatformRepository
+public interface IPlatformRepository : IRepository<Platform>, IRepositoryBase<Platform>
 {
-    Task AddPlatformAsync(Platform platform);
-
-    Task<IEnumerable<Game>> GetGamesByPlatformAsync(Guid platformId);
-
-    Task<Platform?> GetPlatformByIdAsync(Guid platformId);
-
-    Task<IEnumerable<Platform>> GetAllPlatformsAsync();
-
-    Task UpdatePlatformAsync(Platform platform);
-
-    Task DeletePlatformAsync(Guid platformId);
+    Task<List<Game>> GetGamesByPlatformAsync(Guid id);
 }

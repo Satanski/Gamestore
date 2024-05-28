@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public class GenreModel
+public record GenreModel
 {
     public string Name { get; set; }
 }

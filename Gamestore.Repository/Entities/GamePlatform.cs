@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gamestore.Repository.Entities;
+namespace Gamestore.DAL.Entities;
 
 [Table("GamePlatforms")]
 [PrimaryKey(nameof(GameId), nameof(PlatformId))]

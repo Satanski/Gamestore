@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public class GameModel
+public record GameModel
 {
     public Guid Id { get; set; }
 

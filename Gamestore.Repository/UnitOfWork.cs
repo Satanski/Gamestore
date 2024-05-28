@@ -1,23 +1,25 @@
-﻿using Gamestore.Repository.Entities;
-using Gamestore.Repository.Interfaces;
-using Gamestore.Repository.Repositories;
+﻿using Gamestore.DAL.Entities;
+using Gamestore.DAL.Interfaces;
 
-namespace Gamestore.Repository;
+namespace Gamestore.DAL;
 
-public class UnitOfWork(GamestoreContext context) : IUnitOfWork
+public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository, IGenreRepository genreRepository,
+    IPlatformRepository platformRepository, IGameGenreRepository gameGenreRepository, IGamePlatformRepository gamePlatformRepository) : IUnitOfWork
 {
     private readonly GamestoreContext _context = context;
 
-    public IGameRepository GameRepository { get; } = new GameRepository(context);
+    public IGameRepository GameRepository { get; } = gameRepository;
 
-    public IPlatformRepository PlatformRepository { get; } = new PlatformRepository(context);
+    public IGenreRepository GenreRepository { get; } = genreRepository;
 
-    public IGenreRepository GenreRepository { get; } = new GenreRepository(context);
+    public IPlatformRepository PlatformRepository { get; } = platformRepository;
 
-    public Task SaveAsync()
+    public IGameGenreRepository GameGenreRepository { get; } = gameGenreRepository;
+
+    public IGamePlatformRepository GamePlatformRepository { get; } = gamePlatformRepository;
+
+    public async Task SaveAsync()
     {
-        Task t = Task.Run(() => _context.SaveChangesAsync());
-
-        return t;
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public class PlatformModel
+public record PlatformModel
 {
     public string Type { get; set; }
 }

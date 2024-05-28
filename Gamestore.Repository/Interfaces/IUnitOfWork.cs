@@ -1,4 +1,4 @@
-﻿namespace Gamestore.Repository.Interfaces;
+﻿namespace Gamestore.DAL.Interfaces;
 
 public interface IUnitOfWork
 {
@@ -7,6 +7,10 @@ public interface IUnitOfWork
     IPlatformRepository PlatformRepository { get; }
 
     IGenreRepository GenreRepository { get; }
+
+    IGameGenreRepository GameGenreRepository { get; }
+
+    IGamePlatformRepository GamePlatformRepository { get; }
 
     Task SaveAsync();
 }

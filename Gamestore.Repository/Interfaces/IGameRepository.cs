@@ -1,22 +1,12 @@
-﻿using Gamestore.Repository.Entities;
+﻿using Gamestore.DAL.Entities;
 
-namespace Gamestore.Repository.Interfaces;
+namespace Gamestore.DAL.Interfaces;
 
-public interface IGameRepository
+public interface IGameRepository : IRepository<Game>, IRepositoryBase<Game>
 {
-    Task AddGameAsync(Game game);
-
-    Task DeleteGameAsync(Guid gameId);
-
-    Task<IEnumerable<Game>> GetAllGamesAsync();
-
-    Task<Game?> GetGameByIdAsync(Guid gameId);
-
     Task<Game?> GetGameByKeyAsync(string key);
 
-    Task<IEnumerable<Genre>> GetGenresByGameAsync(Guid gameId);
+    Task<List<Genre>> GetGenresByGameAsync(Guid id);
 
-    Task<IEnumerable<Platform>> GetPlatformsByGameAsync(Guid gameId);
-
-    Task UpdateGameAsync(Game game);
+    Task<List<Platform>> GetPlatformsByGameAsync(Guid id);
 }

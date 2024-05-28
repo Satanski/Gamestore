@@ -1,86 +1,31 @@
-﻿using Gamestore.Repository.Entities;
-using Gamestore.Repository.Interfaces;
+﻿using Gamestore.DAL.Entities;
+using Gamestore.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
-namespace Gamestore.Repository.Repositories;
+namespace Gamestore.DAL.Repositories;
 
-public class GenreRepository(GamestoreContext context) : IGenreRepository
+public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(context), IGenreRepository
 {
     private readonly GamestoreContext _context = context;
 
-    public Task AddGenreAsync(Genre genre)
+    public async Task<List<Game>> GetGamesByGenreAsync(Guid id)
     {
-        Task task = Task.Run(() =>
-        {
-            _context.Genres.Add(genre);
-
-            _context.SaveChangesAsync();
-        });
-
-        return task;
+        return await _context.GameGenres.Where(x => x.GenreId == id).Include(x => x.Game).Select(x => x.Game).ToListAsync();
     }
 
-    public Task DeleteGenreAsync(Guid genreId)
+    public async Task<List<Genre>> GetGenresByParentGenreAsync(Guid id)
     {
-        var task = Task.Run(() =>
-        {
-            var genre = _context.Genres.Find(genreId);
-
-            if (genre != null)
-            {
-                _context.Genres.Remove(genre);
-
-                _context.SaveChanges();
-            }
-        });
-
-        return task;
+        return await _context.Genres.Where(x => x.ParentGenreId == id).ToListAsync();
     }
 
-    public Task<IEnumerable<Genre>> GetAllGenresAsync()
+    public async Task<Genre?> GetByIdAsync(Guid id)
     {
-        var task = Task.Run(() => _context.Genres.AsEnumerable());
-
-        return task;
+        return await _context.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    public Task<IEnumerable<Game>> GetGamesByGenreAsync(Guid genreId)
+    public async Task UpdateAsync(Genre entity)
     {
-        var task = Task.Run(() =>
-        {
-            var games = from g in _context.Games
-                        where g.GameGenres.Any(x => x.GenreId == genreId)
-                        select g;
-
-            return games.AsEnumerable();
-        });
-
-        return task;
-    }
-
-    public Task<IEnumerable<Genre>> GetGenresByParentGenreAsync(Guid genreId)
-    {
-        var task = Task.Run(() => _context.Genres.Where(x => x.ParentGenreId == genreId).AsEnumerable());
-
-        return task;
-    }
-
-    public Task<Genre?> GetGenreByIdAsync(Guid genreId)
-    {
-        var task = Task.Run(() => _context.Genres.Where(x => x.Id == genreId).FirstOrDefault());
-
-        return task;
-    }
-
-    public Task UpdateGenreAsync(Genre genre)
-    {
-        var task = Task.Run(() =>
-        {
-            var g = _context.Genres.Where(p => p.Id == genre.Id).First();
-            _context.Entry(g).CurrentValues.SetValues(genre);
-
-            _context.SaveChanges();
-        });
-
-        return task;
+        var g = await _context.Genres.Where(p => p.Id == entity.Id).FirstAsync();
+        _context.Entry(g).CurrentValues.SetValues(entity);
     }
 }

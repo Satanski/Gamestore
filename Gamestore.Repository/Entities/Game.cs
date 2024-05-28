@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Gamestore.Repository.Entities;
+namespace Gamestore.DAL.Entities;
 
 [Table("Games")]
 [Index(nameof(Key), IsUnique = true)]
@@ -20,7 +20,7 @@ public class Game
 
     public string? Description { get; set; } = null!;
 
-    public ICollection<GameGenre> GameGenres { get; set; }
+    public List<GameGenre> GameGenres { get; set; }
 
-    public ICollection<GamePlatform> GamePlatforms { get; set; }
+    public List<GamePlatform> GamePlatforms { get; set; }
 }

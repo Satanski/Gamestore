@@ -12,7 +12,7 @@ public interface IGenreService
 
     Task<IEnumerable<GenreModel>> GetAllGenresAsync();
 
-    Task UpdateGenreAsync(DetailedGenreModel genreModel);
+    Task UpdateGenreAsync(GenreModelDto genreModel);
 
     Task DeleteGenreAsync(Guid genreId);
 

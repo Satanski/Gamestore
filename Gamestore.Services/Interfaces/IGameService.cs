@@ -4,7 +4,7 @@ namespace Gamestore.Services.Interfaces;
 
 public interface IGameService
 {
-    Task AddGameAsync(DetailedGameModel gameModel);
+    Task AddGameAsync(GameModelDto gameModel);
 
     Task DeleteGameAsync(Guid gameId);
 
@@ -14,9 +14,9 @@ public interface IGameService
 
     Task<GameModel> GetGameByKeyAsync(string key);
 
-    Task<IEnumerable<DetailedGenreModel>> GetGenresByGameAsync(Guid gameId);
+    Task<IEnumerable<GenreModelDto>> GetGenresByGameAsync(Guid gameId);
 
-    Task<IEnumerable<DetailedPlatformModel>> GetPlatformsByGameAsync(Guid gameId);
+    Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameAsync(Guid gameId);
 
-    Task UpdateGameAsync(DetailedGameModel gameModel);
+    Task UpdateGameAsync(GameModelDto gameModel);
 }

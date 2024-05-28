@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public class DetailedGameModel
+public record GameModelDto
 {
     public Guid Id { get; set; }
 
@@ -10,7 +10,7 @@ public class DetailedGameModel
 
     public string Description { get; set; }
 
-    public List<Guid> Genres { get; set; }
+    public List<GenreModelDto> GameGenres { get; set; }
 
-    public List<Guid> Plaftorms { get; set; }
+    public List<PlatformModelDto> GamePlatforms { get; set; }
 }

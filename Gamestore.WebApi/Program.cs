@@ -1,8 +1,5 @@
-﻿using Gamestore.Repository;
-using Gamestore.Repository.Entities;
-using Gamestore.Repository.Interfaces;
-using Gamestore.Services.Interfaces;
-using Gamestore.Services.Services;
+﻿using Gamestore.BLL.DiRegistrations;
+using Gamestore.DAL.DIRegistrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.WebApi;
@@ -14,17 +11,15 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
 
         var connectionString = builder.Configuration.GetConnectionString("GamestoreDatabase");
-
-        // Add services to the container.
-        if (connectionString != null)
+        if (connectionString == null)
         {
-            builder.Services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
+#pragma warning disable S112 // General or reserved exceptions should never be thrown
+            throw new NullReferenceException(nameof(connectionString));
+#pragma warning restore S112 // General or reserved exceptions should never be thrown
         }
 
-        builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-        builder.Services.AddScoped<IGameService, GameService>();
-        builder.Services.AddScoped<IPlatformService, PlatformService>();
-        builder.Services.AddScoped<IGenreService, GenreService>();
+        DAlServices.Congigure(builder.Services, connectionString);
+        BllServices.Congigure(builder.Services);
 
         builder.Services.AddControllers();
 
@@ -52,7 +47,6 @@ public static class Program
         });
 
         app.UseHttpsRedirection();
-        app.UseAuthorization();
         app.MapControllers();
 
         app.Run();
