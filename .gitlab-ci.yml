@@ -2,7 +2,7 @@ variables:
   PROJECT_NAME: 'Gamestore.WebApi'
 
 test:
-  image: mcr.microsoft.com/dotnet/sdk:6.0
+  image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   script:
     - 'cd $PROJECT_NAME'
