@@ -4,7 +4,7 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class PlatformModelValidator : AbstractValidator<PlatformModel>
+public class PlatformModelValidator : AbstractValidator<PlatformModel>
 {
     public PlatformModelValidator(IUnitOfWork unitOfWork)
     {
@@ -12,8 +12,8 @@ internal class PlatformModelValidator : AbstractValidator<PlatformModel>
         RuleFor(x => x.Type).MustAsync(async (type, cancellation) =>
         {
             var platforms = await unitOfWork.PlatformRepository.GetAllAsync();
-            var exisitngPlatform = platforms.First(x => x.Type == type);
-            return exisitngPlatform == null;
+            var exisitngPlatform = platforms.Where(x => x.Type == type);
+            return !exisitngPlatform.Any();
         }).WithMessage("This platform already exists");
     }
 }

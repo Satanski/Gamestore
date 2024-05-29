@@ -4,7 +4,7 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class GenreModelValidator : AbstractValidator<GenreModel>
+public class GenreModelValidator : AbstractValidator<GenreModel>
 {
     public GenreModelValidator(IUnitOfWork unitOfWork)
     {
@@ -13,7 +13,7 @@ internal class GenreModelValidator : AbstractValidator<GenreModel>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
             var exisitngGenres = genres.Where(x => x.Name == name);
-            return exisitngGenres == null;
+            return !exisitngGenres.Any();
         }).WithMessage("This genre already exists");
     }
 }

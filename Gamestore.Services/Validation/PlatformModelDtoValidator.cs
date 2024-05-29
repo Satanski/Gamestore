@@ -4,7 +4,7 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class PlatformModelDtoValidator : AbstractValidator<PlatformModelDto>
+public class PlatformModelDtoValidator : AbstractValidator<PlatformModelDto>
 {
     public PlatformModelDtoValidator(IUnitOfWork unitOfWork)
     {

@@ -4,7 +4,7 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class GenreModelDtoValidator : AbstractValidator<GenreModelDto>
+public class GenreModelDtoValidator : AbstractValidator<GenreModelDto>
 {
     public GenreModelDtoValidator(IUnitOfWork unitOfWork)
     {
