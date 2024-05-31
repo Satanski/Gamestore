@@ -210,6 +210,7 @@ dotnet_sort_system_directives_first = true
 dotnet_analyzer_diagnostic.severity = error
 
 # Ignore paths
+[/*.Tests/**]
 [/*.Migrations/**]
 dotnet_diagnostic.CA1707.severity = none
 

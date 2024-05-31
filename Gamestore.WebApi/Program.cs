@@ -19,7 +19,9 @@ public static class Program
 #pragma warning restore S112 // General or reserved exceptions should never be thrown
         }
 
-        DAlServices.Congigure(builder.Services, connectionString);
+        builder.Services.AddMemoryCache();
+
+        DAlServices.Configure(builder.Services, connectionString);
         BllServices.Congigure(builder.Services);
 
         builder.Services.AddControllers();
@@ -38,6 +40,8 @@ public static class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseMiddleware<GameCounterMiddleware>();
 
         app.UseHttpsRedirection();
         app.MapControllers();
