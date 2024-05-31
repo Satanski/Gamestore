@@ -4,9 +4,9 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-public class GameModelDtoValidator : AbstractValidator<GameModelDto>
+internal class GameModelDtoValidator : AbstractValidator<GameModelDto>
 {
-    public GameModelDtoValidator(IUnitOfWork unitOfWork)
+    internal GameModelDtoValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Id).NotNull().WithMessage("Null Id");
         RuleFor(x => x.Name).NotEmpty().WithMessage("Missing Name");

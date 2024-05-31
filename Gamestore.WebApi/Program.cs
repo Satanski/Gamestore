@@ -1,6 +1,5 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
-using Gamestore.DAL.Entities;
 using Gamestore.WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +21,7 @@ public static class Program
 
         builder.Services.AddMemoryCache();
 
-        DAlServices.Congigure(builder.Services, connectionString);
+        DAlServices.Configure(builder.Services, connectionString);
         BllServices.Congigure(builder.Services);
 
         builder.Services.AddControllers();
@@ -40,7 +39,7 @@ public static class Program
             app.UseSwaggerUI();
         }
 
-        app.UseMiddleware<GameCounterMiddlerware>();
+        app.UseMiddleware<GameCounterMiddleware>();
 
         app.UseHttpsRedirection();
         app.MapControllers();

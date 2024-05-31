@@ -4,9 +4,9 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-public class GenreModelValidator : AbstractValidator<GenreModel>
+internal class GenreModelValidator : AbstractValidator<GenreModel>
 {
-    public GenreModelValidator(IUnitOfWork unitOfWork)
+    internal GenreModelValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage("Missing name");
         RuleFor(x => x.Name).MustAsync(async (name, cancellation) =>

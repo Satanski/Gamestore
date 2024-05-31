@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using Gamestore.BLL.Exceptions;
+﻿using Gamestore.BLL.Exceptions;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Models;

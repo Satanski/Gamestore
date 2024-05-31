@@ -3,7 +3,7 @@ using Gamestore.DAL.Repositories;
 using Gamestore.Tests.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gamestore.Tests.DAL;
+namespace Gamestore.DALTests;
 
 public class PlatformRepositoryTests : IDisposable
 {
@@ -13,7 +13,7 @@ public class PlatformRepositoryTests : IDisposable
 
     public PlatformRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseSqlite("Data Source = PlatformRepoTestDb.db").Options;
+        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("PlatformRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _platformRepository = new(_context);
@@ -58,11 +58,11 @@ public class PlatformRepositoryTests : IDisposable
     public async Task GetGamesByPlatformAsyncShouldReturnCorrectGame()
     {
         // Arrange
-        Guid id = Guid.NewGuid();
+        var id = Guid.NewGuid();
         var gamePlatform = _context.Platforms.First(x => x.Type == "Mobile");
         await TestGameHelpers.AddTestGameAsync(_context, id, "Baldurs Gate", "BG", "Rpg game", null, gamePlatform);
 
-        Guid expectedGameId = Guid.NewGuid();
+        var expectedGameId = Guid.NewGuid();
         var expectedPlatform = _context.Platforms.First(x => x.Type == "Console");
         var expectedPlatformId = expectedPlatform.Id;
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Test Drive", "TD", "Racing game", null, expectedPlatform);
@@ -81,9 +81,9 @@ public class PlatformRepositoryTests : IDisposable
     {
         // Arrange
         var startingPlatforms = _context.Platforms;
-        int expectedPlatformCount = startingPlatforms.Count() + 1;
+        var expectedPlatformCount = startingPlatforms.Count() + 1;
 
-        Platform expectedPlatform = new Platform()
+        var expectedPlatform = new Platform()
         {
             Id = Guid.NewGuid(),
             Type = "New Platform",
@@ -105,7 +105,7 @@ public class PlatformRepositoryTests : IDisposable
         // Arrange
         var startingPlatforms = _context.Platforms;
         var platformToDelete = _context.Platforms.First();
-        int expectedPlatformCount = startingPlatforms.Count() - 1;
+        var expectedPlatformCount = startingPlatforms.Count() - 1;
 
         // Act
         _platformRepository.Delete(platformToDelete);
@@ -123,7 +123,7 @@ public class PlatformRepositoryTests : IDisposable
         // Arrange
         var platformToUpdate = _context.Platforms.First();
         var platformToUpdateId = platformToUpdate.Id;
-        string expectedType = "New type";
+        var expectedType = "New type";
         platformToUpdate.Type = expectedType;
 
         // Act

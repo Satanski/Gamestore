@@ -3,7 +3,7 @@ using Gamestore.DAL.Repositories;
 using Gamestore.Tests.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gamestore.Tests.DAL;
+namespace Gamestore.DALTests;
 
 public class GenreRepositoryTests : IDisposable
 {
@@ -13,7 +13,7 @@ public class GenreRepositoryTests : IDisposable
 
     public GenreRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseSqlite("Data Source = GenreRepoTestDb.db").Options;
+        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("GenreRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _genreRepository = new(_context);
@@ -58,11 +58,11 @@ public class GenreRepositoryTests : IDisposable
     public async Task GetGamesByGenreAsyncShouldReturnCorrectGame()
     {
         // Arrange
-        Guid id = Guid.NewGuid();
+        var id = Guid.NewGuid();
         var gameGenre = _context.Genres.First(x => x.Name == "RTS");
         await TestGameHelpers.AddTestGameAsync(_context, id, "Baldurs Gate", "BG", "Rpg game", gameGenre);
 
-        Guid expectedGameId = Guid.NewGuid();
+        var expectedGameId = Guid.NewGuid();
         var expectedGenre = _context.Genres.First(x => x.Name == "Races");
         var expectedGenreId = expectedGenre.Id;
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Test Drive", "TD", "Racing game", expectedGenre);
@@ -95,9 +95,9 @@ public class GenreRepositoryTests : IDisposable
     {
         // Arrange
         var startingGenres = _context.Genres;
-        int expectedGenreCount = startingGenres.Count() + 1;
+        var expectedGenreCount = startingGenres.Count() + 1;
 
-        Genre expectedGenre = new Genre()
+        var expectedGenre = new Genre()
         {
             Id = Guid.NewGuid(),
             Name = "New Genre",
@@ -119,7 +119,7 @@ public class GenreRepositoryTests : IDisposable
         // Arrange
         var startingGenres = _context.Genres;
         var genreToDelete = _context.Genres.First();
-        int expectedGenreCount = startingGenres.Count() - 1;
+        var expectedGenreCount = startingGenres.Count() - 1;
 
         // Act
         _genreRepository.Delete(genreToDelete);
@@ -137,7 +137,7 @@ public class GenreRepositoryTests : IDisposable
         // Arrange
         var genreToUpdate = _context.Genres.First();
         var genreToUpdateId = genreToUpdate.Id;
-        string expectedName = "New name";
+        var expectedName = "New name";
         genreToUpdate.Name = expectedName;
 
         // Act

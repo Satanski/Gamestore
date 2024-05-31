@@ -3,7 +3,7 @@ using Gamestore.DAL.Repositories;
 using Gamestore.Tests.Helpers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gamestore.Tests.DAL;
+namespace Gamestore.DALTests;
 public class GameRepositoryTests : IDisposable
 {
     private readonly GamestoreContext _context;
@@ -12,7 +12,7 @@ public class GameRepositoryTests : IDisposable
 
     public GameRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseSqlite("Data Source = GameRepoTestDb.db").Options;
+        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("GameRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _gameRepository = new(_context);
@@ -29,18 +29,18 @@ public class GameRepositoryTests : IDisposable
     public async Task AddAsyncAddsGameToDb()
     {
         // Arrange
-        Guid expectedGameId = Guid.NewGuid();
+        var expectedGameId = Guid.NewGuid();
         var genre = _context.Genres.First();
         var expectedGenreId = genre.Id;
-        GameGenre expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
+        var expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
 
         var platform = _context.Platforms.First();
         var expectedPlatformId = platform.Id;
-        GamePlatform expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
+        var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
 
-        string expectedName = "Baldurs Gate";
-        string expectedKey = "BG";
-        string expectedDescription = "Rpg game";
+        var expectedName = "Baldurs Gate";
+        var expectedKey = "BG";
+        var expectedDescription = "Rpg game";
 
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         List<GameGenre> gameGenres = [expectedGameGenre];
@@ -107,7 +107,7 @@ public class GameRepositoryTests : IDisposable
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
-        string expectedGameKey = "Key";
+        var expectedGameKey = "Key";
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", expectedGameKey, "Rpg game");
 
         // Act
@@ -174,9 +174,9 @@ public class GameRepositoryTests : IDisposable
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", "BG", "Rpg game");
         var gameToUpdate = _context.Games.First();
 
-        string expectedName = "Digital Combat Simulator";
-        string expectedKey = "DCS";
-        string expectedDescription = "Flight sim";
+        var expectedName = "Digital Combat Simulator";
+        var expectedKey = "DCS";
+        var expectedDescription = "Flight sim";
 
         gameToUpdate.Name = expectedName;
         gameToUpdate.Key = expectedKey;

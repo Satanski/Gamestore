@@ -4,9 +4,9 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-public class PlatformModelDtoValidator : AbstractValidator<PlatformModelDto>
+internal class PlatformModelDtoValidator : AbstractValidator<PlatformModelDto>
 {
-    public PlatformModelDtoValidator(IUnitOfWork unitOfWork)
+    internal PlatformModelDtoValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Type).NotEmpty().WithMessage("Missing type");
         RuleFor(x => x.Id).MustAsync(async (id, cancellation) =>
