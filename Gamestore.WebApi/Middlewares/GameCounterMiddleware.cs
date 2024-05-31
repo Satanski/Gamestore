@@ -18,7 +18,7 @@ public class GameCounterMiddleware(RequestDelegate next, IMemoryCache cache)
 
         httpContext.Response.OnStarting(async () =>
         {
-            var numberOfGames = await cache.GetOrCreate("NumberOfGames", async entry =>
+            var numberOfGames = await cache.GetOrCreate(Key, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime);
                 var games = await gameService.GetAllGamesAsync();
