@@ -6,7 +6,7 @@ namespace Gamestore.BLL.Validation;
 
 internal class PlatformModelDtoValidator : AbstractValidator<PlatformModelDto>
 {
-    public PlatformModelDtoValidator(IUnitOfWork unitOfWork)
+    internal PlatformModelDtoValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Type).NotEmpty().WithMessage("Missing type");
         RuleFor(x => x.Id).MustAsync(async (id, cancellation) =>

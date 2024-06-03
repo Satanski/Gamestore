@@ -8,7 +8,7 @@ namespace Gamestore.DAL.DIRegistrations;
 
 public static class DAlServices
 {
-    public static void Congigure(IServiceCollection services, string connectionString)
+    public static void Configure(IServiceCollection services, string connectionString)
     {
         services.AddDbContext<GamestoreContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<IGenreRepository, GenreRepository>();

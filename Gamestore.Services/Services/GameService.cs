@@ -132,15 +132,21 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
             _unitOfWork.GameRepository.Delete(game);
 
             var genres = await _unitOfWork.GameGenreRepository.GetByGameIdAsync(game.Id);
-            foreach (var item in genres)
+            if (genres != null)
             {
-                _unitOfWork.GameGenreRepository.Delete(item);
+                foreach (var item in genres)
+                {
+                    _unitOfWork.GameGenreRepository.Delete(item);
+                }
             }
 
             var platforms = await _unitOfWork.GamePlatformRepository.GetByGameIdAsync(game.Id);
-            foreach (var item in platforms)
+            if (platforms != null)
             {
-                _unitOfWork.GamePlatformRepository.Delete(item);
+                foreach (var item in platforms)
+                {
+                    _unitOfWork.GamePlatformRepository.Delete(item);
+                }
             }
 
             await _unitOfWork.SaveAsync();

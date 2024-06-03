@@ -6,7 +6,7 @@ namespace Gamestore.BLL.Validation;
 
 internal class GameModelDtoUpdateValidator : AbstractValidator<GameModelDto>
 {
-    public GameModelDtoUpdateValidator(IUnitOfWork unitOfWork)
+    internal GameModelDtoUpdateValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Id).NotNull().WithMessage("Null Id");
         RuleFor(x => x.Name).NotEmpty().WithMessage("Missing Name");
