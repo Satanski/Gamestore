@@ -5,18 +5,21 @@ using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameService
+public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _automapper = automapper;
+    private readonly ILogger<GameService> _logger = logger;
     private readonly GameModelDtoValidator _gameModelDtoValidator = new(unitOfWork);
     private readonly GameModelDtoUpdateValidator _gameModelDtoUpdateValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModel>> GetAllGamesAsync()
     {
+        _logger.LogInformation("Getting all games");
         var games = await _unitOfWork.GameRepository.GetAllAsync();
         List<GameModel> gameModels = [];
 
@@ -30,6 +33,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task<IEnumerable<GenreModelDto>> GetGenresByGameAsync(Guid gameId)
     {
+        _logger.LogInformation($"Getting genres by game Id: {gameId}");
         var genres = await _unitOfWork.GameRepository.GetGenresByGameAsync(gameId);
         List<GenreModelDto> genreModels = [];
 
@@ -43,6 +47,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameAsync(Guid gameId)
     {
+        _logger.LogInformation($"Getting platforms by game Id: {gameId}");
         var platforms = await _unitOfWork.GameRepository.GetPlatformsByGameAsync(gameId);
         List<PlatformModelDto> platformModels = [];
 
@@ -56,6 +61,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task<GameModel> GetGameByIdAsync(Guid gameId)
     {
+        _logger.LogInformation($"Getting game by Id: {gameId}");
         var game = await _unitOfWork.GameRepository.GetByIdAsync(gameId);
 
         return game == null ? throw new GamestoreException($"No game found with given id: {gameId}") : _automapper.Map<GameModel>(game);
@@ -63,6 +69,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task<GameModel> GetGameByKeyAsync(string key)
     {
+        _logger.LogInformation($"Getting game by Key: {key}");
         var game = await _unitOfWork.GameRepository.GetGameByKeyAsync(key);
 
         return game == null ? throw new GamestoreException($"No game found with given key: {key}") : _automapper.Map<GameModel>(game);
@@ -70,6 +77,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task AddGameAsync(GameModelDto gameModel)
     {
+        _logger.LogInformation($"Adding game Id: {gameModel.Id} Name: {gameModel.Name}");
         var result = await _gameModelDtoValidator.ValidateAsync(gameModel);
         if (!result.IsValid)
         {
@@ -84,6 +92,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task UpdateGameAsync(GameModelDto gameModel)
     {
+        _logger.LogInformation($"Updating game Id: {gameModel.Id} Name: {gameModel.Name}");
         var result = await _gameModelDtoUpdateValidator.ValidateAsync(gameModel);
         if (!result.IsValid)
         {
@@ -125,6 +134,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper) : IGameServ
 
     public async Task DeleteGameAsync(Guid gameId)
     {
+        _logger.LogInformation($"Deleting game Id: {gameId}");
         var game = await _unitOfWork.GameRepository.GetByIdAsync(gameId);
 
         if (game != null)
