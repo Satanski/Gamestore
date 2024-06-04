@@ -26,7 +26,7 @@ public class GameServiceTests
         var expected = BllHelpers.GameModels.ToList();
 
         unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Games.ToList());
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         var actual = await gameService.GetAllGamesAsync();
@@ -44,7 +44,7 @@ public class GameServiceTests
         var expected = BllHelpers.GameModels.First(x => x.Id == expectedId);
 
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         var actual = await gameService.GetGameByIdAsync(expectedId);
@@ -62,7 +62,7 @@ public class GameServiceTests
         var expected = BllHelpers.GameModels.First(x => x.Key == expectedKey);
 
         unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(BllHelpers.Games.First(x => x.Key == expectedKey));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         var actual = await gameService.GetGameByKeyAsync(expectedKey);
@@ -81,7 +81,7 @@ public class GameServiceTests
         var gameToAdd = new GameModelDto() { Id = gameId, Name = "Digital Combat Simulator", Key = "DCS", Description = "Flight sim", GamePlatforms = BllHelpers.PlatformModelDtos, GameGenres = BllHelpers.GenreModelDtos };
 
         unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         await gameService.AddGameAsync(gameToAdd);
@@ -101,7 +101,7 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == gameToDelete.Id));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         await gameService.DeleteGameAsync(gameToDelete.Id);
@@ -125,7 +125,7 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         await gameService.UpdateGameAsync(gameToUpdate);
@@ -144,7 +144,7 @@ public class GameServiceTests
         var genreId = game.GameGenres[0].Id;
 
         unitOfWork.Setup(x => x.GameRepository.GetGenresByGameAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Genres);
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         var resultGenres = await gameService.GetGenresByGameAsync(game.Id);
@@ -162,7 +162,7 @@ public class GameServiceTests
         var platformId = game.GamePlatforms[0].Id;
 
         unitOfWork.Setup(x => x.GameRepository.GetPlatformsByGameAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Platforms);
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         var resultPlatforms = await gameService.GetPlatformsByGameAsync(game.Id);
@@ -181,7 +181,7 @@ public class GameServiceTests
         var gameToAdd = new GameModelDto() { Id = gameId, Name = string.Empty, Key = "DCS", Description = "Flight sim", GamePlatforms = BllHelpers.PlatformModelDtos, GameGenres = BllHelpers.GenreModelDtos };
 
         unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -200,7 +200,7 @@ public class GameServiceTests
         var gameToAdd = new GameModelDto() { Id = gameId, Name = "Digital Combat Simulator", Key = string.Empty, Description = "Flight sim", GamePlatforms = BllHelpers.PlatformModelDtos, GameGenres = BllHelpers.GenreModelDtos };
 
         unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -219,7 +219,7 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -242,7 +242,7 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -265,7 +265,7 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -282,7 +282,7 @@ public class GameServiceTests
         Guid expectedId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63");
 
         unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -299,7 +299,7 @@ public class GameServiceTests
         string expectedKey = "BG";
 
         unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), (ILogger<GameService>)_logger);
+        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
