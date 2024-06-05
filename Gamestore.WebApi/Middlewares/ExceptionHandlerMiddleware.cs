@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Gamestore.BLL.Exceptions;
 using Gamestore.WebApi.Helpers;
 
@@ -23,6 +22,7 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
     {
         logger.LogException(exception);
 
+        context.Response.ContentType = "application/json";
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
         if (exception is ArgumentException)
@@ -51,8 +51,6 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
 
     private static string CreateProductionMessage(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "application/json";
-
         return JsonSerializer.Serialize(new
         {
             context.Response.StatusCode,
@@ -62,14 +60,14 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
 
     private static string CreateDevelopmentMessage(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "text/html";
+        var errorDetails = new
+        {
+            context.Response.StatusCode,
+            exception.Message,
+            exception.StackTrace,
+            exception.Data,
+        };
 
-        StringBuilder sb = new StringBuilder();
-        sb.Append("<!DOCTYPE html><html><body><center>");
-        sb.Append("<h2>There was an error processing the request</h2>");
-        sb.Append($"Status code: {context.Response.StatusCode}<br>");
-        sb.Append($"{exception.Message}");
-        sb.Append("</center></body></html>");
-        return sb.ToString();
+        return JsonSerializer.Serialize(errorDetails);
     }
 }
