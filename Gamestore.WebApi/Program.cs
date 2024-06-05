@@ -2,6 +2,8 @@
 using Gamestore.DAL.DIRegistrations;
 using Gamestore.WebApi.Middlewares;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
 
 namespace Gamestore.WebApi;
 
@@ -9,7 +11,17 @@ public static class Program
 {
     public static void Main(string[] args)
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .Enrich.FromLogContext()
+            .WriteTo.Debug()
+            .CreateBootstrapLogger();
+
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddSerilog((services, lc) => lc
+            .ReadFrom.Configuration(builder.Configuration)
+            .ReadFrom.Services(services));
 
         var connectionString = builder.Configuration.GetConnectionString("GamestoreDatabase");
         if (connectionString == null)
@@ -33,14 +45,15 @@ public static class Program
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        app.UseMiddleware<ExceptionHandlerMiddleware>();
-
+        app.UseSerilogRequestLogging();
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
 
+        app.UseMiddleware<RequestLoggingMiddleware>();
+        app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.UseMiddleware<GameCounterMiddleware>();
 
         app.UseHttpsRedirection();

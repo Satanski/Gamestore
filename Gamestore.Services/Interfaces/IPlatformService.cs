@@ -6,7 +6,7 @@ public interface IPlatformService
 {
     Task AddPlatformAsync(PlatformModel platformModel);
 
-    Task<IEnumerable<GameModel>> GetGamesByPlatformAsync(Guid platformId);
+    Task<IEnumerable<GameModel>> GetGamesByPlatformIdAsync(Guid platformId);
 
     Task<PlatformModel> GetPlatformByIdAsync(Guid platformId);
 
@@ -14,5 +14,5 @@ public interface IPlatformService
 
     Task UpdatePlatformAsync(PlatformModelDto platformModel);
 
-    Task DeletePlatformAsync(Guid platformId);
+    Task DeletePlatformByIdAsync(Guid platformId);
 }

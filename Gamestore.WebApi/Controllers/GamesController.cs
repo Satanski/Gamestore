@@ -69,7 +69,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         IEnumerable<GenreModelDto> genres;
 
-        genres = await _gameService.GetGenresByGameAsync(id);
+        genres = await _gameService.GetGenresByGameIdAsync(id);
 
         if (genres.Any())
         {
@@ -86,7 +86,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         IEnumerable<PlatformModelDto> platforms;
 
-        platforms = await _gameService.GetPlatformsByGameAsync(id);
+        platforms = await _gameService.GetPlatformsByGameIdAsync(id);
 
         if (platforms.Any())
         {
@@ -140,7 +140,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        await _gameService.DeleteGameAsync(id);
+        await _gameService.DeleteGameByIdAsync(id);
 
         return Ok();
     }
