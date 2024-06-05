@@ -1,17 +1,16 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Exceptions;
+using Gamestore.WebApi.Helpers;
 
 namespace Gamestore.WebApi.Middlewares;
 
-public class ExceptionHandlerMiddleware(RequestDelegate next)
+public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
 {
-    private readonly RequestDelegate _next = next;
-
     public async Task InvokeAsync(HttpContext httpContext)
     {
         try
         {
-            await _next(httpContext);
+            await next(httpContext);
         }
         catch (Exception ex)
         {
@@ -19,8 +18,10 @@ public class ExceptionHandlerMiddleware(RequestDelegate next)
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        logger.LogException(exception);
+
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
@@ -33,10 +34,40 @@ public class ExceptionHandlerMiddleware(RequestDelegate next)
             context.Response.StatusCode = StatusCodes.Status404NotFound;
         }
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(new
+        return context.Response.WriteAsync(CreateResponseMessage(context, exception));
+    }
+
+    private static string CreateResponseMessage(HttpContext context, Exception exception)
+    {
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        {
+            return CreateDevelopmentMessage(context, exception);
+        }
+        else
+        {
+            return CreateProductionMessage(context, exception);
+        }
+    }
+
+    private static string CreateProductionMessage(HttpContext context, Exception exception)
+    {
+        return JsonSerializer.Serialize(new
         {
             context.Response.StatusCode,
             exception.Message,
-        }));
+        });
+    }
+
+    private static string CreateDevelopmentMessage(HttpContext context, Exception exception)
+    {
+        var errorDetails = new
+        {
+            context.Response.StatusCode,
+            exception.Message,
+            exception.StackTrace,
+            exception.Data,
+        };
+
+        return JsonSerializer.Serialize(errorDetails);
     }
 }
