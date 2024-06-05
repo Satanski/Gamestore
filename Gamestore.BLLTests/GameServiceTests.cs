@@ -104,7 +104,7 @@ public class GameServiceTests
         var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
-        await gameService.DeleteGameAsync(gameToDelete.Id);
+        await gameService.DeleteGameByIdAsync(gameToDelete.Id);
 
         // Assert
         unitOfWork.Verify(x => x.GameRepository.Delete(It.Is<Game>(x => x.Id == gameToDelete.Id && x.Name == gameToDelete.Name && x.Key == gameToDelete.Key && x.Description == gameToDelete.Description)));
@@ -147,7 +147,7 @@ public class GameServiceTests
         var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
-        var resultGenres = await gameService.GetGenresByGameAsync(game.Id);
+        var resultGenres = await gameService.GetGenresByGameIdAsync(game.Id);
 
         // Assert
         Assert.Equal(genreId, resultGenres.ToList()[0].Id);
@@ -165,7 +165,7 @@ public class GameServiceTests
         var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
-        var resultPlatforms = await gameService.GetPlatformsByGameAsync(game.Id);
+        var resultPlatforms = await gameService.GetPlatformsByGameIdAsync(game.Id);
 
         // Assert
         Assert.Equal(platformId, resultPlatforms.ToList()[0].Id);
@@ -224,7 +224,7 @@ public class GameServiceTests
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
         {
-            await gameService.DeleteGameAsync(gameToDelete.Id);
+            await gameService.DeleteGameByIdAsync(gameToDelete.Id);
         });
     }
 

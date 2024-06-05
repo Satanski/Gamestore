@@ -20,7 +20,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
         try
         {
-            games = await _platformService.GetGamesByPlatformAsync(id);
+            games = await _platformService.GetGamesByPlatformIdAsync(id);
         }
         catch (GamestoreException)
         {
@@ -126,7 +126,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
     {
         try
         {
-            await _platformService.DeletePlatformAsync(id);
+            await _platformService.DeletePlatformByIdAsync(id);
         }
         catch (GamestoreException)
         {

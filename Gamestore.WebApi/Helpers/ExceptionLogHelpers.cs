@@ -4,7 +4,7 @@ namespace Gamestore.WebApi.Helpers;
 
 internal static class ExceptionLogHelpers
 {
-    internal static string CreateLogMessage(Exception ex)
+    internal static void LogException(this ILogger logger, Exception ex)
     {
         StringBuilder sb = new StringBuilder();
 
@@ -14,6 +14,6 @@ internal static class ExceptionLogHelpers
             ex = ex.InnerException;
         }
 
-        return sb.ToString();
+        logger.LogError("{Exception}", sb.ToString());
     }
 }

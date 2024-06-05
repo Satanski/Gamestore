@@ -11,49 +11,46 @@ namespace Gamestore.Services.Services;
 
 public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IMapper _automapper = automapper;
-    private readonly ILogger<GameService> _logger = logger;
     private readonly GameModelDtoValidator _gameModelDtoValidator = new(unitOfWork);
     private readonly GameModelDtoUpdateValidator _gameModelDtoUpdateValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModel>> GetAllGamesAsync()
     {
-        _logger.LogInformation("Getting all games");
-        var games = await _unitOfWork.GameRepository.GetAllAsync();
+        logger.LogInformation("Getting all games");
+        var games = await unitOfWork.GameRepository.GetAllAsync();
         List<GameModel> gameModels = [];
 
         foreach (var game in games)
         {
-            gameModels.Add(_automapper.Map<GameModel>(game));
+            gameModels.Add(automapper.Map<GameModel>(game));
         }
 
         return gameModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<GenreModelDto>> GetGenresByGameAsync(Guid gameId)
+    public async Task<IEnumerable<GenreModelDto>> GetGenresByGameIdAsync(Guid gameId)
     {
-        _logger.LogInformation($"Getting genres by game Id: {gameId}");
-        var genres = await _unitOfWork.GameRepository.GetGenresByGameAsync(gameId);
+        logger.LogInformation("Getting genres by game Id: {gameId}", gameId);
+        var genres = await unitOfWork.GameRepository.GetGenresByGameAsync(gameId);
         List<GenreModelDto> genreModels = [];
 
         foreach (var genre in genres)
         {
-            genreModels.Add(_automapper.Map<GenreModelDto>(genre));
+            genreModels.Add(automapper.Map<GenreModelDto>(genre));
         }
 
         return genreModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameAsync(Guid gameId)
+    public async Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameIdAsync(Guid gameId)
     {
-        _logger.LogInformation($"Getting platforms by game Id: {gameId}");
-        var platforms = await _unitOfWork.GameRepository.GetPlatformsByGameAsync(gameId);
+        logger.LogInformation("Getting platforms by game Id: {gameId}", gameId);
+        var platforms = await unitOfWork.GameRepository.GetPlatformsByGameAsync(gameId);
         List<PlatformModelDto> platformModels = [];
 
         foreach (var platform in platforms)
         {
-            platformModels.Add(_automapper.Map<PlatformModelDto>(platform));
+            platformModels.Add(automapper.Map<PlatformModelDto>(platform));
         }
 
         return platformModels.AsEnumerable();
@@ -61,105 +58,105 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
     public async Task<GameModel> GetGameByIdAsync(Guid gameId)
     {
-        _logger.LogInformation($"Getting game by Id: {gameId}");
-        var game = await _unitOfWork.GameRepository.GetByIdAsync(gameId);
+        logger.LogInformation("Getting game by Id: {gameId}", gameId);
+        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
 
-        return game == null ? throw new GamestoreException($"No game found with given id: {gameId}") : _automapper.Map<GameModel>(game);
+        return game == null ? throw new GamestoreException($"No game found with given id: {gameId}") : automapper.Map<GameModel>(game);
     }
 
     public async Task<GameModel> GetGameByKeyAsync(string key)
     {
-        _logger.LogInformation($"Getting game by Key: {key}");
-        var game = await _unitOfWork.GameRepository.GetGameByKeyAsync(key);
+        logger.LogInformation("Getting game by Key: {key}", key);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
 
-        return game == null ? throw new GamestoreException($"No game found with given key: {key}") : _automapper.Map<GameModel>(game);
+        return game == null ? throw new GamestoreException($"No game found with given key: {key}") : automapper.Map<GameModel>(game);
     }
 
     public async Task AddGameAsync(GameModelDto gameModel)
     {
-        _logger.LogInformation($"Adding game Id: {gameModel.Id} Name: {gameModel.Name}");
+        logger.LogInformation("Adding game {@gameModel}", gameModel);
         var result = await _gameModelDtoValidator.ValidateAsync(gameModel);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());
         }
 
-        var game = _automapper.Map<Game>(gameModel);
+        var game = automapper.Map<Game>(gameModel);
 
-        await _unitOfWork.GameRepository.AddAsync(game);
-        await _unitOfWork.SaveAsync();
+        await unitOfWork.GameRepository.AddAsync(game);
+        await unitOfWork.SaveAsync();
     }
 
     public async Task UpdateGameAsync(GameModelDto gameModel)
     {
-        _logger.LogInformation($"Updating game Id: {gameModel.Id} Name: {gameModel.Name}");
+        logger.LogInformation("Updating game {@gameModel}", gameModel);
         var result = await _gameModelDtoUpdateValidator.ValidateAsync(gameModel);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());
         }
 
-        var gameGenres = await _unitOfWork.GameGenreRepository.GetByGameIdAsync(gameModel.Id);
+        var gameGenres = await unitOfWork.GameGenreRepository.GetByGameIdAsync(gameModel.Id);
         foreach (var item in gameGenres)
         {
-            _unitOfWork.GameGenreRepository.Delete(item);
+            unitOfWork.GameGenreRepository.Delete(item);
         }
 
-        var gamePlatforms = await _unitOfWork.GamePlatformRepository.GetByGameIdAsync(gameModel.Id);
+        var gamePlatforms = await unitOfWork.GamePlatformRepository.GetByGameIdAsync(gameModel.Id);
         foreach (var item in gamePlatforms)
         {
-            _unitOfWork.GamePlatformRepository.Delete(item);
+            unitOfWork.GamePlatformRepository.Delete(item);
         }
 
-        await _unitOfWork.SaveAsync();
+        await unitOfWork.SaveAsync();
 
-        var game = _automapper.Map<Game>(gameModel);
+        var game = automapper.Map<Game>(gameModel);
 
         foreach (var item in game.GameGenres)
         {
             item.GameId = gameModel.Id;
-            await _unitOfWork.GameGenreRepository.AddAsync(item);
+            await unitOfWork.GameGenreRepository.AddAsync(item);
         }
 
         foreach (var item in game.GamePlatforms)
         {
             item.GameId = gameModel.Id;
-            await _unitOfWork.GamePlatformRepository.AddAsync(item);
+            await unitOfWork.GamePlatformRepository.AddAsync(item);
         }
 
-        await _unitOfWork.GameRepository.UpdateAsync(game);
+        await unitOfWork.GameRepository.UpdateAsync(game);
 
-        await _unitOfWork.SaveAsync();
+        await unitOfWork.SaveAsync();
     }
 
-    public async Task DeleteGameAsync(Guid gameId)
+    public async Task DeleteGameByIdAsync(Guid gameId)
     {
-        _logger.LogInformation($"Deleting game Id: {gameId}");
-        var game = await _unitOfWork.GameRepository.GetByIdAsync(gameId);
+        logger.LogInformation("Deleting game by Id: {gameId}", gameId);
+        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
 
         if (game != null)
         {
-            _unitOfWork.GameRepository.Delete(game);
+            unitOfWork.GameRepository.Delete(game);
 
-            var genres = await _unitOfWork.GameGenreRepository.GetByGameIdAsync(game.Id);
+            var genres = await unitOfWork.GameGenreRepository.GetByGameIdAsync(game.Id);
             if (genres != null)
             {
                 foreach (var item in genres)
                 {
-                    _unitOfWork.GameGenreRepository.Delete(item);
+                    unitOfWork.GameGenreRepository.Delete(item);
                 }
             }
 
-            var platforms = await _unitOfWork.GamePlatformRepository.GetByGameIdAsync(game.Id);
+            var platforms = await unitOfWork.GamePlatformRepository.GetByGameIdAsync(game.Id);
             if (platforms != null)
             {
                 foreach (var item in platforms)
                 {
-                    _unitOfWork.GamePlatformRepository.Delete(item);
+                    unitOfWork.GamePlatformRepository.Delete(item);
                 }
             }
 
-            await _unitOfWork.SaveAsync();
+            await unitOfWork.SaveAsync();
         }
         else
         {
