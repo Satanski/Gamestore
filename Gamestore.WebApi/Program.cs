@@ -1,7 +1,6 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
 using Gamestore.WebApi.Middlewares;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 

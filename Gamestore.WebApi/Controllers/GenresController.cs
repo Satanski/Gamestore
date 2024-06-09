@@ -15,16 +15,11 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGamesByGenreAsync(Guid id)
     {
-        IEnumerable<GameModel> games;
+        IEnumerable<GameModelDto> games;
 
         games = await _genreService.GetGamesByGenreAsync(id);
 
-        if (games.Any())
-        {
-            return Ok(games);
-        }
-
-        return NotFound();
+        return games.Any() ? Ok(games) : NotFound();
     }
 
     // GET: genres/GUID/games
@@ -32,21 +27,16 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGenresByParentGenreAsync(Guid id)
     {
-        IEnumerable<GenreModel> genres;
+        IEnumerable<GenreModelDto> genres;
 
         genres = await _genreService.GetGenresByParentGenreAsync(id);
 
-        if (genres.Any())
-        {
-            return Ok(genres);
-        }
-
-        return NotFound();
+        return genres.Any() ? Ok(genres) : NotFound();
     }
 
     // POST: genres
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] GenreModel genreModel)
+    public async Task<IActionResult> AddAsync([FromBody] GenreModelDto genreModel)
     {
         await _genreService.AddGenreAsync(genreModel);
 
@@ -58,16 +48,11 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync(Guid id)
     {
-        GenreModel genre;
+        GenreModelDto genre;
 
         genre = await _genreService.GetGenreByIdAsync(id);
 
-        if (genre == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(genre);
+        return genre == null ? NotFound() : Ok(genre);
     }
 
     // GET: genres
@@ -75,21 +60,16 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync()
     {
-        IEnumerable<GenreModel> genres;
+        IEnumerable<GenreModelDto> genres;
 
         genres = await _genreService.GetAllGenresAsync();
 
-        if (genres.Any())
-        {
-            return Ok(genres);
-        }
-
-        return NotFound();
+        return genres.Any() ? Ok(genres) : NotFound();
     }
 
     // PUT: genres
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] GenreModelDto genreModel)
+    public async Task<IActionResult> UpdateAsync([FromBody] GenreModel genreModel)
     {
         await _genreService.UpdateGenreAsync(genreModel);
 

@@ -6,7 +6,7 @@ internal static class ExceptionLogHelpers
 {
     internal static void LogException(this ILogger logger, Exception ex)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
 
         while (ex != null)
         {

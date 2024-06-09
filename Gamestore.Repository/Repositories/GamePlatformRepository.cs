@@ -10,6 +10,11 @@ public class GamePlatformRepository(GamestoreContext context) : RepositoryBase<G
 
     public async Task<List<GamePlatform>> GetByGameIdAsync(Guid id)
     {
-        return await _context.GamePlatforms.Where(x => x.GameId == id).ToListAsync();
+        return await _context.GamePlatforms.Include(x => x.Platform).Where(x => x.GameId == id).ToListAsync();
+    }
+
+    public async Task<List<GamePlatform>> GetAllAsync()
+    {
+        return await _context.GamePlatforms.Include(x => x.Platform).ToListAsync();
     }
 }

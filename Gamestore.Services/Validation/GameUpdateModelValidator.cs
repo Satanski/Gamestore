@@ -4,15 +4,17 @@ using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class GameModelDtoUpdateValidator : AbstractValidator<GameModelDto>
+internal class GameUpdateModelValidator : AbstractValidator<GameUpdateModel>
 {
-    internal GameModelDtoUpdateValidator(IUnitOfWork unitOfWork)
+    internal GameUpdateModelValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Id).NotNull().WithMessage("Null Id");
         RuleFor(x => x.Name).NotEmpty().WithMessage("Missing Name");
         RuleFor(x => x.Key).NotEmpty().WithMessage("Missing Key");
-        RuleFor(x => x.GamePlatforms).NotEmpty().WithMessage("Game platforms should be provided");
-        RuleFor(x => x.GameGenres).NotEmpty().WithMessage("Game genres should be provided");
+        RuleFor(x => x.Price).NotEmpty().WithMessage("Price should be provided");
+        RuleFor(x => x.Discount).NotEmpty().WithMessage("Discount should be provided");
+        RuleFor(x => x.Platforms).NotEmpty().WithMessage("Game platforms should be provided");
+        RuleFor(x => x.Genres).NotEmpty().WithMessage("Game genres should be provided");
         RuleFor(x => x.Id).MustAsync(async (id, cancellation) =>
            {
                var existingGame = await unitOfWork.GameRepository.GetByIdAsync(id);

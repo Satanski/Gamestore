@@ -13,19 +13,13 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games
     [HttpGet]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync()
     {
-        IEnumerable<GameModel> games;
+        IEnumerable<GameModelDto> games;
 
         games = await _gameService.GetAllGamesAsync();
 
-        if (games.Any())
-        {
-            return Ok(games);
-        }
-
-        return NotFound();
+        return games.Any() ? Ok(games) : NotFound();
     }
 
     // GET: games/find/GUID
@@ -33,33 +27,22 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync(Guid id)
     {
-        GameModel game;
+        GameModelDto game;
 
         game = await _gameService.GetGameByIdAsync(id);
 
-        if (game == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(game);
+        return game == null ? NotFound() : Ok(game);
     }
 
     // GET: games/STRING
     [HttpGet("{key}")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync(string key)
     {
-        GameModel game;
+        GameModelDto game;
 
         game = await _gameService.GetGameByKeyAsync(key);
 
-        if (game == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(game);
+        return game == null ? NotFound() : Ok(game);
     }
 
     // GET: games/GUID/genres
@@ -71,12 +54,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
         genres = await _gameService.GetGenresByGameIdAsync(id);
 
-        if (genres.Any())
-        {
-            return Ok(genres);
-        }
-
-        return NotFound();
+        return genres.Any() ? Ok(genres) : NotFound();
     }
 
     // GET: games/GUID/platforms
@@ -88,12 +66,21 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
         platforms = await _gameService.GetPlatformsByGameIdAsync(id);
 
-        if (platforms.Any())
+        return platforms.Any() ? Ok(platforms) : NotFound();
+    }
+
+    // GET: games/GUID/publisher
+    [HttpGet("{id}/publisher")]
+    public async Task<IActionResult> GetPublisherByGameAsync(Guid id)
+    {
+        var publisher = await _gameService.GetPublisherByGameIdAsync(id);
+
+        if (publisher == null)
         {
-            return Ok(platforms);
+            return NotFound();
         }
 
-        return NotFound();
+        return Ok(publisher);
     }
 
     // https://localhost:44394/games/baldursgate/file
@@ -120,7 +107,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] GameModelDto gameModel)
+    public async Task<IActionResult> AddAsync([FromBody] GameModel gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
 
@@ -129,7 +116,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // PUT: games
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] GameModelDto gameModel)
+    public async Task<IActionResult> UpdateAsync([FromBody] GameUpdateModel gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
 

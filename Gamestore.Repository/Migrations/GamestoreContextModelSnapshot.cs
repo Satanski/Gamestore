@@ -17,12 +17,12 @@ namespace Gamestore.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.Game", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,6 +30,9 @@ namespace Gamestore.DAL.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Key")
                         .IsRequired()
@@ -39,24 +42,26 @@ namespace Gamestore.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("PublisherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("UnitInStock")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.ToTable("Games");
+                    b.HasIndex("PublisherId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c6c84790-2f43-4f7c-b6df-94c70491343d"),
-                            Description = "Desc",
-                            Key = "Key",
-                            Name = "Gra testowa nazwa"
-                        });
+                    b.ToTable("Games");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.GameGenre", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.GameGenre", b =>
                 {
                     b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
@@ -71,7 +76,7 @@ namespace Gamestore.DAL.Migrations
                     b.ToTable("GameGenres");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.GamePlatform", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.GamePlatform", b =>
                 {
                     b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
@@ -86,7 +91,7 @@ namespace Gamestore.DAL.Migrations
                     b.ToTable("GamePlatforms");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.Genre", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Genre", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,90 +114,90 @@ namespace Gamestore.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2c4a4834-8d51-47c6-a5ac-5db740e1b5f8"),
+                            Id = new Guid("5ea9cfcb-895d-43cc-840a-78c61fbb145f"),
                             Name = "Strategy"
                         },
                         new
                         {
-                            Id = new Guid("6cc174bc-1725-4f54-bda8-b57389288b2a"),
+                            Id = new Guid("d716dfad-336e-4298-81d0-6742bd4c6bba"),
                             Name = "RTS",
-                            ParentGenreId = new Guid("2c4a4834-8d51-47c6-a5ac-5db740e1b5f8")
+                            ParentGenreId = new Guid("5ea9cfcb-895d-43cc-840a-78c61fbb145f")
                         },
                         new
                         {
-                            Id = new Guid("658e2c8b-d5f5-4e23-a4ff-deea222748dc"),
+                            Id = new Guid("78934809-636e-4911-8caa-19837ce00b84"),
                             Name = "TBS",
-                            ParentGenreId = new Guid("2c4a4834-8d51-47c6-a5ac-5db740e1b5f8")
+                            ParentGenreId = new Guid("5ea9cfcb-895d-43cc-840a-78c61fbb145f")
                         },
                         new
                         {
-                            Id = new Guid("ac35a93d-e380-4cfc-bf6a-683180718c4f"),
+                            Id = new Guid("7a0da694-4c7c-48ad-bb26-d60f0cfef858"),
                             Name = "RPG"
                         },
                         new
                         {
-                            Id = new Guid("934c60a7-2755-4c12-8420-6b1e017c0144"),
+                            Id = new Guid("601a925c-e8d2-4cfa-a592-87eb5fab56ac"),
                             Name = "Sports"
                         },
                         new
                         {
-                            Id = new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6"),
+                            Id = new Guid("92f488f7-357b-4eca-b651-985a03210c05"),
                             Name = "Races"
                         },
                         new
                         {
-                            Id = new Guid("824ead0b-4e95-4d7b-b9b8-f47b009442b3"),
+                            Id = new Guid("5925dc88-e01a-4a97-ad80-d1d2b8df8eb4"),
                             Name = "Rally",
-                            ParentGenreId = new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6")
+                            ParentGenreId = new Guid("92f488f7-357b-4eca-b651-985a03210c05")
                         },
                         new
                         {
-                            Id = new Guid("e5c77a2a-40f1-4dfa-b847-7b5b2c15e52d"),
+                            Id = new Guid("2f1f7c5c-3760-4f85-9914-68d293f8ea95"),
                             Name = "Arcade",
-                            ParentGenreId = new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6")
+                            ParentGenreId = new Guid("92f488f7-357b-4eca-b651-985a03210c05")
                         },
                         new
                         {
-                            Id = new Guid("ba252c3a-ff3d-42a1-ba75-2b21e8690452"),
+                            Id = new Guid("aa8d86f0-66dd-4d3a-9ba2-2c57d9761c36"),
                             Name = "Formula",
-                            ParentGenreId = new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6")
+                            ParentGenreId = new Guid("92f488f7-357b-4eca-b651-985a03210c05")
                         },
                         new
                         {
-                            Id = new Guid("dbf1e07c-93f8-4a9e-9238-3e027f13b8b7"),
+                            Id = new Guid("2a0fd9d4-6fc0-4732-a183-7e4d5db9f404"),
                             Name = "Off-road",
-                            ParentGenreId = new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6")
+                            ParentGenreId = new Guid("92f488f7-357b-4eca-b651-985a03210c05")
                         },
                         new
                         {
-                            Id = new Guid("77c9ab07-21df-481a-aa0b-28f4a166e354"),
+                            Id = new Guid("288c81b8-55c9-4e37-8ce1-dd7d76772277"),
                             Name = "Action"
                         },
                         new
                         {
-                            Id = new Guid("88de2753-24ea-475f-a59f-0608359d2b8b"),
+                            Id = new Guid("49fab0b0-d4a7-4f97-ab04-9377116ca738"),
                             Name = "FPS",
-                            ParentGenreId = new Guid("77c9ab07-21df-481a-aa0b-28f4a166e354")
+                            ParentGenreId = new Guid("288c81b8-55c9-4e37-8ce1-dd7d76772277")
                         },
                         new
                         {
-                            Id = new Guid("200c416a-538c-498e-a2a0-cdf4c74e142b"),
+                            Id = new Guid("8c2e8bb3-1710-481f-a330-8a4ebc6d04f7"),
                             Name = "TPS",
-                            ParentGenreId = new Guid("77c9ab07-21df-481a-aa0b-28f4a166e354")
+                            ParentGenreId = new Guid("288c81b8-55c9-4e37-8ce1-dd7d76772277")
                         },
                         new
                         {
-                            Id = new Guid("a864da3e-2e9e-4c03-8eaa-ca6c5322b1c9"),
+                            Id = new Guid("7e022c93-b14f-40c8-b85e-618beacb2752"),
                             Name = "Adventure"
                         },
                         new
                         {
-                            Id = new Guid("8b447f60-7cca-460a-bc6a-36e02015f46a"),
+                            Id = new Guid("824c13f4-050e-439f-abae-edc097e40407"),
                             Name = "Puzzle & Skill"
                         });
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.Platform", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Platform", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -212,35 +217,84 @@ namespace Gamestore.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a7289405-cd3c-48e5-b858-9ae4faa889d4"),
+                            Id = new Guid("ebaa5feb-21f5-4abc-8c27-91f2ed8ae929"),
                             Type = "Mobile"
                         },
                         new
                         {
-                            Id = new Guid("f29416dc-e41a-4131-8e66-93ec11bc8e45"),
+                            Id = new Guid("765c73bb-1c56-42dc-b92f-3357fac07bf6"),
                             Type = "Browser"
                         },
                         new
                         {
-                            Id = new Guid("d1099105-d805-49e4-b2c7-c1fcf4040a81"),
+                            Id = new Guid("b762fd5c-a5c2-475c-a11c-8f178bd4bd2c"),
                             Type = "Desktop"
                         },
                         new
                         {
-                            Id = new Guid("644a99d9-dce9-4057-b94e-ee704c620b61"),
+                            Id = new Guid("23ade31d-a9d4-4d71-8044-4378d14d35e4"),
                             Type = "Console"
                         });
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.GameGenre", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Publisher", b =>
                 {
-                    b.HasOne("Gamestore.Repository.Entities.Game", "Game")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HomePage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyName")
+                        .IsUnique();
+
+                    b.ToTable("Publishers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3bdf3c48-f33a-47ed-a4f0-1362e873892b"),
+                            CompanyName = "Elecrtonic Arts",
+                            HomePage = "www.ea.com"
+                        },
+                        new
+                        {
+                            Id = new Guid("b3049685-ae4e-4e49-8cce-3e75dce4ca16"),
+                            CompanyName = "Blizzard",
+                            HomePage = "www.blizzard.com"
+                        });
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Publisher", "Publisher")
+                        .WithMany("Games")
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Publisher");
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.GameGenre", b =>
+                {
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
                         .WithMany("GameGenres")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Gamestore.Repository.Entities.Genre", "Genre")
+                    b.HasOne("Gamestore.DAL.Entities.Genre", "Genre")
                         .WithMany("GameGenres")
                         .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -251,15 +305,15 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.GamePlatform", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.GamePlatform", b =>
                 {
-                    b.HasOne("Gamestore.Repository.Entities.Game", "Game")
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
                         .WithMany("GamePlatforms")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Gamestore.Repository.Entities.Platform", "Platform")
+                    b.HasOne("Gamestore.DAL.Entities.Platform", "Platform")
                         .WithMany("GamePlatforms")
                         .HasForeignKey("PlatformId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -270,21 +324,26 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("Platform");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.Game", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
                 {
                     b.Navigation("GameGenres");
 
                     b.Navigation("GamePlatforms");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.Genre", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Genre", b =>
                 {
                     b.Navigation("GameGenres");
                 });
 
-            modelBuilder.Entity("Gamestore.Repository.Entities.Platform", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.Platform", b =>
                 {
                     b.Navigation("GamePlatforms");
+                });
+
+            modelBuilder.Entity("Gamestore.DAL.Entities.Publisher", b =>
+                {
+                    b.Navigation("Games");
                 });
 #pragma warning restore 612, 618
         }

@@ -16,7 +16,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGamesByPlatformAsync(Guid id)
     {
-        IEnumerable<GameModel> games;
+        IEnumerable<GameModelDto> games;
 
         try
         {
@@ -36,7 +36,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] PlatformModel platformModel)
+    public async Task<IActionResult> AddAsync([FromBody] PlatformModelDto platformModel)
     {
         try
         {
@@ -59,7 +59,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync(Guid id)
     {
-        PlatformModel platform;
+        PlatformModelDto platform;
 
         try
         {
@@ -82,7 +82,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetAsync()
     {
-        IEnumerable<PlatformModel> platforms;
+        IEnumerable<PlatformModelDto> platforms;
 
         try
         {
@@ -102,7 +102,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // PUT: platforms
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] PlatformModelDto platformModel)
+    public async Task<IActionResult> UpdateAsync([FromBody] PlatformModel platformModel)
     {
         try
         {

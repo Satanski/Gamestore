@@ -4,17 +4,17 @@ namespace Gamestore.Services.Interfaces;
 
 public interface IGenreService
 {
-    Task AddGenreAsync(GenreModel genreModel);
+    Task AddGenreAsync(GenreModelDto genreModel);
 
-    Task<IEnumerable<GameModel>> GetGamesByGenreAsync(Guid genreId);
+    Task<IEnumerable<GameModelDto>> GetGamesByGenreAsync(Guid genreId);
 
-    Task<GenreModel> GetGenreByIdAsync(Guid genreId);
+    Task<GenreModelDto> GetGenreByIdAsync(Guid genreId);
 
-    Task<IEnumerable<GenreModel>> GetAllGenresAsync();
+    Task<IEnumerable<GenreModelDto>> GetAllGenresAsync();
 
-    Task UpdateGenreAsync(GenreModelDto genreModel);
+    Task UpdateGenreAsync(GenreModel genreModel);
 
     Task DeleteGenreAsync(Guid genreId);
 
-    Task<IEnumerable<GenreModel>> GetGenresByParentGenreAsync(Guid genreId);
+    Task<IEnumerable<GenreModelDto>> GetGenresByParentGenreAsync(Guid genreId);
 }

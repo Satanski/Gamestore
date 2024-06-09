@@ -9,10 +9,11 @@ internal class PlatformModelDtoValidator : AbstractValidator<PlatformModelDto>
     internal PlatformModelDtoValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Type).NotEmpty().WithMessage("Missing type");
-        RuleFor(x => x.Id).MustAsync(async (id, cancellation) =>
+        RuleFor(x => x.Type).MustAsync(async (type, cancellation) =>
         {
-            var existingPlatform = await unitOfWork.PlatformRepository.GetByIdAsync(id);
-            return existingPlatform != null;
-        }).WithMessage("No platform with given id");
+            var platforms = await unitOfWork.PlatformRepository.GetAllAsync();
+            var exisitngPlatforms = platforms.Where(x => x.Type == type);
+            return !exisitngPlatforms.Any();
+        }).WithMessage("This platform already exists");
     }
 }

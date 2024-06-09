@@ -12,4 +12,9 @@ public class GameGenreRepository(GamestoreContext context) : RepositoryBase<Game
     {
         return await _context.GameGenres.Where(x => x.GameId == id).ToListAsync();
     }
+
+    public async Task<List<GameGenre>> GetAllAsync()
+    {
+        return await _context.GameGenres.ToListAsync();
+    }
 }

@@ -10,7 +10,12 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
 
     public async Task<List<Game>> GetGamesByGenreAsync(Guid id)
     {
-        return await _context.GameGenres.Where(x => x.GenreId == id).Include(x => x.Game).Select(x => x.Game).ToListAsync();
+        return await _context.Games
+            .Include(x => x.Publisher)
+            .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
+            .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
+            .Where(x => x.GameGenres.Contains(new GameGenre { GameId = x.Id, GenreId = id }))
+            .ToListAsync();
     }
 
     public async Task<List<Genre>> GetGenresByParentGenreAsync(Guid id)
@@ -27,5 +32,10 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
     {
         var g = await _context.Genres.Where(p => p.Id == entity.Id).FirstAsync();
         _context.Entry(g).CurrentValues.SetValues(entity);
+    }
+
+    public async Task<List<Genre>> GetAllAsync()
+    {
+        return await _context.Genres.ToListAsync();
     }
 }

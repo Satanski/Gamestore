@@ -2,7 +2,7 @@
 
 public interface IRepositoryBase<T>
 {
-    Task AddAsync(T entity);
+    Task<T> AddAsync(T entity);
 
     void Delete(T entity);
 
