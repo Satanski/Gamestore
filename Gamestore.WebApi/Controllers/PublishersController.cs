@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
+using Gamestore.DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -10,11 +11,9 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 {
     // GET: publishers
     [HttpGet]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetPublishersAsync()
     {
-        IEnumerable<PublisherModelDto> publishers;
-
-        publishers = await publisherService.GetAllPublishersAsync();
+        var publishers = await publisherService.GetAllPublishersAsync();
 
         return publishers.Any() ? Ok(publishers) : NotFound();
     }
@@ -24,12 +23,8 @@ public class PublishersController([FromServices] IPublisherService publisherServ
     public async Task<IActionResult> GetPublisherById(Guid id)
     {
         var publisher = await publisherService.GetPublisherByIdAsync(id);
-        if (publisher == null)
-        {
-            return NotFound();
-        }
 
-        return Ok(publisher);
+        return publisher == null ? NotFound() : Ok(publisher);
     }
 
     // GET: publishers/STRING
@@ -37,30 +32,22 @@ public class PublishersController([FromServices] IPublisherService publisherServ
     public async Task<IActionResult> GetPublisherByCompanyName(string companyName)
     {
         var publisher = await publisherService.GetPublisherByCompanyNameAsync(companyName);
-        if (publisher == null)
-        {
-            return NotFound();
-        }
 
-        return Ok(publisher);
+        return publisher == null ? NotFound() : Ok(publisher);
     }
 
     // GET: publishers/GUID/games
     [HttpGet("{id}/games")]
     public async Task<IActionResult> GetGamesByPublisher(Guid id)
     {
-        var publisher = await publisherService.GetGamesByPublisherIdAsync(id);
-        if (publisher == null)
-        {
-            return NotFound();
-        }
+        var games = await publisherService.GetGamesByPublisherIdAsync(id);
 
-        return Ok(publisher);
+        return games.Any() ? NotFound() : Ok(games);
     }
 
     // POST: publishers
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] PublisherModelDto publisherModel)
+    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherModelDto publisherModel)
     {
         await publisherService.AddPublisherAsync(publisherModel);
 
@@ -69,7 +56,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // PUT: publishers
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] PublisherModel publisherModel)
+    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherModel publisherModel)
     {
         await publisherService.UpdatePublisherAsync(publisherModel);
 
@@ -78,7 +65,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // DELETE: publishers
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> DeletePublisherByIdAsync(Guid id)
     {
         await publisherService.DeletPublisherByIdAsync(id);
 

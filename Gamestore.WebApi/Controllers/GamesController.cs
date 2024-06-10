@@ -13,7 +13,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games
     [HttpGet]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetGamesAsync()
     {
         IEnumerable<GameModelDto> games;
 
@@ -25,7 +25,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     // GET: games/find/GUID
     [HttpGet("find/{id}")]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync(Guid id)
+    public async Task<IActionResult> GetGameByIdAsync(Guid id)
     {
         GameModelDto game;
 
@@ -36,7 +36,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/STRING
     [HttpGet("{key}")]
-    public async Task<IActionResult> GetAsync(string key)
+    public async Task<IActionResult> GetGameByKeyAsync(string key)
     {
         GameModelDto game;
 
@@ -48,7 +48,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     // GET: games/GUID/genres
     [HttpGet("{id}/genres")]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetGenresByGameAsync(Guid id)
+    public async Task<IActionResult> GetGenresByGameIdAsync(Guid id)
     {
         IEnumerable<GenreModelDto> genres;
 
@@ -60,7 +60,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     // GET: games/GUID/platforms
     [HttpGet("{id}/platforms")]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetPlatformsByGameAsync(Guid id)
+    public async Task<IActionResult> GetPlatformsByGameIdAsync(Guid id)
     {
         IEnumerable<PlatformModelDto> platforms;
 
@@ -71,7 +71,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/GUID/publisher
     [HttpGet("{id}/publisher")]
-    public async Task<IActionResult> GetPublisherByGameAsync(Guid id)
+    public async Task<IActionResult> GetPublisherByGameIdAsync(Guid id)
     {
         var publisher = await _gameService.GetPublisherByGameIdAsync(id);
 
@@ -83,11 +83,10 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         return Ok(publisher);
     }
 
-    // https://localhost:44394/games/baldursgate/file
     // GET: games/STRING/file
     [HttpGet("{key}/file")]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> DownloadAsync(string key)
+    public async Task<IActionResult> DownloadGameAsync(string key)
     {
         string fileName;
         byte[] serialized;
@@ -107,7 +106,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] GameModel gameModel)
+    public async Task<IActionResult> AddGameAsync([FromBody] GameModel gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
 
@@ -116,7 +115,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // PUT: games
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] GameUpdateModel gameModel)
+    public async Task<IActionResult> UpdateGameAsync([FromBody] GameUpdateModel gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
 
@@ -125,7 +124,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // DELETE: games
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> DeleteGameByIdAsync(Guid id)
     {
         await _gameService.DeleteGameByIdAsync(id);
 

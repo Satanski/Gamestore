@@ -14,7 +14,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
     // GET: platforms/GUID/games
     [HttpGet("{id}/games")]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetGamesByPlatformAsync(Guid id)
+    public async Task<IActionResult> GetGamesByPlatformIdAsync(Guid id)
     {
         IEnumerable<GameModelDto> games;
 
@@ -36,7 +36,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] PlatformModelDto platformModel)
+    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformModelDto platformModel)
     {
         try
         {
@@ -57,85 +57,37 @@ public class PlatformsController([FromServices] IPlatformService platformService
     // GET: platforms/GUID
     [HttpGet("{id}")]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync(Guid id)
+    public async Task<IActionResult> GetPlatformByIdAsync(Guid id)
     {
-        PlatformModelDto platform;
+        var platform = await _platformService.GetPlatformByIdAsync(id);
 
-        try
-        {
-            platform = await _platformService.GetPlatformByIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(platform);
+        return platform == null ? NotFound() : Ok(platform);
     }
 
     // GET: platforms
     [HttpGet]
     [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetPlatformsAsync()
     {
-        IEnumerable<PlatformModelDto> platforms;
+        var platforms = await _platformService.GetAllPlatformsAsync();
 
-        try
-        {
-            platforms = await _platformService.GetAllPlatformsAsync();
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(platforms);
+        return platforms.Any() ? Ok(platforms) : NotFound();
     }
 
     // PUT: platforms
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] PlatformModel platformModel)
+    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformModel platformModel)
     {
-        try
-        {
-            await _platformService.UpdatePlatformAsync(platformModel);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.UpdatePlatformAsync(platformModel);
 
         return Ok();
     }
 
     // DELETE: platforms
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> DeletePlatformByIdAsync(Guid id)
     {
-        try
-        {
-            await _platformService.DeletePlatformByIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.DeletePlatformByIdAsync(id);
 
         return Ok();
     }
