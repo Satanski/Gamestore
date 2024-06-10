@@ -188,10 +188,11 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
                 quantity = unitInStock;
             }
 
-            Order order = new() { Id = Guid.NewGuid(), CustomerId = customerId, Date = DateTime.Now, Status = OrderStatus.Open };
-            OrderGame orderGame = new() { OrderId = order.Id, ProductId = game.Id, Price = 10, Discount = 10, Quantity = quantity };
+            var newOrderId = Guid.NewGuid();
+            List<OrderGame> orderGames = [new() { OrderId = newOrderId, ProductId = game.Id, Price = 10, Discount = 10, Quantity = quantity }];
+            Order order = new() { Id = newOrderId, CustomerId = customerId, Date = DateTime.Now, OrderGames = orderGames, Status = OrderStatus.Open };
             await unitOfWork.OrderRepository.AddAsync(order);
-            await unitOfWork.OrderGameRepository.AddAsync(orderGame);
+            await unitOfWork.OrderGameRepository.AddAsync(orderGames[0]);
             await unitOfWork.SaveAsync();
         }
         else
@@ -200,10 +201,10 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
             var expectedTotalQuantity = quantity + existingOrderGame.Quantity;
             if (expectedTotalQuantity > unitInStock)
             {
-                quantity = unitInStock;
+                expectedTotalQuantity = unitInStock;
             }
 
-            existingOrderGame.Quantity = quantity;
+            existingOrderGame.Quantity = expectedTotalQuantity;
             await unitOfWork.OrderGameRepository.UpdateAsync(existingOrderGame);
             await unitOfWork.SaveAsync();
         }

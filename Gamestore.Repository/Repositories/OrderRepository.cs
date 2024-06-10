@@ -8,9 +8,9 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
 {
     private readonly GamestoreContext _context = context;
 
-    public Task<List<Order>> GetAllAsync()
+    public async Task<List<Order>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return await _context.Orders.ToListAsync();
     }
 
     public async Task<Order> GetByCustomerId(Guid id)
