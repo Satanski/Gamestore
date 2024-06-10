@@ -3,6 +3,7 @@ using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
+using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
@@ -171,6 +172,20 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         else
         {
             throw new GamestoreException($"No game found with given id: {gameId}");
+        }
+    }
+
+    public async Task BuyGameAsync(Guid customerId, Guid gameId, int quantity)
+    {
+        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerId(customerId);
+
+        if (exisitngOrder == null)
+        {
+            Order order = new() { Id = Guid.NewGuid(), CustomerId = customerId, Date = DateTime.Now, Status = OrderStatus.Open };
+            OrderGame orderGame = new() { OrderId = order.Id, ProductId = gameId, Price = 10, Discount = 10, Quantity = quantity };
+            await unitOfWork.OrderRepository.AddAsync(order);
+            await unitOfWork.OrderGameRepository.AddAsync(orderGame);
+            await unitOfWork.SaveAsync();
         }
     }
 

@@ -13,6 +13,10 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
 
     public DbSet<Publisher> Publishers { get; set; }
 
+    public DbSet<Order> Orders { get; set; }
+
+    public DbSet<OrderGame> OrderGames { get; set; }
+
     public DbSet<GameGenre> GameGenres { get; set; }
 
     public DbSet<GamePlatform> GamePlatforms { get; set; }

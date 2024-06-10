@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.BLL.Models;
 
-public class PublisherModel
+public record PublisherModel
 {
     public Guid Id { get; set; }
 

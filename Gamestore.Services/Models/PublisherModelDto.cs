@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.BLL.Models;
 
-public class PublisherModelDto
+public record PublisherModelDto
 {
     public string CompanyName { get; set; }
 

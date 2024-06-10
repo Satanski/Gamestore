@@ -37,4 +37,6 @@ public class Game
     public List<GameGenre> GameGenres { get; set; }
 
     public List<GamePlatform> GamePlatforms { get; set; }
+
+    public List<OrderGame> OrderGames { get; set; }
 }
