@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
+using Gamestore.WebApi.Stubs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -109,6 +110,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     public async Task<IActionResult> AddGameAsync([FromBody] GameModel gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
+
+        return Ok();
+    }
+
+    // POST: games/STRING/buy
+    [HttpPost("{key}/buy")]
+    public async Task<IActionResult> AddGameToCartAsync(string key)
+    {
+        await _gameService.AddGameToCartAsync(CustomerStub.Id, key, 1);
 
         return Ok();
     }

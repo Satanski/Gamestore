@@ -1,6 +1,5 @@
 ﻿using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
-using Gamestore.DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;

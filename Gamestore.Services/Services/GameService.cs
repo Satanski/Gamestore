@@ -175,16 +175,36 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
     }
 
-    public async Task BuyGameAsync(Guid customerId, Guid gameId, int quantity)
+    public async Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity)
     {
-        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerId(customerId);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+        var unitInStock = game.UnitInStock;
 
+        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerId(customerId);
         if (exisitngOrder == null)
         {
+            if (quantity > unitInStock)
+            {
+                quantity = unitInStock;
+            }
+
             Order order = new() { Id = Guid.NewGuid(), CustomerId = customerId, Date = DateTime.Now, Status = OrderStatus.Open };
-            OrderGame orderGame = new() { OrderId = order.Id, ProductId = gameId, Price = 10, Discount = 10, Quantity = quantity };
+            OrderGame orderGame = new() { OrderId = order.Id, ProductId = game.Id, Price = 10, Discount = 10, Quantity = quantity };
             await unitOfWork.OrderRepository.AddAsync(order);
             await unitOfWork.OrderGameRepository.AddAsync(orderGame);
+            await unitOfWork.SaveAsync();
+        }
+        else
+        {
+            OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, game.Id);
+            var expectedTotalQuantity = quantity + existingOrderGame.Quantity;
+            if (expectedTotalQuantity > unitInStock)
+            {
+                quantity = unitInStock;
+            }
+
+            existingOrderGame.Quantity = quantity;
+            await unitOfWork.OrderGameRepository.UpdateAsync(existingOrderGame);
             await unitOfWork.SaveAsync();
         }
     }
