@@ -12,7 +12,6 @@ namespace Gamestore.Services.Services;
 public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
 {
     private readonly PlatformModelValidator _platformModelValidator = new(unitOfWork);
-    private readonly PlatformModelDtoValidator _platformModelDtoValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModelDto>> GetGamesByPlatformIdAsync(Guid platformId)
     {
@@ -29,10 +28,10 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
         return gameModels.AsEnumerable();
     }
 
-    public async Task AddPlatformAsync(PlatformModelDto platformModel)
+    public async Task AddPlatformAsync(PlatformModel platformModel)
     {
         logger.LogInformation("Adding platform: {@platformModel}", platformModel);
-        var result = await _platformModelDtoValidator.ValidateAsync(platformModel);
+        var result = await _platformModelValidator.ValidateAsync(platformModel);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());

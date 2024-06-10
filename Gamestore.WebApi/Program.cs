@@ -51,6 +51,11 @@ public static class Program
             app.UseSwaggerUI();
         }
 
+        app.UseCors(x => x
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.UseMiddleware<GameCounterMiddleware>();

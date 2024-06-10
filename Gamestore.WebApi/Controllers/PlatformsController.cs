@@ -36,7 +36,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformModelDto platformModel)
+    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformModel platformModel)
     {
         try
         {
