@@ -22,7 +22,7 @@ internal class GameConfiguration : IEntityTypeConfiguration<Game>
             Discount = 10,
             Price = 250,
             UnitInStock = 15,
-            PublisherId = new Guid("00000000-0000-0000-0000-000000000000"),
+            PublisherId = new Guid("22222222-2222-2222-2222-222222222222"),
         });
 
         builder.HasData(new Game()
