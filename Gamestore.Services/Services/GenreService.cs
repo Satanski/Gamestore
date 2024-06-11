@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
@@ -14,16 +15,16 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     private readonly GenreModelValidator _genreModelValidator = new(unitOfWork);
     private readonly GenreModelDtoValidator _genreModelDtoValidator = new(unitOfWork);
 
-    public async Task AddGenreAsync(GenreModelDto genreModel)
+    public async Task AddGenreAsync(GenreAddDto genreModel)
     {
         logger.LogInformation("Adding genre {@genreModel}", genreModel);
-        var result = await _genreModelDtoValidator.ValidateAsync(genreModel);
+        var result = await _genreModelDtoValidator.ValidateAsync(genreModel.Genre);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());
         }
 
-        var genre = automapper.Map<Genre>(genreModel);
+        var genre = automapper.Map<Genre>(genreModel.Genre);
 
         await unitOfWork.GenreRepository.AddAsync(genre);
 
@@ -45,15 +46,15 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         }
     }
 
-    public async Task<IEnumerable<GenreModelDto>> GetAllGenresAsync()
+    public async Task<IEnumerable<GenreModel>> GetAllGenresAsync()
     {
         logger.LogInformation("Getting all genres");
         var genres = await unitOfWork.GenreRepository.GetAllAsync();
-        List<GenreModelDto> genreModels = [];
+        List<GenreModel> genreModels = [];
 
         foreach (var genre in genres)
         {
-            genreModels.Add(automapper.Map<GenreModelDto>(genre));
+            genreModels.Add(automapper.Map<GenreModel>(genre));
         }
 
         return genreModels.AsEnumerable();
@@ -74,12 +75,12 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         return gameModels.AsEnumerable();
     }
 
-    public async Task<GenreModelDto> GetGenreByIdAsync(Guid genreId)
+    public async Task<GenreModel> GetGenreByIdAsync(Guid genreId)
     {
         logger.LogInformation("Getting genre by id: {genreId}", genreId);
         var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
 
-        return genre == null ? throw new GamestoreException($"No genre found with given id: {genreId}") : automapper.Map<GenreModelDto>(genre);
+        return genre == null ? throw new GamestoreException($"No genre found with given id: {genreId}") : automapper.Map<GenreModel>(genre);
     }
 
     public async Task<IEnumerable<GenreModelDto>> GetGenresByParentGenreAsync(Guid genreId)
@@ -96,16 +97,16 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         return genreModels.AsEnumerable();
     }
 
-    public async Task UpdateGenreAsync(GenreModel genreModel)
+    public async Task UpdateGenreAsync(GenreUpdateDto genreModel)
     {
         logger.LogInformation("Updating genre {@genreModel}", genreModel);
-        var result = await _genreModelValidator.ValidateAsync(genreModel);
+        var result = await _genreModelValidator.ValidateAsync(genreModel.Genre);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());
         }
 
-        var genre = automapper.Map<Genre>(genreModel);
+        var genre = automapper.Map<Genre>(genreModel.Genre);
 
         await unitOfWork.GenreRepository.UpdateAsync(genre);
 

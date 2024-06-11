@@ -33,6 +33,7 @@ public class MappingProfile : Profile
         CreateMap<Publisher, PublisherModel>().ReverseMap();
         CreateMap<Publisher, PublisherModelDto>().ReverseMap();
 
+        CreateMap<GameAdd, Game>().ReverseMap();
         CreateMap<Game, GameModel>().ReverseMap();
         CreateMap<Game, GameModelDto>()
             .ForMember(dest => dest.Platforms, src => src.MapFrom(x => x.GamePlatforms))

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
+using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
-using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -15,9 +15,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpGet]
     public async Task<IActionResult> GetGamesAsync()
     {
-        IEnumerable<GameModelDto> games;
-
-        games = await _gameService.GetAllGamesAsync();
+        var games = await _gameService.GetAllGamesAsync();
 
         return games.Any() ? Ok(games) : NotFound();
     }
@@ -27,9 +25,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGameByIdAsync(Guid id)
     {
-        GameModelDto game;
-
-        game = await _gameService.GetGameByIdAsync(id);
+        var game = await _gameService.GetGameByIdAsync(id);
 
         return game == null ? NotFound() : Ok(game);
     }
@@ -38,9 +34,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpGet("{key}")]
     public async Task<IActionResult> GetGameByKeyAsync(string key)
     {
-        GameModelDto game;
-
-        game = await _gameService.GetGameByKeyAsync(key);
+        var game = await _gameService.GetGameByKeyAsync(key);
 
         return game == null ? NotFound() : Ok(game);
     }
@@ -50,9 +44,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGenresByGameIdAsync(Guid id)
     {
-        IEnumerable<GenreModelDto> genres;
-
-        genres = await _gameService.GetGenresByGameIdAsync(id);
+        var genres = await _gameService.GetGenresByGameIdAsync(id);
 
         return genres.Any() ? Ok(genres) : NotFound();
     }
@@ -62,9 +54,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetPlatformsByGameIdAsync(Guid id)
     {
-        IEnumerable<PlatformModelDto> platforms;
-
-        platforms = await _gameService.GetPlatformsByGameIdAsync(id);
+        var platforms = await _gameService.GetPlatformsByGameIdAsync(id);
 
         return platforms.Any() ? Ok(platforms) : NotFound();
     }
@@ -106,7 +96,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games
     [HttpPost]
-    public async Task<IActionResult> AddGameAsync([FromBody] GameModel gameModel)
+    public async Task<IActionResult> AddGameAsync([FromBody] GameAddDto gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
 
@@ -115,7 +105,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // PUT: games
     [HttpPut]
-    public async Task<IActionResult> UpdateGameAsync([FromBody] GameUpdateModel gameModel)
+    public async Task<IActionResult> UpdateGameAsync([FromBody] GameUpdateDto gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
 

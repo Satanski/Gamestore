@@ -1,9 +1,7 @@
 ﻿namespace Gamestore.Services.Models;
 
-public record GameModel
+public record GameAdd
 {
-    public Guid Id { get; set; }
-
     public string Key { get; set; }
 
     public string Name { get; set; }
@@ -14,11 +12,5 @@ public record GameModel
 
     public int Discount { get; set; }
 
-    public Guid PublisherId { get; set; }
-
     public string Description { get; set; }
-
-    public List<Guid> Genres { get; set; }
-
-    public List<Guid> Platforms { get; set; }
 }

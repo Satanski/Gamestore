@@ -1,4 +1,5 @@
 ﻿using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,6 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // GET: platforms/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGamesByPlatformIdAsync(Guid id)
     {
         IEnumerable<GameModelDto> games;
@@ -36,11 +36,11 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformModel platformModel)
+    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformAddDto platform)
     {
         try
         {
-            await _platformService.AddPlatformAsync(platformModel);
+            await _platformService.AddPlatformAsync(platform);
         }
         catch (GamestoreException)
         {
@@ -54,19 +54,16 @@ public class PlatformsController([FromServices] IPlatformService platformService
         return Ok();
     }
 
-    // GET: platforms/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetPlatformByIdAsync(Guid id)
     {
         var platform = await _platformService.GetPlatformByIdAsync(id);
 
-        return platform == null ? NotFound() : Ok(platform);
+        return platform != null ? Ok(platform) : NotFound();
     }
 
     // GET: platforms
     [HttpGet]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetPlatformsAsync()
     {
         var platforms = await _platformService.GetAllPlatformsAsync();
@@ -76,7 +73,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // PUT: platforms
     [HttpPut]
-    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformModel platformModel)
+    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformUpdateDto platformModel)
     {
         await _platformService.UpdatePlatformAsync(platformModel);
 

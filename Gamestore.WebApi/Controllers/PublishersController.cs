@@ -1,6 +1,5 @@
 ﻿using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
-using Gamestore.DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -47,7 +46,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // POST: publishers
     [HttpPost]
-    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherModelDto publisherModel)
+    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherAddDto publisherModel)
     {
         await publisherService.AddPublisherAsync(publisherModel);
 
@@ -56,7 +55,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // PUT: publishers
     [HttpPut]
-    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherModel publisherModel)
+    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherUpdateDto publisherModel)
     {
         await publisherService.UpdatePublisherAsync(publisherModel);
 

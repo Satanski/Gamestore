@@ -31,8 +31,12 @@ internal class GenreModelValidator : AbstractValidator<GenreModel>
         RuleFor(x => new { x.Id, x.ParentGenreId }).MustAsync(async (data, cancellation) =>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
-            var exisitngGenres = genres.Where(x => x.ParentGenreId == data.Id && x.Id == data.ParentGenreId);
-            return !exisitngGenres.Any();
+            var existingGenres = genres.Where(x => x.ParentGenreId == data.Id && x.Id == data.ParentGenreId);
+            return !existingGenres.Any();
         }).WithMessage("You can't set a parent genre that have this genre as a parent genre.");
+        RuleFor(x => new { x.Id, x.ParentGenreId }).Must((data, cancellation) =>
+        {
+            return data.Id != data.ParentGenreId;
+        }).WithMessage("You can't set the ganre as self parent genre.");
     }
 }

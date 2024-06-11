@@ -4,6 +4,8 @@ namespace Gamestore.Services.Models;
 
 public record GameModelDto
 {
+    public Guid Id { get; set; }
+
     public string Key { get; set; }
 
     public string Name { get; set; }
@@ -18,7 +20,7 @@ public record GameModelDto
 
     public PublisherModelDto Publisher { get; set; }
 
-    public List<GenreModelDto> Genres { get; set; }
+    public List<GenreModel> Genres { get; set; }
 
-    public List<PlatformModelDto> Platforms { get; set; }
+    public List<PlatformModel> Platforms { get; set; }
 }

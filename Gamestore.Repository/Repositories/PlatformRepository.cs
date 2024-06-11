@@ -23,6 +23,11 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
         return await _context.Platforms.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
+    public async Task<Platform?> GetByTypeAsync(string type)
+    {
+        return await _context.Platforms.Where(x => x.Type == type).FirstOrDefaultAsync();
+    }
+
     public async Task UpdateAsync(Platform entity)
     {
         var g = await _context.Platforms.Where(p => p.Id == entity.Id).FirstAsync();

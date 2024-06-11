@@ -5,17 +5,17 @@ namespace Gamestore.BLL.Interfaces;
 
 public interface IPublisherService
 {
-    Task AddPublisherAsync(PublisherModelDto publisherModel);
+    Task AddPublisherAsync(PublisherAddDto publisherModel);
 
     Task DeletPublisherByIdAsync(Guid publisherId);
 
-    Task<IEnumerable<PublisherModelDto>> GetAllPublishersAsync();
+    Task<IEnumerable<PublisherModel>> GetAllPublishersAsync();
 
     Task<IEnumerable<GameModel>> GetGamesByPublisherIdAsync(Guid publisherId);
 
-    Task UpdatePublisherAsync(PublisherModel publisherModel);
+    Task UpdatePublisherAsync(PublisherUpdateDto publisherModel);
 
-    Task<PublisherModelDto> GetPublisherByIdAsync(Guid publisherId);
+    Task<PublisherModel> GetPublisherByIdAsync(Guid publisherId);
 
-    Task<PublisherModelDto> GetPublisherByCompanyNameAsync(string companyName);
+    Task<PublisherModel> GetPublisherByCompanyNameAsync(string companyName);
 }
