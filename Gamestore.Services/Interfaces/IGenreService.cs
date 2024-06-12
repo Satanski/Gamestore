@@ -17,5 +17,5 @@ public interface IGenreService
 
     Task DeleteGenreAsync(Guid genreId);
 
-    Task<IEnumerable<GenreModelDto>> GetGenresByParentGenreAsync(Guid genreId);
+    Task<IEnumerable<GenreModel>> GetGenresByParentGenreAsync(Guid genreId);
 }

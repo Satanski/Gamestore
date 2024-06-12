@@ -79,7 +79,22 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
     public async Task<IEnumerable<GameModel>> GetGamesByPublisherIdAsync(Guid publisherId)
     {
         logger.LogInformation("Getting games by publisher: {publisherId}", publisherId);
-        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherAsync(publisherId);
+        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherIdAsync(publisherId);
+
+        List<GameModel> gameModels = [];
+
+        foreach (var game in games)
+        {
+            gameModels.Add(automapper.Map<GameModel>(game));
+        }
+
+        return gameModels.AsEnumerable();
+    }
+
+    public async Task<IEnumerable<GameModel>> GetGamesByPublisherNameAsync(string publisherName)
+    {
+        logger.LogInformation("Getting games by publisher: {publisherName}", publisherName);
+        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherNameAsync(publisherName);
 
         List<GameModel> gameModels = [];
 

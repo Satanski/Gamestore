@@ -18,9 +18,14 @@ public class PublisherRepository(GamestoreContext context) : RepositoryBase<Publ
         return await context.Publishers.Where(x => x.CompanyName == companyName).FirstOrDefaultAsync();
     }
 
-    public async Task<List<Game>> GetGamesByPublisherAsync(Guid id)
+    public async Task<List<Game>> GetGamesByPublisherIdAsync(Guid id)
     {
         return await context.Games.Where(x => x.PublisherId == id).ToListAsync();
+    }
+
+    public async Task<List<Game>> GetGamesByPublisherNameAsync(string name)
+    {
+        return await context.Games.Where(x => x.Name == name).ToListAsync();
     }
 
     public async Task UpdateAsync(Publisher entity)

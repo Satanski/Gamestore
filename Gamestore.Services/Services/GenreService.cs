@@ -12,13 +12,13 @@ namespace Gamestore.Services.Services;
 
 public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GenreService> logger) : IGenreService
 {
-    private readonly GenreModelValidator _genreModelValidator = new(unitOfWork);
-    private readonly GenreModelDtoValidator _genreModelDtoValidator = new(unitOfWork);
+    private readonly GenreAddValidator _genreAddValidator = new(unitOfWork);
+    private readonly GenreUpdateValidator _genreUpdateValidator = new(unitOfWork);
 
     public async Task AddGenreAsync(GenreAddDto genreModel)
     {
         logger.LogInformation("Adding genre {@genreModel}", genreModel);
-        var result = await _genreModelDtoValidator.ValidateAsync(genreModel.Genre);
+        var result = await _genreAddValidator.ValidateAsync(genreModel.Genre);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());
@@ -83,15 +83,15 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         return genre == null ? throw new GamestoreException($"No genre found with given id: {genreId}") : automapper.Map<GenreModel>(genre);
     }
 
-    public async Task<IEnumerable<GenreModelDto>> GetGenresByParentGenreAsync(Guid genreId)
+    public async Task<IEnumerable<GenreModel>> GetGenresByParentGenreAsync(Guid genreId)
     {
         logger.LogInformation("Getting genres by parent genre id: {genreId}", genreId);
         var genres = await unitOfWork.GenreRepository.GetGenresByParentGenreAsync(genreId);
-        List<GenreModelDto> genreModels = [];
+        List<GenreModel> genreModels = [];
 
         foreach (var genre in genres)
         {
-            genreModels.Add(automapper.Map<GenreModelDto>(genre));
+            genreModels.Add(automapper.Map<GenreModel>(genre));
         }
 
         return genreModels.AsEnumerable();
@@ -100,7 +100,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     public async Task UpdateGenreAsync(GenreUpdateDto genreModel)
     {
         logger.LogInformation("Updating genre {@genreModel}", genreModel);
-        var result = await _genreModelValidator.ValidateAsync(genreModel.Genre);
+        var result = await _genreUpdateValidator.ValidateAsync(genreModel.Genre);
         if (!result.IsValid)
         {
             throw new ArgumentException(result.Errors[0].ToString());

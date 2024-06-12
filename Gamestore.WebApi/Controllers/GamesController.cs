@@ -40,30 +40,28 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     }
 
     // GET: games/GUID/genres
-    [HttpGet("{id}/genres")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetGenresByGameIdAsync(Guid id)
+    [HttpGet("{key}/genres")]
+    public async Task<IActionResult> GetGenresByGameKeyAsync(string key)
     {
-        var genres = await _gameService.GetGenresByGameIdAsync(id);
+        var genres = await _gameService.GetGenresByGameKeyAsync(key);
 
         return genres.Any() ? Ok(genres) : NotFound();
     }
 
     // GET: games/GUID/platforms
-    [HttpGet("{id}/platforms")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetPlatformsByGameIdAsync(Guid id)
+    [HttpGet("{key}/platforms")]
+    public async Task<IActionResult> GetPlatformsByGameIdAsync(string key)
     {
-        var platforms = await _gameService.GetPlatformsByGameIdAsync(id);
+        var platforms = await _gameService.GetPlatformsByGameKeyAsync(key);
 
         return platforms.Any() ? Ok(platforms) : NotFound();
     }
 
     // GET: games/GUID/publisher
-    [HttpGet("{id}/publisher")]
-    public async Task<IActionResult> GetPublisherByGameIdAsync(Guid id)
+    [HttpGet("{key}/publisher")]
+    public async Task<IActionResult> GetPublisherByGameKeyAsync(string key)
     {
-        var publisher = await _gameService.GetPublisherByGameIdAsync(id);
+        var publisher = await _gameService.GetPublisherByGameKeyAsync(key);
 
         if (publisher == null)
         {
@@ -75,7 +73,6 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/STRING/file
     [HttpGet("{key}/file")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> DownloadGameAsync(string key)
     {
         string fileName;
@@ -113,10 +110,10 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     }
 
     // DELETE: games
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteGameByIdAsync(Guid id)
+    [HttpDelete("{key}")]
+    public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
-        await _gameService.DeleteGameByIdAsync(id);
+        await _gameService.DeleteGameByKeyAsync(key);
 
         return Ok();
     }

@@ -1,4 +1,5 @@
-﻿using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -19,18 +20,16 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
         games = await _genreService.GetGamesByGenreAsync(id);
 
-        return games.Any() ? Ok(games) : NotFound();
+        return Ok(games);
     }
 
     // GET: genres/GUID/games
     [HttpGet("{id}/genres")]
     public async Task<IActionResult> GetGenresByParentGenreIdAsync(Guid id)
     {
-        IEnumerable<GenreModelDto> genres;
+        var genres = await _genreService.GetGenresByParentGenreAsync(id);
 
-        genres = await _genreService.GetGenresByParentGenreAsync(id);
-
-        return genres.Any() ? Ok(genres) : NotFound();
+        return Ok(genres);
     }
 
     // POST: genres
@@ -73,6 +72,13 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteGenreByIdAsync(Guid id)
     {
+        var childGenres = await _genreService.GetGenresByParentGenreAsync(id);
+
+        if (childGenres.Any())
+        {
+            throw new GamestoreException($"You can't delete genre when it has child genres {id}");
+        }
+
         await _genreService.DeleteGenreAsync(id);
 
         return Ok();

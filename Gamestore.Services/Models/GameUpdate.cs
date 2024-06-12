@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.Services.Models;
 
-public record GameModel
+public record GameUpdate
 {
     public Guid Id { get; set; }
 
@@ -14,11 +14,5 @@ public record GameModel
 
     public int Discontinued { get; set; }
 
-    public Guid PublisherId { get; set; }
-
     public string Description { get; set; }
-
-    public List<Guid> Genres { get; set; }
-
-    public List<Guid> Platforms { get; set; }
 }

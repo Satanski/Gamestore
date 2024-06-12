@@ -3,9 +3,9 @@ using Gamestore.BLL.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class GameAddDtoValidator : AbstractValidator<GameAddDto>
+internal class GameUpdateDtoValidator : AbstractValidator<GameUpdateDto>
 {
-    internal GameAddDtoValidator()
+    internal GameUpdateDtoValidator()
     {
         RuleFor(x => x.Game).NotNull().WithMessage("Missing Game object");
         RuleFor(x => x.Publisher).NotEmpty().WithMessage("Publisher should be provided");

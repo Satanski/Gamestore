@@ -30,6 +30,7 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
             .Include(x => x.Publisher)
             .Where(x => x.Key == key)
+            .AsSplitQuery()
             .FirstOrDefaultAsync();
     }
 
@@ -40,6 +41,7 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
             .Include(x => x.Publisher)
             .Where(x => x.Id == id)
+            .AsSplitQuery()
             .FirstOrDefaultAsync();
     }
 
@@ -54,6 +56,8 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         return await _context.Games
             .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-            .Include(x => x.Publisher).ToListAsync();
+            .Include(x => x.Publisher)
+            .AsSplitQuery()
+            .ToListAsync();
     }
 }

@@ -13,6 +13,8 @@ public interface IPublisherService
 
     Task<IEnumerable<GameModel>> GetGamesByPublisherIdAsync(Guid publisherId);
 
+    Task<IEnumerable<GameModel>> GetGamesByPublisherNameAsync(string publisherName);
+
     Task UpdatePublisherAsync(PublisherUpdateDto publisherModel);
 
     Task<PublisherModel> GetPublisherByIdAsync(Guid publisherId);

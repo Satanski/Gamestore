@@ -29,13 +29,17 @@ public class MappingProfile : Profile
         CreateMap<Platform, PlatformModel>().ReverseMap();
         CreateMap<Platform, PlatformModelDto>().ReverseMap();
         CreateMap<Genre, GenreModel>().ReverseMap();
+        CreateMap<Genre, GenreAdd>().ReverseMap();
+        CreateMap<Genre, GenreUpdate>().ReverseMap();
         CreateMap<Genre, GenreModelDto>().ReverseMap();
         CreateMap<Publisher, PublisherModel>().ReverseMap();
         CreateMap<Publisher, PublisherModelDto>().ReverseMap();
 
-        CreateMap<GameAdd, Game>().ReverseMap();
-        CreateMap<Game, GameModel>().ReverseMap();
+        CreateMap<GameAdd, Game>().ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued)).ReverseMap();
+        CreateMap<GameUpdate, Game>().ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued)).ReverseMap();
+        CreateMap<Game, GameModel>().ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discount)).ReverseMap();
         CreateMap<Game, GameModelDto>()
+            .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discount))
             .ForMember(dest => dest.Platforms, src => src.MapFrom(x => x.GamePlatforms))
             .ForMember(dest => dest.Genres, src => src.MapFrom(x => x.GameGenres));
         CreateMap<GameUpdateModel, Game>();

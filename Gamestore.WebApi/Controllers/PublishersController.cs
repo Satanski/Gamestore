@@ -36,12 +36,12 @@ public class PublishersController([FromServices] IPublisherService publisherServ
     }
 
     // GET: publishers/GUID/games
-    [HttpGet("{id}/games")]
-    public async Task<IActionResult> GetGamesByPublisher(Guid id)
+    [HttpGet("{publisherName}/games")]
+    public async Task<IActionResult> GetGamesByPublisherName(string publisherName)
     {
-        var games = await publisherService.GetGamesByPublisherIdAsync(id);
+        var games = await publisherService.GetGamesByPublisherNameAsync(publisherName);
 
-        return games.Any() ? NotFound() : Ok(games);
+        return Ok(games);
     }
 
     // POST: publishers
