@@ -10,22 +10,25 @@ public class OrderGameRepository(GamestoreContext context) : RepositoryBase<Orde
 
     public Task<List<OrderGame>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return _context.OrderGames.ToListAsync();
     }
 
     public Task<OrderGame?> GetByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        return _context.OrderGames.FirstOrDefaultAsync(x => x.OrderId == id);
     }
 
-    public async Task<OrderGame> GetByOrderIdAndProductIdAsync(Guid orderId, Guid productId)
+    public Task<OrderGame?> GetByOrderIdAndProductIdAsync(Guid orderId, Guid productId)
     {
-        return await _context.OrderGames.Where(x => x.OrderId == orderId && x.ProductId == productId).FirstOrDefaultAsync();
+        return _context.OrderGames.Where(x => x.OrderId == orderId && x.ProductId == productId).FirstOrDefaultAsync();
     }
 
     public async Task UpdateAsync(OrderGame entity)
     {
-        var g = await _context.OrderGames.Where(x => x.ProductId == entity.ProductId && x.OrderId == entity.Order.Id).FirstAsync();
-        _context.Entry(g).CurrentValues.SetValues(entity);
+        var g = await _context.OrderGames.Where(x => x.ProductId == entity.ProductId && x.OrderId == entity.OrderId).FirstOrDefaultAsync();
+        if (g != null)
+        {
+            _context.Entry(g).CurrentValues.SetValues(entity);
+        }
     }
 }

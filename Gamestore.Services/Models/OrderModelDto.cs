@@ -1,6 +1,6 @@
 ﻿using Gamestore.DAL.Enums;
 
-namespace Gamestore.DAL.Entities;
+namespace Gamestore.BLL.Models;
 
 public record OrderModelDto
 {
@@ -12,5 +12,5 @@ public record OrderModelDto
 
     public DateTime Date { get; set; }
 
-    public List<OrderGame> OrderGames { get; set; }
+    public List<OrderGameDto> OrderGames { get; set; }
 }

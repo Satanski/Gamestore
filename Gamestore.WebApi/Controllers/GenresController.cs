@@ -45,7 +45,6 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGenreByIdAsync(Guid id)
     {
         var genre = await _genreService.GetGenreByIdAsync(id);
@@ -55,7 +54,6 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres
     [HttpGet]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGenresAsync()
     {
         var genres = await _genreService.GetAllGenresAsync();

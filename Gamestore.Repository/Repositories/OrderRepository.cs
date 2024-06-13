@@ -10,7 +10,7 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
 
     public Task<List<Order>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        return _context.Orders.ToListAsync();
     }
 
     public Task<Order?> GetByCustomerIdAsync(Guid id)

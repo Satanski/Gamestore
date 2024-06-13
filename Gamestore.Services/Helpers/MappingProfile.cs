@@ -38,5 +38,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Platforms, src => src.MapFrom(x => x.GamePlatforms))
             .ForMember(dest => dest.Genres, src => src.MapFrom(x => x.GameGenres));
         CreateMap<GameUpdateModel, Game>();
+
+        CreateMap<OrderModelDto, Order>().ReverseMap();
+        CreateMap<OrderGameDto, OrderGame>().ReverseMap();
     }
 }
