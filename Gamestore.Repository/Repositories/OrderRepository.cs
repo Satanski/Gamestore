@@ -8,13 +8,23 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
 {
     private readonly GamestoreContext _context = context;
 
-    public async Task<List<Order>> GetAllAsync()
+    public Task<List<Order>> GetAllAsync()
     {
-        return await _context.Orders.ToListAsync();
+        throw new NotImplementedException();
     }
 
-    public async Task<Order> GetByCustomerId(Guid id)
+    public Task<Order?> GetByCustomerIdAsync(Guid id)
     {
-        return await _context.Orders.Where(x => x.CustomerId == id).FirstOrDefaultAsync();
+        return _context.Orders.Where(x => x.CustomerId == id).FirstOrDefaultAsync();
+    }
+
+    public Task<Order?> GetByIdAsync(Guid id)
+    {
+        return _context.Orders.Where(x => x.Id == id).FirstOrDefaultAsync();
+    }
+
+    public Task UpdateAsync(Order entity)
+    {
+        throw new NotImplementedException();
     }
 }

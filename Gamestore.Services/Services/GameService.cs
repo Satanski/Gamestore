@@ -180,7 +180,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
         var unitInStock = game.UnitInStock;
 
-        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerId(customerId);
+        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customerId);
         if (exisitngOrder == null)
         {
             if (quantity > unitInStock)
