@@ -31,31 +31,31 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
         }
     }
 
-    public async Task<PublisherDto> GetPublisherByIdAsync(Guid publisherId)
+    public async Task<PublisherModelDto> GetPublisherByIdAsync(Guid publisherId)
     {
         logger.LogInformation("Getting publisher by Id: {publisherId}", publisherId);
         var publisher = await unitOfWork.PublisherRepository.GetByIdAsync(publisherId);
 
-        return publisher == null ? throw new GamestoreException($"No publisher found with given id: {publisherId}") : automapper.Map<PublisherDto>(publisher);
+        return publisher == null ? throw new GamestoreException($"No publisher found with given id: {publisherId}") : automapper.Map<PublisherModelDto>(publisher);
     }
 
-    public async Task<PublisherDto> GetPublisherByCompanyNameAsync(string companyName)
+    public async Task<PublisherModelDto> GetPublisherByCompanyNameAsync(string companyName)
     {
         logger.LogInformation("Getting publisher by CompanyName: {companyName}", companyName);
         var publisher = await unitOfWork.PublisherRepository.GetByCompanyNameAsync(companyName);
 
-        return publisher == null ? throw new GamestoreException($"No publisher found with given company name: {companyName}") : automapper.Map<PublisherDto>(publisher);
+        return publisher == null ? throw new GamestoreException($"No publisher found with given company name: {companyName}") : automapper.Map<PublisherModelDto>(publisher);
     }
 
-    public async Task<IEnumerable<PublisherDto>> GetAllPublishersAsync()
+    public async Task<IEnumerable<PublisherModelDto>> GetAllPublishersAsync()
     {
         logger.LogInformation("Getting all publishers");
         var publishers = await unitOfWork.PublisherRepository.GetAllAsync();
-        List<PublisherDto> publisherModels = [];
+        List<PublisherModelDto> publisherModels = [];
 
         foreach (var publisher in publishers)
         {
-            publisherModels.Add(automapper.Map<PublisherDto>(publisher));
+            publisherModels.Add(automapper.Map<PublisherModelDto>(publisher));
         }
 
         return publisherModels.AsEnumerable();

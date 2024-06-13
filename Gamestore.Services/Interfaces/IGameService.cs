@@ -21,7 +21,7 @@ public interface IGameService
 
     Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameKeyAsync(string gameKey);
 
-    Task<PublisherDto> GetPublisherByGameKeyAsync(string gameKey);
+    Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey);
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 }

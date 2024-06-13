@@ -4,7 +4,7 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Validation;
 
-internal class PublisherDtoWrapperValidator : AbstractValidator<PublisherDto>
+internal class PublisherDtoWrapperValidator : AbstractValidator<PublisherModelDto>
 {
     public PublisherDtoWrapperValidator(IUnitOfWork unitOfWork)
     {

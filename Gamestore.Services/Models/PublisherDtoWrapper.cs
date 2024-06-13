@@ -2,5 +2,5 @@
 
 public record PublisherDtoWrapper
 {
-    public PublisherDto Publisher { get; set; }
+    public PublisherModelDto Publisher { get; set; }
 }

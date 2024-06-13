@@ -39,7 +39,7 @@ public record GameModelDto
 
     public string Description { get; set; }
 
-    public PublisherDto? Publisher { get; set; }
+    public PublisherModelDto? Publisher { get; set; }
 
     public List<GenreModelDto>? Genres { get; set; }
 

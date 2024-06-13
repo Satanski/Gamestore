@@ -59,14 +59,14 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return platformModels.AsEnumerable();
     }
 
-    public async Task<PublisherDto> GetPublisherByGameKeyAsync(string gameKey)
+    public async Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey)
     {
         logger.LogInformation("Getting publisher by game Key: {gameKey}", gameKey);
 
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
         var publisher = await unitOfWork.GameRepository.GetPublisherByGameAsync(game.Id);
 
-        return automapper.Map<PublisherDto>(publisher);
+        return automapper.Map<PublisherModelDto>(publisher);
     }
 
     public async Task<GameModelDto> GetGameByIdAsync(Guid gameId)

@@ -9,7 +9,7 @@ public interface IPublisherService
 
     Task DeletPublisherByIdAsync(Guid publisherId);
 
-    Task<IEnumerable<PublisherDto>> GetAllPublishersAsync();
+    Task<IEnumerable<PublisherModelDto>> GetAllPublishersAsync();
 
     Task<IEnumerable<GameModelDto>> GetGamesByPublisherIdAsync(Guid publisherId);
 
@@ -17,7 +17,7 @@ public interface IPublisherService
 
     Task UpdatePublisherAsync(PublisherDtoWrapper publisherModel);
 
-    Task<PublisherDto> GetPublisherByIdAsync(Guid publisherId);
+    Task<PublisherModelDto> GetPublisherByIdAsync(Guid publisherId);
 
-    Task<PublisherDto> GetPublisherByCompanyNameAsync(string companyName);
+    Task<PublisherModelDto> GetPublisherByCompanyNameAsync(string companyName);
 }

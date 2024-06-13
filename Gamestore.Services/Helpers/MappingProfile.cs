@@ -22,7 +22,7 @@ public class MappingProfile : Profile
 
         CreateMap<Platform, PlatformModelDto>().ReverseMap();
         CreateMap<Genre, GenreModelDto>().ReverseMap();
-        CreateMap<Publisher, PublisherDto>().ReverseMap();
+        CreateMap<Publisher, PublisherModelDto>().ReverseMap();
 
         CreateMap<Game, GameModelDto>()
             .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discount))

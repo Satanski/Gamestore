@@ -1,8 +1,8 @@
 ﻿namespace Gamestore.BLL.Models;
 
-public class PublisherDto
+public class PublisherModelDto
 {
-    public Guid? Id { get; set; }
+    public Guid Id { get; set; }
 
     public string CompanyName { get; set; }
 
