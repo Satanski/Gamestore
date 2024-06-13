@@ -36,7 +36,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformAddDto platform)
+    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformDtoWrapper platform)
     {
         try
         {
@@ -73,7 +73,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // PUT: platforms
     [HttpPut]
-    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformUpdateDto platformModel)
+    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformDtoWrapper platformModel)
     {
         await _platformService.UpdatePlatformAsync(platformModel);
 

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
@@ -12,8 +13,7 @@ namespace Gamestore.Services.Services;
 
 public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
 {
-    private readonly PlatformModelValidator _platformModelValidator = new(unitOfWork);
-    private readonly PlatformModelDtoValidator _platformModelDtoValidator = new(unitOfWork);
+    private readonly PlatformDtoWrapperValidator _platformDtoWrapperValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModelDto>> GetGamesByPlatformIdAsync(Guid platformId)
     {
@@ -30,56 +30,26 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
         return gameModels.AsEnumerable();
     }
 
-    public async Task AddPlatformAsync(PlatformAddDto receivedPlatform)
-    {
-        logger.LogInformation("Adding platform: {@platform}", receivedPlatform);
-        var result = await _platformModelDtoValidator.ValidateAsync(receivedPlatform.Platform);
-        if (!result.IsValid)
-        {
-            throw new ArgumentException(result.Errors[0].ToString());
-        }
-
-        var platform = automapper.Map<Platform>(receivedPlatform.Platform);
-
-        await unitOfWork.PlatformRepository.AddAsync(platform);
-        await unitOfWork.SaveAsync();
-    }
-
-    public async Task<PlatformModel> GetPlatformByIdAsync(Guid platformId)
+    public async Task<PlatformModelDto> GetPlatformByIdAsync(Guid platformId)
     {
         logger.LogInformation("Getting platform by id: {platformId}", platformId);
         var platform = await unitOfWork.PlatformRepository.GetByIdAsync(platformId);
 
-        return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : automapper.Map<PlatformModel>(platform);
+        return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : automapper.Map<PlatformModelDto>(platform);
     }
 
-    public async Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync()
+    public async Task<IEnumerable<PlatformModelDto>> GetAllPlatformsAsync()
     {
         logger.LogInformation("Getting all platforms");
         var platforms = await unitOfWork.PlatformRepository.GetAllAsync();
-        List<PlatformModel> platformModels = [];
+        List<PlatformModelDto> platformModels = [];
 
         foreach (var platform in platforms)
         {
-            platformModels.Add(automapper.Map<PlatformModel>(platform));
+            platformModels.Add(automapper.Map<PlatformModelDto>(platform));
         }
 
         return platformModels.AsEnumerable();
-    }
-
-    public async Task UpdatePlatformAsync(PlatformUpdateDto platformModel)
-    {
-        logger.LogInformation("Updating platform: {@platformModel}", platformModel);
-        var result = await _platformModelValidator.ValidateAsync(platformModel.Platform);
-        if (!result.IsValid)
-        {
-            throw new ArgumentException(result.Errors[0].ToString());
-        }
-
-        var platform = automapper.Map<Platform>(platformModel.Platform);
-
-        await unitOfWork.PlatformRepository.UpdateAsync(platform);
-        await unitOfWork.SaveAsync();
     }
 
     public async Task DeletePlatformByIdAsync(Guid platformId)
@@ -95,5 +65,29 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
         {
             throw new GamestoreException($"No platform found with given id: {platformId}");
         }
+    }
+
+    public async Task AddPlatformAsync(PlatformDtoWrapper platformModel)
+    {
+        logger.LogInformation("Adding platform: {@platform}", platformModel);
+
+        await _platformDtoWrapperValidator.ValidatePlatform(platformModel);
+
+        var platform = automapper.Map<Platform>(platformModel.Platform);
+
+        await unitOfWork.PlatformRepository.AddAsync(platform);
+        await unitOfWork.SaveAsync();
+    }
+
+    public async Task UpdatePlatformAsync(PlatformDtoWrapper platformModel)
+    {
+        logger.LogInformation("Updating platform: {@platformModel}", platformModel);
+
+        await _platformDtoWrapperValidator.ValidatePlatform(platformModel);
+
+        var platform = automapper.Map<Platform>(platformModel.Platform);
+
+        await unitOfWork.PlatformRepository.UpdateAsync(platform);
+        await unitOfWork.SaveAsync();
     }
 }

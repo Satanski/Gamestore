@@ -46,7 +46,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // POST: publishers
     [HttpPost]
-    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherAddDto publisherModel)
+    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.AddPublisherAsync(publisherModel);
 
@@ -55,7 +55,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // PUT: publishers
     [HttpPut]
-    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherUpdateDto publisherModel)
+    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.UpdatePublisherAsync(publisherModel);
 

@@ -2,7 +2,7 @@
 
 namespace Gamestore.BLL.Models;
 
-public record PlatformAddDto
+public record PlatformDtoWrapper
 {
     public PlatformModelDto Platform { get; set; }
 }

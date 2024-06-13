@@ -8,9 +8,9 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
 {
     private readonly GamestoreContext _context = context;
 
-    public async Task<List<Game>> GetGamesByPlatformAsync(Guid id)
+    public Task<List<Game>> GetGamesByPlatformAsync(Guid id)
     {
-        return await _context.Games
+        return _context.Games
            .Include(x => x.Publisher)
            .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
            .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
@@ -18,14 +18,14 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
            .ToListAsync();
     }
 
-    public async Task<Platform?> GetByIdAsync(Guid id)
+    public Task<Platform?> GetByIdAsync(Guid id)
     {
-        return await _context.Platforms.Where(x => x.Id == id).FirstOrDefaultAsync();
+        return _context.Platforms.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task<Platform?> GetByTypeAsync(string type)
+    public Task<Platform?> GetByTypeAsync(string type)
     {
-        return await _context.Platforms.Where(x => x.Type == type).FirstOrDefaultAsync();
+        return _context.Platforms.Where(x => x.Type == type).FirstOrDefaultAsync();
     }
 
     public async Task UpdateAsync(Platform entity)
@@ -34,8 +34,8 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
         _context.Entry(g).CurrentValues.SetValues(entity);
     }
 
-    public async Task<List<Platform>> GetAllAsync()
+    public Task<List<Platform>> GetAllAsync()
     {
-        return await _context.Platforms.ToListAsync();
+        return _context.Platforms.ToListAsync();
     }
 }

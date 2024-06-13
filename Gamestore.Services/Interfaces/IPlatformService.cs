@@ -5,15 +5,15 @@ namespace Gamestore.Services.Interfaces;
 
 public interface IPlatformService
 {
-    Task AddPlatformAsync(PlatformAddDto receivedPlatform);
+    Task AddPlatformAsync(PlatformDtoWrapper platformModel);
 
     Task<IEnumerable<GameModelDto>> GetGamesByPlatformIdAsync(Guid platformId);
 
-    Task<PlatformModel> GetPlatformByIdAsync(Guid platformId);
+    Task<PlatformModelDto> GetPlatformByIdAsync(Guid platformId);
 
-    Task<IEnumerable<PlatformModel>> GetAllPlatformsAsync();
+    Task<IEnumerable<PlatformModelDto>> GetAllPlatformsAsync();
 
-    Task UpdatePlatformAsync(PlatformUpdateDto platformModel);
+    Task UpdatePlatformAsync(PlatformDtoWrapper platformModel);
 
     Task DeletePlatformByIdAsync(Guid platformId);
 }

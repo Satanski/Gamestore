@@ -93,7 +93,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games
     [HttpPost]
-    public async Task<IActionResult> AddGameAsync([FromBody] GameAddDto gameModel)
+    public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
 
@@ -102,7 +102,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // PUT: games
     [HttpPut]
-    public async Task<IActionResult> UpdateGameAsync([FromBody] GameUpdateDto gameModel)
+    public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
 

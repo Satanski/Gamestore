@@ -1,19 +1,26 @@
 ﻿using FluentValidation;
+using Gamestore.BLL.Helpers;
+using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class GenreModelValidator : AbstractValidator<GenreModel>
+internal class GenreDtoWrapperUpdateValidator : AbstractValidator<GenreModelDto>
 {
-    internal GenreModelValidator(IUnitOfWork unitOfWork)
+    internal GenreDtoWrapperUpdateValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage("Missing name");
-        RuleFor(x => x.Id).MustAsync(async (id, cancellation) =>
+        RuleFor(x => x.Name).Must(companyName =>
+        {
+            return !string.IsNullOrEmpty(companyName);
+        }).WithMessage("Name can't be an empty string");
+
+        RuleFor(x => new { x.Name, x.Id }).MustAsync(async (data, cancellation) =>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
-            var exisitngGenres = genres.Where(x => x.Id == id);
-            return exisitngGenres.Any();
+            var exisitngGenres = genres.Where(x => x.Name == data.Name && x.Id != data.Id);
+            return !exisitngGenres.Any();
         }).WithMessage("This genre doesn't exist");
         RuleFor(x => x.ParentGenreId).MustAsync(async (id, cancellation) =>
         {
@@ -34,6 +41,18 @@ internal class GenreModelValidator : AbstractValidator<GenreModel>
             var existingGenres = genres.Where(x => x.ParentGenreId == data.Id && x.Id == data.ParentGenreId);
             return !existingGenres.Any();
         }).WithMessage("You can't set a parent genre that have this genre as a parent genre.");
+        RuleFor(x => new { x.Id, x.ParentGenreId }).MustAsync(async (data, cancellation) =>
+        {
+            var genres = await unitOfWork.GenreRepository.GetAllAsync();
+            List<Genre> forbiddenList = [];
+
+            if (data.Id != null)
+            {
+                ValidationHelpers.CyclicReferenceHelper(genres, forbiddenList, (Guid)data.Id);
+            }
+
+            return !forbiddenList.Exists(x => x.Id == data.ParentGenreId);
+        }).WithMessage("Cyclic references not allowed");
         RuleFor(x => new { x.Id, x.ParentGenreId }).Must((data, cancellation) =>
         {
             return data.Id != data.ParentGenreId;

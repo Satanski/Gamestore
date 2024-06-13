@@ -2,9 +2,9 @@
 
 namespace Gamestore.BLL.Models;
 
-public record GameAddDto
+public record GameDtoWrapper
 {
-    public GameAdd Game { get; set; }
+    public GameModelDto Game { get; set; }
 
     public Guid Publisher { get; set; }
 

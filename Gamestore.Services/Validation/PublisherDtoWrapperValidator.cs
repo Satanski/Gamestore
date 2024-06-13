@@ -4,11 +4,15 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Validation;
 
-internal class PublisherModelDtoValidator : AbstractValidator<PublisherModelDto>
+internal class PublisherDtoWrapperValidator : AbstractValidator<PublisherDto>
 {
-    public PublisherModelDtoValidator(IUnitOfWork unitOfWork)
+    public PublisherDtoWrapperValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.CompanyName).NotNull().WithMessage("Null CompanyName");
+        RuleFor(x => x.CompanyName).Must(companyName =>
+        {
+            return !string.IsNullOrEmpty(companyName);
+        }).WithMessage("Company name can't be an empty string");
         RuleFor(x => x.CompanyName).MustAsync(async (companyName, cancellation) =>
         {
             var existingPublisher = await unitOfWork.PublisherRepository.GetByCompanyNameAsync(companyName);
