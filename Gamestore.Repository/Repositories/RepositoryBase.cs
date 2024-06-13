@@ -8,18 +8,15 @@ public class RepositoryBase<T>(GamestoreContext context)
 {
     private readonly DbSet<T> _entities = context.Set<T>();
 
-    public async Task AddAsync(T entity)
+    public async Task<T> AddAsync(T entity)
     {
-        await _entities.AddAsync(entity);
+        var added = await _entities.AddAsync(entity);
+
+        return added.Entity;
     }
 
     public void Delete(T entity)
     {
         _entities.Remove(entity);
-    }
-
-    public async Task<List<T>> GetAllAsync()
-    {
-        return await _entities.ToListAsync();
     }
 }

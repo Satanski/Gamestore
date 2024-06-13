@@ -1,4 +1,5 @@
-﻿using Gamestore.Services.Interfaces;
+﻿using Gamestore.BLL.Models;
+using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,41 +13,27 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetGamesByGenreAsync(Guid id)
+    public async Task<IActionResult> GetGamesByGenreIdAsync(Guid id)
     {
-        IEnumerable<GameModel> games;
+        IEnumerable<GameModelDto> games;
 
         games = await _genreService.GetGamesByGenreAsync(id);
 
-        if (games.Any())
-        {
-            return Ok(games);
-        }
-
-        return NotFound();
+        return Ok(games);
     }
 
     // GET: genres/GUID/games
     [HttpGet("{id}/genres")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetGenresByParentGenreAsync(Guid id)
+    public async Task<IActionResult> GetGenresByParentGenreIdAsync(Guid id)
     {
-        IEnumerable<GenreModel> genres;
+        var genres = await _genreService.GetGenresByParentGenreAsync(id);
 
-        genres = await _genreService.GetGenresByParentGenreAsync(id);
-
-        if (genres.Any())
-        {
-            return Ok(genres);
-        }
-
-        return NotFound();
+        return Ok(genres);
     }
 
     // POST: genres
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] GenreModel genreModel)
+    public async Task<IActionResult> AddGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.AddGenreAsync(genreModel);
 
@@ -55,41 +42,25 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync(Guid id)
+    public async Task<IActionResult> GetGenreByIdAsync(Guid id)
     {
-        GenreModel genre;
+        var genre = await _genreService.GetGenreByIdAsync(id);
 
-        genre = await _genreService.GetGenreByIdAsync(id);
-
-        if (genre == null)
-        {
-            return NotFound();
-        }
-
-        return Ok(genre);
+        return genre == null ? NotFound() : Ok(genre);
     }
 
     // GET: genres
     [HttpGet]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetGenresAsync()
     {
-        IEnumerable<GenreModel> genres;
+        var genres = await _genreService.GetAllGenresAsync();
 
-        genres = await _genreService.GetAllGenresAsync();
-
-        if (genres.Any())
-        {
-            return Ok(genres);
-        }
-
-        return NotFound();
+        return genres.Any() ? Ok(genres) : NotFound();
     }
 
     // PUT: genres
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] GenreModelDto genreModel)
+    public async Task<IActionResult> UpdateGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.UpdateGenreAsync(genreModel);
 
@@ -98,7 +69,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // DELETE: genres
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> DeleteGenreByIdAsync(Guid id)
     {
         await _genreService.DeleteGenreAsync(id);
 

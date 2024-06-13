@@ -14,19 +14,19 @@ internal class GenreConfiguration : IEntityTypeConfiguration<Genre>
 
     private static void Seed(EntityTypeBuilder<Genre> builder)
     {
-        Guid strategyGuid = Guid.NewGuid();
+        var strategyGuid = Guid.NewGuid();
         builder.HasData(new Genre() { Id = strategyGuid, Name = "Strategy" });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "RTS", ParentGenreId = strategyGuid });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "TBS", ParentGenreId = strategyGuid });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "RPG" });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "Sports" });
-        Guid racesGuid = Guid.NewGuid();
+        var racesGuid = Guid.NewGuid();
         builder.HasData(new Genre() { Id = racesGuid, Name = "Races" });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "Rally", ParentGenreId = racesGuid });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "Arcade", ParentGenreId = racesGuid });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "Formula", ParentGenreId = racesGuid });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "Off-road", ParentGenreId = racesGuid });
-        Guid actionGuid = Guid.NewGuid();
+        var actionGuid = Guid.NewGuid();
         builder.HasData(new Genre() { Id = actionGuid, Name = "Action" });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "FPS", ParentGenreId = actionGuid });
         builder.HasData(new Genre() { Id = Guid.NewGuid(), Name = "TPS", ParentGenreId = actionGuid });

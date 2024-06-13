@@ -113,7 +113,7 @@ dotnet_diagnostic.CA1309.severity = none
 
 dotnet_diagnostic.CA2208.severity = none
 
-dotnet_diagnostic.IDE0007.severity = error
+dotnet_diagnostic.IDE0007.severity = Warning
 
 dotnet_diagnostic.IDE0008.severity = none
 

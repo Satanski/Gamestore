@@ -21,19 +21,19 @@ internal static class ContextHelpers
 
     internal static void SeedGenres(GamestoreContext context)
     {
-        Guid strategyGuid = Guid.NewGuid();
+        var strategyGuid = Guid.NewGuid();
         context.Genres.Add(new Genre() { Id = strategyGuid, Name = "Strategy" });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "RTS", ParentGenreId = strategyGuid });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "TBS", ParentGenreId = strategyGuid });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "RPG" });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "Sports" });
-        Guid racesGuid = Guid.NewGuid();
+        var racesGuid = Guid.NewGuid();
         context.Genres.Add(new Genre() { Id = racesGuid, Name = "Races" });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "Rally", ParentGenreId = racesGuid });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "Arcade", ParentGenreId = racesGuid });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "Formula", ParentGenreId = racesGuid });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "Off-road", ParentGenreId = racesGuid });
-        Guid actionGuid = Guid.NewGuid();
+        var actionGuid = Guid.NewGuid();
         context.Genres.Add(new Genre() { Id = actionGuid, Name = "Action" });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "FPS", ParentGenreId = actionGuid });
         context.Genres.Add(new Genre() { Id = Guid.NewGuid(), Name = "TPS", ParentGenreId = actionGuid });

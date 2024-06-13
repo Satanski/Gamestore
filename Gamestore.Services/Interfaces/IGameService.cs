@@ -1,22 +1,27 @@
-﻿using Gamestore.Services.Models;
+﻿using Gamestore.BLL.Models;
+using Gamestore.Services.Models;
 
 namespace Gamestore.Services.Interfaces;
 
 public interface IGameService
 {
-    Task AddGameAsync(GameModelDto gameModel);
+    Task AddGameAsync(GameDtoWrapper gameModel);
 
     Task DeleteGameByIdAsync(Guid gameId);
 
-    Task<IEnumerable<GameModel>> GetAllGamesAsync();
+    Task DeleteGameByKeyAsync(string gameKey);
 
-    Task<GameModel> GetGameByIdAsync(Guid gameId);
+    Task<IEnumerable<GameModelDto>> GetAllGamesAsync();
 
-    Task<GameModel> GetGameByKeyAsync(string key);
+    Task<GameModelDto> GetGameByIdAsync(Guid gameId);
 
-    Task<IEnumerable<GenreModelDto>> GetGenresByGameIdAsync(Guid gameId);
+    Task<GameModelDto> GetGameByKeyAsync(string key);
 
-    Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameIdAsync(Guid gameId);
+    Task<IEnumerable<GenreModelDto>> GetGenresByGameKeyAsync(string gameKey);
 
-    Task UpdateGameAsync(GameModelDto gameModel);
+    Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameKeyAsync(string gameKey);
+
+    Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey);
+
+    Task UpdateGameAsync(GameDtoWrapper gameModel);
 }

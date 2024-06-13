@@ -9,4 +9,6 @@ public interface IGameRepository : IRepository<Game>, IRepositoryBase<Game>
     Task<List<Genre>> GetGenresByGameAsync(Guid id);
 
     Task<List<Platform>> GetPlatformsByGameAsync(Guid id);
+
+    Task<Publisher?> GetPublisherByGameAsync(Guid gameId);
 }

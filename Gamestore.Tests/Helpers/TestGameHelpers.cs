@@ -11,17 +11,17 @@ internal static class TestGameHelpers
 
         var expectedGenreId = expectedGenre.Id;
 
-        GameGenre expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
+        var expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
 
         var expectedPlatformId = expectedPlatform.Id;
-        GamePlatform expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
+        var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
 
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         List<GameGenre> gameGenres = [expectedGameGenre];
         List<GamePlatform> gamePlatforms = [expectedGamePlatform];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
-        Game game = new Game()
+        var game = new Game()
         {
             Id = expectedGameId,
             Name = expectedName,
