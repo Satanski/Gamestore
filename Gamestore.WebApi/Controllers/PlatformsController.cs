@@ -1,7 +1,6 @@
 ﻿using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
-using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -16,40 +15,15 @@ public class PlatformsController([FromServices] IPlatformService platformService
     [HttpGet("{id}/games")]
     public async Task<IActionResult> GetGamesByPlatformIdAsync(Guid id)
     {
-        IEnumerable<GameModelDto> games;
-
-        try
-        {
-            games = await _platformService.GetGamesByPlatformIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(games);
+        var games = await _platformService.GetGamesByPlatformIdAsync(id);
+        return games == null ? Ok(games) : BadRequest();
     }
 
     // POST: platforms
     [HttpPost]
     public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformDtoWrapper platform)
     {
-        try
-        {
-            await _platformService.AddPlatformAsync(platform);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.AddPlatformAsync(platform);
 
         return Ok();
     }
