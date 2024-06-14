@@ -12,5 +12,7 @@ public interface IUnitOfWork
 
     IGamePlatformRepository GamePlatformRepository { get; }
 
+    IPublisherRepository PublisherRepository { get; }
+
     Task SaveAsync();
 }

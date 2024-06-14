@@ -4,6 +4,7 @@ using Gamestore.Tests.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DALTests;
+
 public class GameRepositoryTests : IDisposable
 {
     private readonly GamestoreContext _context;
@@ -72,7 +73,7 @@ public class GameRepositoryTests : IDisposable
     }
 
     [Fact]
-    public void DeleteThrowsExceptionWhenAssociationIsSevered()
+    public async Task DeleteThrowsExceptionWhenAssociationIsSevered()
     {
         // Arrange
         var expectedGameId = Guid.NewGuid();
@@ -81,7 +82,7 @@ public class GameRepositoryTests : IDisposable
 #pragma warning restore xUnit1031 // Do not use blocking task operations in test method
 
         // Act
-        Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
             _gameRepository.Delete(game);
             await _context.SaveChangesAsync();

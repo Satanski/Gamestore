@@ -36,7 +36,7 @@ public class GenreRepositoryTests : IDisposable
         var actualGenres = await _genreRepository.GetAllAsync();
 
         // Assert
-        Assert.True(actualGenres.Count != 0);
+        Assert.NotEmpty(actualGenres);
         Assert.Equal(expectedGenres.Count(), actualGenres.Count);
     }
 

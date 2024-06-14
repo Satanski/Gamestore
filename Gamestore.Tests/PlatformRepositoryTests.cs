@@ -36,7 +36,7 @@ public class PlatformRepositoryTests : IDisposable
         var actualGenres = await _platformRepository.GetAllAsync();
 
         // Assert
-        Assert.True(actualGenres.Count != 0);
+        Assert.NotEmpty(actualGenres);
         Assert.Equal(expectedGenres.Count(), actualGenres.Count);
     }
 

@@ -18,7 +18,21 @@ public class Game
     [Required]
     public string Key { get; set; }
 
+    [Required]
+    public double Price { get; set; }
+
+    [Required]
+    public int UnitInStock { get; set; }
+
+    [Required]
+    public int Discount { get; set; }
+
+    [Required]
+    public Guid PublisherId { get; set; }
+
     public string? Description { get; set; } = null!;
+
+    public Publisher Publisher { get; set; }
 
     public List<GameGenre> GameGenres { get; set; }
 
