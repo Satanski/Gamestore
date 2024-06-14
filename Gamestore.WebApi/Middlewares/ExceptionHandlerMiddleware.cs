@@ -39,14 +39,9 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
 
     private static string CreateResponseMessage(HttpContext context, Exception exception)
     {
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-        {
-            return CreateDevelopmentMessage(context, exception);
-        }
-        else
-        {
-            return CreateProductionMessage(context, exception);
-        }
+        return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+            ? CreateDevelopmentMessage(context, exception)
+            : CreateProductionMessage(context, exception);
     }
 
     private static string CreateProductionMessage(HttpContext context, Exception exception)

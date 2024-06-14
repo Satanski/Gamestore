@@ -1,7 +1,6 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
 using Gamestore.WebApi.Middlewares;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -36,7 +35,7 @@ public static class Program
         DAlServices.Configure(builder.Services, connectionString);
         BllServices.Congigure(builder.Services);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddNewtonsoftJson();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -51,6 +50,11 @@ public static class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseCors(x => x
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionHandlerMiddleware>();

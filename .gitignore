@@ -366,3 +366,6 @@ FodyWeavers.xsd
 /dotCover.Output.xml
 /SonaQubeAnalysisConfig.xml
 /Sonar.bat
+/Gamestore.Repository/Migrations/20240610110112_Epic3Update.cs
+/Gamestore.Repository/Migrations/20240610110112_Epic3Update.Designer.cs
+/Gamestore.Repository/Migrations/GamestoreContextModelSnapshot.cs

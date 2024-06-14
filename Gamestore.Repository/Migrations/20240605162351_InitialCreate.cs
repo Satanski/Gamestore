@@ -6,6 +6,7 @@
 #pragma warning disable IDE0300
 #pragma warning disable SA1413
 #pragma warning disable SA1507
+
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -21,20 +22,6 @@ namespace Gamestore.DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Games",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Games", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Genres",
                 columns: table => new
@@ -58,6 +45,44 @@ namespace Gamestore.DAL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Platforms", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Publishers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyName = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HomePage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Publishers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Games",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Key = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    UnitInStock = table.Column<int>(type: "int", nullable: false),
+                    Discount = table.Column<int>(type: "int", nullable: false),
+                    PublisherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Games", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Games_Publishers_PublisherId",
+                        column: x => x.PublisherId,
+                        principalTable: "Publishers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,30 +134,25 @@ namespace Gamestore.DAL.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Games",
-                columns: new[] { "Id", "Description", "Key", "Name" },
-                values: new object[] { new Guid("c6c84790-2f43-4f7c-b6df-94c70491343d"), "Desc", "Key", "Gra testowa nazwa" });
-
-            migrationBuilder.InsertData(
                 table: "Genres",
                 columns: new[] { "Id", "Name", "ParentGenreId" },
                 values: new object[,]
                 {
-                    { new Guid("200c416a-538c-498e-a2a0-cdf4c74e142b"), "TPS", new Guid("77c9ab07-21df-481a-aa0b-28f4a166e354") },
-                    { new Guid("2c4a4834-8d51-47c6-a5ac-5db740e1b5f8"), "Strategy", null },
-                    { new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6"), "Races", null },
-                    { new Guid("658e2c8b-d5f5-4e23-a4ff-deea222748dc"), "TBS", new Guid("2c4a4834-8d51-47c6-a5ac-5db740e1b5f8") },
-                    { new Guid("6cc174bc-1725-4f54-bda8-b57389288b2a"), "RTS", new Guid("2c4a4834-8d51-47c6-a5ac-5db740e1b5f8") },
-                    { new Guid("77c9ab07-21df-481a-aa0b-28f4a166e354"), "Action", null },
-                    { new Guid("824ead0b-4e95-4d7b-b9b8-f47b009442b3"), "Rally", new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6") },
-                    { new Guid("88de2753-24ea-475f-a59f-0608359d2b8b"), "FPS", new Guid("77c9ab07-21df-481a-aa0b-28f4a166e354") },
-                    { new Guid("8b447f60-7cca-460a-bc6a-36e02015f46a"), "Puzzle & Skill", null },
-                    { new Guid("934c60a7-2755-4c12-8420-6b1e017c0144"), "Sports", null },
-                    { new Guid("a864da3e-2e9e-4c03-8eaa-ca6c5322b1c9"), "Adventure", null },
-                    { new Guid("ac35a93d-e380-4cfc-bf6a-683180718c4f"), "RPG", null },
-                    { new Guid("ba252c3a-ff3d-42a1-ba75-2b21e8690452"), "Formula", new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6") },
-                    { new Guid("dbf1e07c-93f8-4a9e-9238-3e027f13b8b7"), "Off-road", new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6") },
-                    { new Guid("e5c77a2a-40f1-4dfa-b847-7b5b2c15e52d"), "Arcade", new Guid("6021ab9f-0e15-447f-8f62-c26e904b1de6") }
+                    { new Guid("288c81b8-55c9-4e37-8ce1-dd7d76772277"), "Action", null },
+                    { new Guid("2a0fd9d4-6fc0-4732-a183-7e4d5db9f404"), "Off-road", new Guid("92f488f7-357b-4eca-b651-985a03210c05") },
+                    { new Guid("2f1f7c5c-3760-4f85-9914-68d293f8ea95"), "Arcade", new Guid("92f488f7-357b-4eca-b651-985a03210c05") },
+                    { new Guid("49fab0b0-d4a7-4f97-ab04-9377116ca738"), "FPS", new Guid("288c81b8-55c9-4e37-8ce1-dd7d76772277") },
+                    { new Guid("5925dc88-e01a-4a97-ad80-d1d2b8df8eb4"), "Rally", new Guid("92f488f7-357b-4eca-b651-985a03210c05") },
+                    { new Guid("5ea9cfcb-895d-43cc-840a-78c61fbb145f"), "Strategy", null },
+                    { new Guid("601a925c-e8d2-4cfa-a592-87eb5fab56ac"), "Sports", null },
+                    { new Guid("78934809-636e-4911-8caa-19837ce00b84"), "TBS", new Guid("5ea9cfcb-895d-43cc-840a-78c61fbb145f") },
+                    { new Guid("7a0da694-4c7c-48ad-bb26-d60f0cfef858"), "RPG", null },
+                    { new Guid("7e022c93-b14f-40c8-b85e-618beacb2752"), "Adventure", null },
+                    { new Guid("824c13f4-050e-439f-abae-edc097e40407"), "Puzzle & Skill", null },
+                    { new Guid("8c2e8bb3-1710-481f-a330-8a4ebc6d04f7"), "TPS", new Guid("288c81b8-55c9-4e37-8ce1-dd7d76772277") },
+                    { new Guid("92f488f7-357b-4eca-b651-985a03210c05"), "Races", null },
+                    { new Guid("aa8d86f0-66dd-4d3a-9ba2-2c57d9761c36"), "Formula", new Guid("92f488f7-357b-4eca-b651-985a03210c05") },
+                    { new Guid("d716dfad-336e-4298-81d0-6742bd4c6bba"), "RTS", new Guid("5ea9cfcb-895d-43cc-840a-78c61fbb145f") }
                 });
 
             migrationBuilder.InsertData(
@@ -140,10 +160,19 @@ namespace Gamestore.DAL.Migrations
                 columns: new[] { "Id", "Type" },
                 values: new object[,]
                 {
-                    { new Guid("644a99d9-dce9-4057-b94e-ee704c620b61"), "Console" },
-                    { new Guid("a7289405-cd3c-48e5-b858-9ae4faa889d4"), "Mobile" },
-                    { new Guid("d1099105-d805-49e4-b2c7-c1fcf4040a81"), "Desktop" },
-                    { new Guid("f29416dc-e41a-4131-8e66-93ec11bc8e45"), "Browser" }
+                    { new Guid("23ade31d-a9d4-4d71-8044-4378d14d35e4"), "Console" },
+                    { new Guid("765c73bb-1c56-42dc-b92f-3357fac07bf6"), "Browser" },
+                    { new Guid("b762fd5c-a5c2-475c-a11c-8f178bd4bd2c"), "Desktop" },
+                    { new Guid("ebaa5feb-21f5-4abc-8c27-91f2ed8ae929"), "Mobile" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Publishers",
+                columns: new[] { "Id", "CompanyName", "Description", "HomePage" },
+                values: new object[,]
+                {
+                    { new Guid("3bdf3c48-f33a-47ed-a4f0-1362e873892b"), "Elecrtonic Arts", null, "www.ea.com" },
+                    { new Guid("b3049685-ae4e-4e49-8cce-3e75dce4ca16"), "Blizzard", null, "www.blizzard.com" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -163,6 +192,11 @@ namespace Gamestore.DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Games_PublisherId",
+                table: "Games",
+                column: "PublisherId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Genres_Name",
                 table: "Genres",
                 column: "Name",
@@ -172,6 +206,12 @@ namespace Gamestore.DAL.Migrations
                 name: "IX_Platforms_Type",
                 table: "Platforms",
                 column: "Type",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publishers_CompanyName",
+                table: "Publishers",
+                column: "CompanyName",
                 unique: true);
         }
 
@@ -192,6 +232,9 @@ namespace Gamestore.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Platforms");
+
+            migrationBuilder.DropTable(
+                name: "Publishers");
         }
     }
 }

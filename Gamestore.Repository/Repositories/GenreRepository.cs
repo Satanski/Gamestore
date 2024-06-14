@@ -8,24 +8,34 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
 {
     private readonly GamestoreContext _context = context;
 
-    public async Task<List<Game>> GetGamesByGenreAsync(Guid id)
+    public Task<List<Game>> GetGamesByGenreAsync(Guid id)
     {
-        return await _context.GameGenres.Where(x => x.GenreId == id).Include(x => x.Game).Select(x => x.Game).ToListAsync();
+        return _context.Games
+            .Include(x => x.Publisher)
+            .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
+            .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
+            .Where(x => x.GameGenres.Contains(new GameGenre { GameId = x.Id, GenreId = id }))
+            .ToListAsync();
     }
 
-    public async Task<List<Genre>> GetGenresByParentGenreAsync(Guid id)
+    public Task<List<Genre>> GetGenresByParentGenreAsync(Guid id)
     {
-        return await _context.Genres.Where(x => x.ParentGenreId == id).ToListAsync();
+        return _context.Genres.Where(x => x.ParentGenreId == id).ToListAsync();
     }
 
-    public async Task<Genre?> GetByIdAsync(Guid id)
+    public Task<Genre?> GetByIdAsync(Guid id)
     {
-        return await _context.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
+        return _context.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
     public async Task UpdateAsync(Genre entity)
     {
         var g = await _context.Genres.Where(p => p.Id == entity.Id).FirstAsync();
         _context.Entry(g).CurrentValues.SetValues(entity);
+    }
+
+    public Task<List<Genre>> GetAllAsync()
+    {
+        return _context.Genres.ToListAsync();
     }
 }

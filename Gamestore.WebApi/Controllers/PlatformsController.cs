@@ -1,6 +1,5 @@
-﻿using Gamestore.BLL.Exceptions;
+﻿using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
-using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -13,129 +12,52 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // GET: platforms/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetGamesByPlatformAsync(Guid id)
+    public async Task<IActionResult> GetGamesByPlatformIdAsync(Guid id)
     {
-        IEnumerable<GameModel> games;
-
-        try
-        {
-            games = await _platformService.GetGamesByPlatformIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(games);
+        var games = await _platformService.GetGamesByPlatformIdAsync(id);
+        return games == null ? Ok(games) : BadRequest();
     }
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddAsync([FromBody] PlatformModel platformModel)
+    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformDtoWrapper platform)
     {
-        try
-        {
-            await _platformService.AddPlatformAsync(platformModel);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.AddPlatformAsync(platform);
 
         return Ok();
     }
 
-    // GET: platforms/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync(Guid id)
+    public async Task<IActionResult> GetPlatformByIdAsync(Guid id)
     {
-        PlatformModel platform;
+        var platform = await _platformService.GetPlatformByIdAsync(id);
 
-        try
-        {
-            platform = await _platformService.GetPlatformByIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(platform);
+        return platform != null ? Ok(platform) : NotFound();
     }
 
     // GET: platforms
     [HttpGet]
-    [ResponseCache(Duration = 1)]
-    public async Task<IActionResult> GetAsync()
+    public async Task<IActionResult> GetPlatformsAsync()
     {
-        IEnumerable<PlatformModel> platforms;
+        var platforms = await _platformService.GetAllPlatformsAsync();
 
-        try
-        {
-            platforms = await _platformService.GetAllPlatformsAsync();
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(platforms);
+        return platforms.Any() ? Ok(platforms) : NotFound();
     }
 
     // PUT: platforms
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] PlatformModelDto platformModel)
+    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformDtoWrapper platformModel)
     {
-        try
-        {
-            await _platformService.UpdatePlatformAsync(platformModel);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.UpdatePlatformAsync(platformModel);
 
         return Ok();
     }
 
     // DELETE: platforms
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAsync(Guid id)
+    public async Task<IActionResult> DeletePlatformByIdAsync(Guid id)
     {
-        try
-        {
-            await _platformService.DeletePlatformByIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.DeletePlatformByIdAsync(id);
 
         return Ok();
     }

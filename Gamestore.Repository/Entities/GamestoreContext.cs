@@ -11,6 +11,8 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
 
     public DbSet<Genre> Genres { get; set; }
 
+    public DbSet<Publisher> Publishers { get; set; }
+
     public DbSet<GameGenre> GameGenres { get; set; }
 
     public DbSet<GamePlatform> GamePlatforms { get; set; }

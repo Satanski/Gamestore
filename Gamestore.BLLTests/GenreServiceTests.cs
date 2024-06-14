@@ -40,8 +40,8 @@ public class GenreServiceTests
     {
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
-        string expectedName = "Rpg";
-        Guid expectedId = new Guid("cc3a7cb9-2a97-4440-9965-97f47decd0d8");
+        var expectedName = "Rpg";
+        var expectedId = new Guid("cc3a7cb9-2a97-4440-9965-97f47decd0d8");
         var expected = BllHelpers.GenreModels.First(x => x.Name == expectedName);
 
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Genres.First(x => x.Id == expectedId));
@@ -59,7 +59,7 @@ public class GenreServiceTests
     {
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
-        string expectedName = "NewGenre";
+        var expectedName = "NewGenre";
         var genreToAdd = new GenreModel() { Name = expectedName };
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Genres);
         unitOfWork.Setup(x => x.GenreRepository.AddAsync(It.IsAny<Genre>()));
@@ -134,7 +134,7 @@ public class GenreServiceTests
     {
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
-        string expectedName = string.Empty;
+        var expectedName = string.Empty;
         var genreToAdd = new GenreModel() { Name = expectedName };
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Genres);
         unitOfWork.Setup(x => x.GenreRepository.AddAsync(It.IsAny<Genre>()));
@@ -168,7 +168,7 @@ public class GenreServiceTests
     {
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
-        Guid expectedId = Guid.Empty;
+        var expectedId = Guid.Empty;
 
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);

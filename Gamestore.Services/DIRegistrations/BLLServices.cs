@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Helpers;
+using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.Services;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +15,10 @@ public static class BllServices
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<IPlatformService, PlatformService>();
         services.AddScoped<IGenreService, GenreService>();
+        services.AddScoped<IPublisherService, PublisherService>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
-        IMapper autoMapper = autoMapperConfiguration.CreateMapper();
+        var autoMapper = autoMapperConfiguration.CreateMapper();
         services.AddSingleton(autoMapper);
     }
 }
