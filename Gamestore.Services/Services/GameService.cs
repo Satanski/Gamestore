@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
@@ -13,8 +14,7 @@ namespace Gamestore.Services.Services;
 
 public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
 {
-    private readonly GameModelUpdateValidator _gameModelUpdateValidator = new(unitOfWork);
-    private readonly GameModelValidator _gameModelValidator = new();
+    private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
 
     public async Task<IEnumerable<GameModelDto>> GetAllGamesAsync()
     {
@@ -30,10 +30,11 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return gameModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<GenreModelDto>> GetGenresByGameIdAsync(Guid gameId)
+    public async Task<IEnumerable<GenreModelDto>> GetGenresByGameKeyAsync(string gameKey)
     {
-        logger.LogInformation("Getting genres by game Id: {gameId}", gameId);
-        var genres = await unitOfWork.GameRepository.GetGenresByGameAsync(gameId);
+        logger.LogInformation("Getting genres by game Id: {gameKey}", gameKey);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+        var genres = await unitOfWork.GameRepository.GetGenresByGameAsync(game.Id);
         List<GenreModelDto> genreModels = [];
 
         foreach (var genre in genres)
@@ -44,10 +45,11 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return genreModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameIdAsync(Guid gameId)
+    public async Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameKeyAsync(string gameKey)
     {
-        logger.LogInformation("Getting platforms by game Id: {gameId}", gameId);
-        var platforms = await unitOfWork.GameRepository.GetPlatformsByGameAsync(gameId);
+        logger.LogInformation("Getting platforms by game Key: {gameKey}", gameKey);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+        var platforms = await unitOfWork.GameRepository.GetPlatformsByGameAsync(game.Id);
         List<PlatformModelDto> platformModels = [];
 
         foreach (var platform in platforms)
@@ -58,11 +60,12 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return platformModels.AsEnumerable();
     }
 
-    public async Task<PublisherModelDto> GetPublisherByGameIdAsync(Guid gameId)
+    public async Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey)
     {
-        logger.LogInformation("Getting publisher by game Id: {gameId}", gameId);
+        logger.LogInformation("Getting publisher by game Key: {gameKey}", gameKey);
 
-        var publisher = await unitOfWork.GameRepository.GetPublisherByGameAsync(gameId);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+        var publisher = await unitOfWork.GameRepository.GetPublisherByGameAsync(game.Id);
 
         return automapper.Map<PublisherModelDto>(publisher);
     }
@@ -83,60 +86,39 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return game == null ? throw new GamestoreException($"No game found with given key: {key}") : automapper.Map<GameModelDto>(game);
     }
 
-    public async Task AddGameAsync(GameModel gameModel)
+    public async Task AddGameAsync(GameDtoWrapper gameModel)
     {
         logger.LogInformation("Adding game {@gameModel}", gameModel);
 
-        var result = await _gameModelValidator.ValidateAsync(gameModel);
-        if (!result.IsValid)
-        {
-            throw new ArgumentException(result.Errors[0].ToString());
-        }
+        await _gameDtoWrapperValidator.ValidateGame(gameModel);
 
-        var game = automapper.Map<Game>(gameModel);
+        var game = automapper.Map<Game>(gameModel.Game);
+        var addedGame = await AddGameToRepository(unitOfWork, gameModel, game);
 
-        var addedGame = await unitOfWork.GameRepository.AddAsync(game);
-        await unitOfWork.SaveAsync();
-
-        foreach (var genreId in gameModel.Genres)
-        {
-            await unitOfWork.GameGenreRepository.AddAsync(new GameGenre() { GameId = addedGame.Id, GenreId = genreId });
-        }
-
-        foreach (var platformId in gameModel.Platforms)
-        {
-            await unitOfWork.GamePlatformRepository.AddAsync(new GamePlatform() { GameId = addedGame.Id, PlatformId = platformId });
-        }
-
-        await unitOfWork.SaveAsync();
+        var genres = gameModel.Genres;
+        var platforms = gameModel.Platforms;
+        await AddGameGenresTorepository(unitOfWork, addedGame, genres);
+        await AddGamePlatformsToRepository(unitOfWork, addedGame, platforms);
     }
 
-    public async Task UpdateGameAsync(GameUpdateModel gameModel)
+    public async Task UpdateGameAsync(GameDtoWrapper gameModel)
     {
         logger.LogInformation("Updating game {@gameModel}", gameModel);
-        var result = await _gameModelUpdateValidator.ValidateAsync(gameModel);
-        if (!result.IsValid)
+
+        await _gameDtoWrapperValidator.ValidateGame(gameModel);
+
+        await DeleteGameGenresFromRepository(unitOfWork, gameModel.Game.Id);
+        await DeleteGamePlatformsFromRepository(unitOfWork, gameModel.Game.Id);
+
+        var game = automapper.Map<Game>(gameModel.Game);
+        await UpdateGameInrepository(unitOfWork, gameModel, game);
+
+        if (gameModel.Game.Id != null)
         {
-            throw new ArgumentException(result.Errors[0].ToString());
+            await AddGameGenresTorepository(unitOfWork, game, gameModel.Genres);
+            await AddGamePlatformsToRepository(unitOfWork, game, gameModel.Platforms);
         }
 
-        await DeleteGameGenresFromRepository(unitOfWork, gameModel);
-        await DeleteGamePlatformsFromRepository(unitOfWork, gameModel);
-
-        await unitOfWork.SaveAsync();
-
-        foreach (var genreId in gameModel.Genres)
-        {
-            await unitOfWork.GameGenreRepository.AddAsync(new GameGenre() { GameId = gameModel.Id, GenreId = genreId });
-        }
-
-        foreach (var platformId in gameModel.Platforms)
-        {
-            await unitOfWork.GamePlatformRepository.AddAsync(new GamePlatform() { GameId = gameModel.Id, PlatformId = platformId });
-        }
-
-        var game = automapper.Map<Game>(gameModel);
-        await unitOfWork.GameRepository.UpdateAsync(game);
         await unitOfWork.SaveAsync();
     }
 
@@ -147,32 +129,67 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         if (game != null)
         {
-            unitOfWork.GameRepository.Delete(game);
-
-            var genres = await unitOfWork.GameGenreRepository.GetByGameIdAsync(game.Id);
-            if (genres != null)
-            {
-                foreach (var item in genres)
-                {
-                    unitOfWork.GameGenreRepository.Delete(item);
-                }
-            }
-
-            var platforms = await unitOfWork.GamePlatformRepository.GetByGameIdAsync(game.Id);
-            if (platforms != null)
-            {
-                foreach (var item in platforms)
-                {
-                    unitOfWork.GamePlatformRepository.Delete(item);
-                }
-            }
-
-            await unitOfWork.SaveAsync();
+            await DeleteGameGenresFromRepository(unitOfWork, game.Id);
+            await DeleteGamePlatformsFromRepository(unitOfWork, game.Id);
+            await DeleteGameFromRepository(unitOfWork, game);
         }
         else
         {
             throw new GamestoreException($"No game found with given id: {gameId}");
         }
+    }
+
+    public async Task DeleteGameByKeyAsync(string gameKey)
+    {
+        logger.LogInformation("Deleting game by Key: {gameKey}", gameKey);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+
+        if (game != null)
+        {
+            await DeleteGameGenresFromRepository(unitOfWork, game.Id);
+            await DeleteGamePlatformsFromRepository(unitOfWork, game.Id);
+            await DeleteGameFromRepository(unitOfWork, game);
+        }
+        else
+        {
+            throw new GamestoreException($"No game found with given key: {gameKey}");
+        }
+    }
+
+    private static async Task<Game> AddGameToRepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)
+    {
+        game.PublisherId = gameModel.Publisher;
+
+        var addedGame = await unitOfWork.GameRepository.AddAsync(game);
+        await unitOfWork.SaveAsync();
+        return addedGame;
+    }
+
+    private static async Task AddGamePlatformsToRepository(IUnitOfWork unitOfWork, Game addedGame, List<Guid> platforms)
+    {
+        foreach (var platformId in platforms)
+        {
+            await unitOfWork.GamePlatformRepository.AddAsync(new GamePlatform() { GameId = addedGame.Id, PlatformId = platformId });
+        }
+
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task AddGameGenresTorepository(IUnitOfWork unitOfWork, Game addedGame, List<Guid> genres)
+    {
+        foreach (var genreId in genres)
+        {
+            await unitOfWork.GameGenreRepository.AddAsync(new GameGenre() { GameId = addedGame.Id, GenreId = genreId });
+        }
+
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task UpdateGameInrepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)
+    {
+        game.PublisherId = gameModel.Publisher;
+        await unitOfWork.GameRepository.UpdateAsync(game);
+        await unitOfWork.SaveAsync();
     }
 
     public async Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity)
@@ -217,14 +234,37 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         {
             unitOfWork.GamePlatformRepository.Delete(item);
         }
+    private static async Task DeleteGamePlatformsFromRepository(IUnitOfWork unitOfWork, Guid? gameId)
+    {
+        if (gameId != null)
+        {
+            var gamePlatforms = await unitOfWork.GamePlatformRepository.GetByGameIdAsync((Guid)gameId);
+            foreach (var item in gamePlatforms)
+            {
+                unitOfWork.GamePlatformRepository.Delete(item);
+            }
+
+            await unitOfWork.SaveAsync();
+        }
     }
 
-    private static async Task DeleteGameGenresFromRepository(IUnitOfWork unitOfWork, GameUpdateModel gameModel)
+    private static async Task DeleteGameGenresFromRepository(IUnitOfWork unitOfWork, Guid? gameId)
     {
-        var gameGenres = await unitOfWork.GameGenreRepository.GetByGameIdAsync(gameModel.Id);
-        foreach (var item in gameGenres)
+        if (gameId != null)
         {
-            unitOfWork.GameGenreRepository.Delete(item);
+            var gameGenres = await unitOfWork.GameGenreRepository.GetByGameIdAsync((Guid)gameId);
+            foreach (var item in gameGenres)
+            {
+                unitOfWork.GameGenreRepository.Delete(item);
+            }
+
+            await unitOfWork.SaveAsync();
         }
+    }
+
+    private static async Task DeleteGameFromRepository(IUnitOfWork unitOfWork, Game game)
+    {
+        unitOfWork.GameRepository.Delete(game);
+        await unitOfWork.SaveAsync();
     }
 }

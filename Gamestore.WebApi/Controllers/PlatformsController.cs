@@ -1,6 +1,5 @@
-﻿using Gamestore.BLL.Exceptions;
+﻿using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
-using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -13,60 +12,31 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // GET: platforms/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGamesByPlatformIdAsync(Guid id)
     {
-        IEnumerable<GameModelDto> games;
-
-        try
-        {
-            games = await _platformService.GetGamesByPlatformIdAsync(id);
-        }
-        catch (GamestoreException)
-        {
-            return NotFound();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
-
-        return Ok(games);
+        var games = await _platformService.GetGamesByPlatformIdAsync(id);
+        return games == null ? Ok(games) : BadRequest();
     }
 
     // POST: platforms
     [HttpPost]
-    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformModelDto platformModel)
+    public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformDtoWrapper platform)
     {
-        try
-        {
-            await _platformService.AddPlatformAsync(platformModel);
-        }
-        catch (GamestoreException)
-        {
-            return BadRequest();
-        }
-        catch (Exception)
-        {
-            return BadRequest();
-        }
+        await _platformService.AddPlatformAsync(platform);
 
         return Ok();
     }
 
-    // GET: platforms/GUID
     [HttpGet("{id}")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetPlatformByIdAsync(Guid id)
     {
         var platform = await _platformService.GetPlatformByIdAsync(id);
 
-        return platform == null ? NotFound() : Ok(platform);
+        return platform != null ? Ok(platform) : NotFound();
     }
 
     // GET: platforms
     [HttpGet]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetPlatformsAsync()
     {
         var platforms = await _platformService.GetAllPlatformsAsync();
@@ -76,7 +46,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // PUT: platforms
     [HttpPut]
-    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformModel platformModel)
+    public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformDtoWrapper platformModel)
     {
         await _platformService.UpdatePlatformAsync(platformModel);
 

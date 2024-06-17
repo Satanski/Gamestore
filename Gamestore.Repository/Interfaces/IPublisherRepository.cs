@@ -6,5 +6,7 @@ public interface IPublisherRepository : IRepository<Publisher>, IRepositoryBase<
 {
     Task<Publisher?> GetByCompanyNameAsync(string companyName);
 
-    Task<List<Game>> GetGamesByPublisherAsync(Guid id);
+    Task<List<Game>> GetGamesByPublisherIdAsync(Guid id);
+
+    Task<List<Game>> GetGamesByPublisherNameAsync(string name);
 }

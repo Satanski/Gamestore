@@ -1,14 +1,21 @@
 ﻿using FluentValidation;
+using Gamestore.BLL.Helpers;
+using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.Validation;
 
-internal class GenreModelDtoValidator : AbstractValidator<GenreModelDto>
+internal class GenreDtoWrapperAddValidator : AbstractValidator<GenreModelDto>
 {
-    internal GenreModelDtoValidator(IUnitOfWork unitOfWork)
+    internal GenreDtoWrapperAddValidator(IUnitOfWork unitOfWork)
     {
         RuleFor(x => x.Name).NotEmpty().WithMessage("Missing name");
+        RuleFor(x => x.Name).Must(companyName =>
+        {
+            return !string.IsNullOrEmpty(companyName);
+        }).WithMessage("Name can't be an empty string");
+
         RuleFor(x => x.Name).MustAsync(async (name, cancellation) =>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
@@ -28,5 +35,17 @@ internal class GenreModelDtoValidator : AbstractValidator<GenreModelDto>
                 return true;
             }
         }).WithMessage("This parent genre doesn't exist");
+        RuleFor(x => new { x.Id, x.ParentGenreId }).MustAsync(async (data, cancellation) =>
+        {
+            var genres = await unitOfWork.GenreRepository.GetAllAsync();
+            List<Genre> forbiddenList = [];
+
+            if (data.Id != null)
+            {
+                ValidationHelpers.CyclicReferenceHelper(genres, forbiddenList, (Guid)data.Id);
+            }
+
+            return !forbiddenList.Exists(x => x.Id == data.ParentGenreId);
+        }).WithMessage("Cyclic references not allowed");
     }
 }

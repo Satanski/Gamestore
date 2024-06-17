@@ -36,17 +36,17 @@ public class PublishersController([FromServices] IPublisherService publisherServ
     }
 
     // GET: publishers/GUID/games
-    [HttpGet("{id}/games")]
-    public async Task<IActionResult> GetGamesByPublisher(Guid id)
+    [HttpGet("{publisherName}/games")]
+    public async Task<IActionResult> GetGamesByPublisherName(string publisherName)
     {
-        var games = await publisherService.GetGamesByPublisherIdAsync(id);
+        var games = await publisherService.GetGamesByPublisherNameAsync(publisherName);
 
-        return games.Any() ? NotFound() : Ok(games);
+        return Ok(games);
     }
 
     // POST: publishers
     [HttpPost]
-    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherModelDto publisherModel)
+    public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.AddPublisherAsync(publisherModel);
 
@@ -55,7 +55,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // PUT: publishers
     [HttpPut]
-    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherModel publisherModel)
+    public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.UpdatePublisherAsync(publisherModel);
 

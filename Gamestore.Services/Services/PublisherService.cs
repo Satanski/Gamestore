@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
@@ -13,23 +14,7 @@ namespace Gamestore.BLL.Services;
 
 public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IPublisherService
 {
-    private readonly PublisherModelValidator _publisherModelValidator = new(unitOfWork);
-    private readonly PublisherModelDtoValidator _publisherModelDtoValidator = new(unitOfWork);
-
-    public async Task AddPublisherAsync(PublisherModelDto publisherModel)
-    {
-        logger.LogInformation("Adding publisher {@publisherModel}", publisherModel);
-
-        var result = await _publisherModelDtoValidator.ValidateAsync(publisherModel);
-        if (!result.IsValid)
-        {
-            throw new ArgumentException(result.Errors[0].ToString());
-        }
-
-        var publisher = automapper.Map<Publisher>(publisherModel);
-        await unitOfWork.PublisherRepository.AddAsync(publisher);
-        await unitOfWork.SaveAsync();
-    }
+    private readonly PublisherDtoWrapperValidator _publisherDtoWrapperValidator = new(unitOfWork);
 
     public async Task DeletPublisherByIdAsync(Guid publisherId)
     {
@@ -76,31 +61,54 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
         return publisherModels.AsEnumerable();
     }
 
-    public async Task<IEnumerable<GameModel>> GetGamesByPublisherIdAsync(Guid publisherId)
+    public async Task<IEnumerable<GameModelDto>> GetGamesByPublisherIdAsync(Guid publisherId)
     {
         logger.LogInformation("Getting games by publisher: {publisherId}", publisherId);
-        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherAsync(publisherId);
+        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherIdAsync(publisherId);
 
-        List<GameModel> gameModels = [];
+        List<GameModelDto> gameModels = [];
 
         foreach (var game in games)
         {
-            gameModels.Add(automapper.Map<GameModel>(game));
+            gameModels.Add(automapper.Map<GameModelDto>(game));
         }
 
         return gameModels.AsEnumerable();
     }
 
-    public async Task UpdatePublisherAsync(PublisherModel publisherModel)
+    public async Task<IEnumerable<GameModelDto>> GetGamesByPublisherNameAsync(string publisherName)
     {
-        logger.LogInformation("Updating publisher {@publisherModel}", publisherModel);
-        var result = await _publisherModelValidator.ValidateAsync(publisherModel);
-        if (!result.IsValid)
+        logger.LogInformation("Getting games by publisher: {publisherName}", publisherName);
+        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherNameAsync(publisherName);
+
+        List<GameModelDto> gameModels = [];
+
+        foreach (var game in games)
         {
-            throw new ArgumentException(result.Errors[0].ToString());
+            gameModels.Add(automapper.Map<GameModelDto>(game));
         }
 
-        var publisher = automapper.Map<Publisher>(publisherModel);
+        return gameModels.AsEnumerable();
+    }
+
+    public async Task AddPublisherAsync(PublisherDtoWrapper publisherModel)
+    {
+        logger.LogInformation("Adding publisher {@publisherModel}", publisherModel);
+
+        await _publisherDtoWrapperValidator.ValidatePublisher(publisherModel);
+
+        var publisher = automapper.Map<Publisher>(publisherModel.Publisher);
+        await unitOfWork.PublisherRepository.AddAsync(publisher);
+        await unitOfWork.SaveAsync();
+    }
+
+    public async Task UpdatePublisherAsync(PublisherDtoWrapper publisherModel)
+    {
+        logger.LogInformation("Updating publisher {@publisherModel}", publisherModel);
+
+        await _publisherDtoWrapperValidator.ValidatePublisher(publisherModel);
+
+        var publisher = automapper.Map<Publisher>(publisherModel.Publisher);
 
         await unitOfWork.PublisherRepository.UpdateAsync(publisher);
 

@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Helpers;
+using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
@@ -11,28 +13,19 @@ namespace Gamestore.Services.Services;
 
 public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GenreService> logger) : IGenreService
 {
-    private readonly GenreModelValidator _genreModelValidator = new(unitOfWork);
-    private readonly GenreModelDtoValidator _genreModelDtoValidator = new(unitOfWork);
-
-    public async Task AddGenreAsync(GenreModelDto genreModel)
-    {
-        logger.LogInformation("Adding genre {@genreModel}", genreModel);
-        var result = await _genreModelDtoValidator.ValidateAsync(genreModel);
-        if (!result.IsValid)
-        {
-            throw new ArgumentException(result.Errors[0].ToString());
-        }
-
-        var genre = automapper.Map<Genre>(genreModel);
-
-        await unitOfWork.GenreRepository.AddAsync(genre);
-
-        await unitOfWork.SaveAsync();
-    }
+    private readonly GenreDtoWrapperAddValidator _genreDtoWrapperAddValidator = new(unitOfWork);
+    private readonly GenreDtoWrapperUpdateValidator _genreDtoWrapperUpdateValidator = new(unitOfWork);
 
     public async Task DeleteGenreAsync(Guid genreId)
     {
         logger.LogInformation("Deleting genre {genreId}", genreId);
+
+        var childGenres = await unitOfWork.GenreRepository.GetGenresByParentGenreAsync(genreId);
+        if (childGenres.Count != 0)
+        {
+            throw new GamestoreException($"You can't delete genre when it has child genres {genreId}");
+        }
+
         var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
         if (genre != null)
         {
@@ -96,16 +89,26 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         return genreModels.AsEnumerable();
     }
 
-    public async Task UpdateGenreAsync(GenreModel genreModel)
+    public async Task AddGenreAsync(GenreDtoWrapper genreModel)
+    {
+        logger.LogInformation("Adding genre {@genreModel}", genreModel);
+
+        await _genreDtoWrapperAddValidator.ValidateGenreForAdding(genreModel);
+
+        var genre = automapper.Map<Genre>(genreModel.Genre);
+
+        await unitOfWork.GenreRepository.AddAsync(genre);
+
+        await unitOfWork.SaveAsync();
+    }
+
+    public async Task UpdateGenreAsync(GenreDtoWrapper genreModel)
     {
         logger.LogInformation("Updating genre {@genreModel}", genreModel);
-        var result = await _genreModelValidator.ValidateAsync(genreModel);
-        if (!result.IsValid)
-        {
-            throw new ArgumentException(result.Errors[0].ToString());
-        }
 
-        var genre = automapper.Map<Genre>(genreModel);
+        await _genreDtoWrapperUpdateValidator.ValidateGenreForUpdating(genreModel);
+
+        var genre = automapper.Map<Genre>(genreModel.Genre);
 
         await unitOfWork.GenreRepository.UpdateAsync(genre);
 

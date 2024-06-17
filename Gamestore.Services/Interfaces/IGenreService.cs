@@ -1,10 +1,11 @@
-﻿using Gamestore.Services.Models;
+﻿using Gamestore.BLL.Models;
+using Gamestore.Services.Models;
 
 namespace Gamestore.Services.Interfaces;
 
 public interface IGenreService
 {
-    Task AddGenreAsync(GenreModelDto genreModel);
+    Task AddGenreAsync(GenreDtoWrapper genreModel);
 
     Task<IEnumerable<GameModelDto>> GetGamesByGenreAsync(Guid genreId);
 
@@ -12,7 +13,7 @@ public interface IGenreService
 
     Task<IEnumerable<GenreModelDto>> GetAllGenresAsync();
 
-    Task UpdateGenreAsync(GenreModel genreModel);
+    Task UpdateGenreAsync(GenreDtoWrapper genreModel);
 
     Task DeleteGenreAsync(Guid genreId);
 

@@ -8,19 +8,24 @@ namespace Gamestore.DAL.Repositories;
 public class PublisherRepository(GamestoreContext context) : RepositoryBase<Publisher>(context), IPublisherRepository
 #pragma warning restore CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
 {
-    public async Task<Publisher?> GetByIdAsync(Guid id)
+    public Task<Publisher?> GetByIdAsync(Guid id)
     {
-        return await context.Publishers.Where(x => x.Id == id).FirstOrDefaultAsync();
+        return context.Publishers.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task<Publisher?> GetByCompanyNameAsync(string companyName)
+    public Task<Publisher?> GetByCompanyNameAsync(string companyName)
     {
-        return await context.Publishers.Where(x => x.CompanyName == companyName).FirstOrDefaultAsync();
+        return context.Publishers.Where(x => x.CompanyName == companyName).FirstOrDefaultAsync();
     }
 
-    public async Task<List<Game>> GetGamesByPublisherAsync(Guid id)
+    public Task<List<Game>> GetGamesByPublisherIdAsync(Guid id)
     {
-        return await context.Games.Where(x => x.PublisherId == id).ToListAsync();
+        return context.Games.Where(x => x.PublisherId == id).ToListAsync();
+    }
+
+    public Task<List<Game>> GetGamesByPublisherNameAsync(string name)
+    {
+        return context.Games.Where(x => x.Name == name).ToListAsync();
     }
 
     public async Task UpdateAsync(Publisher entity)
@@ -29,8 +34,8 @@ public class PublisherRepository(GamestoreContext context) : RepositoryBase<Publ
         context.Entry(g).CurrentValues.SetValues(entity);
     }
 
-    public async Task<List<Publisher>> GetAllAsync()
+    public Task<List<Publisher>> GetAllAsync()
     {
-        return await context.Publishers.ToListAsync();
+        return context.Publishers.ToListAsync();
     }
 }

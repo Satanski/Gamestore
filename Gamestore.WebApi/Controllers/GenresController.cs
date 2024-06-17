@@ -1,4 +1,5 @@
-﻿using Gamestore.Services.Interfaces;
+﻿using Gamestore.BLL.Models;
+using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,31 +13,27 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // GET: genres/GUID/games
     [HttpGet("{id}/games")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGamesByGenreIdAsync(Guid id)
     {
         IEnumerable<GameModelDto> games;
 
         games = await _genreService.GetGamesByGenreAsync(id);
 
-        return games.Any() ? Ok(games) : NotFound();
+        return Ok(games);
     }
 
     // GET: genres/GUID/games
     [HttpGet("{id}/genres")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGenresByParentGenreIdAsync(Guid id)
     {
-        IEnumerable<GenreModelDto> genres;
+        var genres = await _genreService.GetGenresByParentGenreAsync(id);
 
-        genres = await _genreService.GetGenresByParentGenreAsync(id);
-
-        return genres.Any() ? Ok(genres) : NotFound();
+        return Ok(genres);
     }
 
     // POST: genres
     [HttpPost]
-    public async Task<IActionResult> AddGenreAsync([FromBody] GenreModelDto genreModel)
+    public async Task<IActionResult> AddGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.AddGenreAsync(genreModel);
 
@@ -63,7 +60,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // PUT: genres
     [HttpPut]
-    public async Task<IActionResult> UpdateGenreAsync([FromBody] GenreModel genreModel)
+    public async Task<IActionResult> UpdateGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.UpdateGenreAsync(genreModel);
 
