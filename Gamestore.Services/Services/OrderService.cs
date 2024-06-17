@@ -38,9 +38,9 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         var order = await unitOfWork.OrderRepository.GetByIdAsync(orderId);
         if (order != null)
         {
-            foreach(var item in order.OrderGames)
+            foreach (var item in order.OrderGames)
             {
-                await unitOfWork.OrderGameRepository.Delete(item);
+                unitOfWork.OrderGameRepository.Delete(item);
             }
 
             unitOfWork.OrderRepository.Delete(order);
