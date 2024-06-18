@@ -2,7 +2,7 @@
 
 namespace Gamestore.BLL.Models;
 
-public record OrderGameDto
+public record OrderGameModelDto
 {
     public Guid OrderId { get; set; }
 
@@ -13,8 +13,6 @@ public record OrderGameDto
     public int Quantity { get; set; }
 
     public int? Discount { get; set; }
-
-    public OrderModelDto Order { get; set; }
 
     public GameModelDto Product { get; set; }
 }

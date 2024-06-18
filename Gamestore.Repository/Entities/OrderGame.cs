@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 namespace Gamestore.DAL.Entities;
 
 [Table("OrderGames")]
-[Index(nameof(OrderId), nameof(ProductId), IsUnique = true)]
+[PrimaryKey(nameof(OrderId), nameof(ProductId))]
 public class OrderGame
 {
-    [Key]
+    [Required]
     public Guid OrderId { get; set; }
 
     [Required]

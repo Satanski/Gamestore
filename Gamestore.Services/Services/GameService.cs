@@ -156,6 +156,79 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
     }
 
+    public async Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity)
+    {
+        logger.LogInformation("Adding game to cart: {@gameKey}", gameKey);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey) ?? throw new GamestoreException($"No game found with given key: {gameKey}");
+        var unitInStock = game.UnitInStock;
+
+        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customerId);
+        if (exisitngOrder == null)
+        {
+            await CreateNewOrder(unitOfWork, customerId, quantity, game, unitInStock);
+        }
+        else
+        {
+            await UpdateExistingOrder(unitOfWork, quantity, game, unitInStock, exisitngOrder);
+        }
+    }
+
+    private static async Task UpdateExistingOrder(IUnitOfWork unitOfWork, int quantity, Game game, int unitInStock, Order? exisitngOrder)
+    {
+        OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, game.Id);
+
+        if (existingOrderGame != null)
+        {
+            await UpdateExistingOrderGame(unitOfWork, quantity, unitInStock, existingOrderGame);
+        }
+        else
+        {
+            await CreateNewOrderGame(unitOfWork, quantity, game, unitInStock, exisitngOrder);
+        }
+    }
+
+    private static async Task CreateNewOrderGame(IUnitOfWork unitOfWork, int quantity, Game game, int unitInStock, Order? exisitngOrder)
+    {
+        var expectedTotalQuantity = quantity < unitInStock ? quantity : unitInStock;
+
+        OrderGame newOrderGame = new OrderGame()
+        {
+            OrderId = exisitngOrder.Id,
+            ProductId = game.Id,
+            Price = game.Price,
+            Discount = game.Discount,
+            Quantity = expectedTotalQuantity,
+        };
+
+        await unitOfWork.OrderGameRepository.AddAsync(newOrderGame);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task UpdateExistingOrderGame(IUnitOfWork unitOfWork, int quantity, int unitInStock, OrderGame existingOrderGame)
+    {
+        var expectedTotalQuantity = quantity + existingOrderGame.Quantity;
+        expectedTotalQuantity = expectedTotalQuantity < unitInStock ? expectedTotalQuantity : unitInStock;
+        existingOrderGame.Quantity = expectedTotalQuantity;
+        await unitOfWork.OrderGameRepository.UpdateAsync(existingOrderGame);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task<int> CreateNewOrder(IUnitOfWork unitOfWork, Guid customerId, int quantity, Game game, int unitInStock)
+    {
+        if (quantity > unitInStock)
+        {
+            quantity = unitInStock;
+        }
+
+        var newOrderId = Guid.NewGuid();
+        List<OrderGame> orderGames = [new() { OrderId = newOrderId, ProductId = game.Id, Price = game.Price, Discount = game.Discount, Quantity = quantity }];
+        Order order = new() { Id = newOrderId, CustomerId = customerId, Date = DateTime.Now, OrderGames = orderGames, Status = OrderStatus.Open };
+        await unitOfWork.OrderRepository.AddAsync(order);
+        await unitOfWork.OrderGameRepository.AddAsync(orderGames[0]);
+        await unitOfWork.SaveAsync();
+        return quantity;
+    }
+
     private static async Task<Game> AddGameToRepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)
     {
         game.PublisherId = gameModel.Publisher;
@@ -192,48 +265,6 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         await unitOfWork.SaveAsync();
     }
 
-    public async Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity)
-    {
-        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
-        var unitInStock = game.UnitInStock;
-
-        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customerId);
-        if (exisitngOrder == null)
-        {
-            if (quantity > unitInStock)
-            {
-                quantity = unitInStock;
-            }
-
-            var newOrderId = Guid.NewGuid();
-            List<OrderGame> orderGames = [new() { OrderId = newOrderId, ProductId = game.Id, Price = 10, Discount = 10, Quantity = quantity }];
-            Order order = new() { Id = newOrderId, CustomerId = customerId, Date = DateTime.Now, OrderGames = orderGames, Status = OrderStatus.Open };
-            await unitOfWork.OrderRepository.AddAsync(order);
-            await unitOfWork.OrderGameRepository.AddAsync(orderGames[0]);
-            await unitOfWork.SaveAsync();
-        }
-        else
-        {
-            OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, game.Id);
-            var expectedTotalQuantity = quantity + existingOrderGame.Quantity;
-            if (expectedTotalQuantity > unitInStock)
-            {
-                expectedTotalQuantity = unitInStock;
-            }
-
-            existingOrderGame.Quantity = expectedTotalQuantity;
-            await unitOfWork.OrderGameRepository.UpdateAsync(existingOrderGame);
-            await unitOfWork.SaveAsync();
-        }
-    }
-
-    private static async Task DeleteGamePlatformsFromRepository(IUnitOfWork unitOfWork, GameUpdateModel gameModel)
-    {
-        var gamePlatforms = await unitOfWork.GamePlatformRepository.GetByGameIdAsync(gameModel.Id);
-        foreach (var item in gamePlatforms)
-        {
-            unitOfWork.GamePlatformRepository.Delete(item);
-        }
     private static async Task DeleteGamePlatformsFromRepository(IUnitOfWork unitOfWork, Guid? gameId)
     {
         if (gameId != null)

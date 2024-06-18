@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
-using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +23,6 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/find/GUID
     [HttpGet("find/{id}")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGameByIdAsync(Guid id)
     {
         var game = await _gameService.GetGameByIdAsync(id);

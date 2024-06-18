@@ -12,5 +12,5 @@ public record OrderModelDto
 
     public DateTime Date { get; set; }
 
-    public List<OrderGameDto> OrderGames { get; set; }
+    public List<OrderGameModelDto> OrderGames { get; set; }
 }
