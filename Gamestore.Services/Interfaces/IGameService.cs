@@ -7,6 +7,8 @@ public interface IGameService
 {
     Task AddGameAsync(GameDtoWrapper gameModel);
 
+    Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity);
+
     Task DeleteGameByIdAsync(Guid gameId);
 
     Task DeleteGameByKeyAsync(string gameKey);

@@ -15,7 +15,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
     public async Task<IActionResult> GetGamesByPlatformIdAsync(Guid id)
     {
         var games = await _platformService.GetGamesByPlatformIdAsync(id);
-        return games == null ? Ok(games) : BadRequest();
+        return games != null ? Ok(games) : BadRequest();
     }
 
     // POST: platforms

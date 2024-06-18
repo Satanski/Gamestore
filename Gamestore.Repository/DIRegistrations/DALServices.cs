@@ -17,6 +17,8 @@ public static class DAlServices
         services.AddScoped<IGameGenreRepository, GameGenreRepository>();
         services.AddScoped<IGamePlatformRepository, GamePlatformRepository>();
         services.AddScoped<IPublisherRepository, PublisherRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderGameRepository, OrderGameRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }

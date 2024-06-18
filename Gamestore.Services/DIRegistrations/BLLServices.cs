@@ -16,6 +16,7 @@ public static class BllServices
         services.AddScoped<IPlatformService, PlatformService>();
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<IPublisherService, PublisherService>();
+        services.AddScoped<IOrderService, OrderService>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
         var autoMapper = autoMapperConfiguration.CreateMapper();
