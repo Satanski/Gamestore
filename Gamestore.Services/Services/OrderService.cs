@@ -267,7 +267,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         double? sum = 0;
         foreach (var orderGame in orderGames)
         {
-            if (orderGame.Discount != null)
+            if (orderGame.Discount is not null and not 0)
             {
                 sum += (orderGame.Price - (orderGame.Price * ((double)orderGame.Discount / 100))) * orderGame.Quantity;
             }
