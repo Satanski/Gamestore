@@ -18,6 +18,11 @@ public class OrderGameRepository(GamestoreContext context) : RepositoryBase<Orde
         return _context.OrderGames.FirstOrDefaultAsync(x => x.OrderId == id);
     }
 
+    public Task<List<OrderGame>> GetByOrderIdAsync(Guid id)
+    {
+        return _context.OrderGames.Where(x => x.OrderId == id).ToListAsync();
+    }
+
     public Task<OrderGame?> GetByOrderIdAndProductIdAsync(Guid orderId, Guid productId)
     {
         return _context.OrderGames.Where(x => x.OrderId == orderId && x.ProductId == productId).FirstOrDefaultAsync();

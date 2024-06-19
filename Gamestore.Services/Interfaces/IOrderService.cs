@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
+using Gamestore.WebApi.Stubs;
 
 namespace Gamestore.BLL.Interfaces;
 
@@ -15,11 +16,11 @@ public interface IOrderService
 
     Task<List<OrderDetailsDto>> GetOrderDetailsByOrderIdAsync(Guid orderId);
 
-    Task<byte[]> CreateInvoicePdf(PaymentModelDto payment);
+    Task<byte[]> CreateInvoicePdf(PaymentModelDto payment, CustomerStub customer);
 
-    Task PayWithVisaAsync(PaymentModelDto payment);
+    Task PayWithVisaAsync(PaymentModelDto payment, CustomerStub customer);
 
-    Task PayWithIboxAsync(PaymentModelDto payment);
+    Task PayWithIboxAsync(PaymentModelDto payment, CustomerStub customer);
 
     Task RemoveGameFromCartAsync(Guid customerId, string gameKey, int quantity);
 

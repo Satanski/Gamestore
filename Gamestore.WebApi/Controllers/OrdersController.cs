@@ -45,7 +45,8 @@ public class OrdersController([FromServices] IOrderService orderService) : Contr
     [HttpGet("cart")]
     public async Task<IActionResult> GetCartAsync()
     {
-        var orders = await _orderService.GetCartByCustomerIdAsync(CustomerStub.Id);
+        var customerStub = new CustomerStub();
+        var orders = await _orderService.GetCartByCustomerIdAsync(customerStub.Id);
 
         return Ok(orders);
     }
@@ -54,18 +55,20 @@ public class OrdersController([FromServices] IOrderService orderService) : Contr
     [HttpPost("payment")]
     public async Task<IActionResult> PayAsync([FromBody] PaymentModelDto payment)
     {
+        var customerStub = new CustomerStub();
+
         switch (payment.Method)
         {
             case VisaPaymentMethodName:
-                await _orderService.PayWithVisaAsync(payment);
+                await _orderService.PayWithVisaAsync(payment, customerStub);
                 return Ok();
 
             case IboxPaymentMethodName:
-                await _orderService.PayWithIboxAsync(payment);
+                await _orderService.PayWithIboxAsync(payment, customerStub);
                 return Ok();
 
             case BankPaymentMethodName:
-                var invoicePdf = await _orderService.CreateInvoicePdf(payment);
+                var invoicePdf = await _orderService.CreateInvoicePdf(payment, customerStub);
                 return File(invoicePdf, "application/pdf", "Invoice.pdf");
 
             default:
@@ -95,7 +98,8 @@ public class OrdersController([FromServices] IOrderService orderService) : Contr
     [HttpDelete("cart/{key}")]
     public async Task<IActionResult> DeleteOrderByIdAsync(string key)
     {
-        await _orderService.RemoveGameFromCartAsync(CustomerStub.Id, key, 1);
+        var customerStub = new CustomerStub();
+        await _orderService.RemoveGameFromCartAsync(customerStub.Id, key, 1);
 
         return Ok();
     }
