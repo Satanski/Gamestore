@@ -37,9 +37,10 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         return query.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    public Task UpdateAsync(Order entity)
+    public async Task UpdateAsync(Order entity)
     {
-        throw new NotImplementedException();
+        var g = await _context.Orders.Where(p => p.Id == entity.Id).FirstAsync();
+        _context.Entry(g).CurrentValues.SetValues(entity);
     }
 
     private IIncludableQueryable<Order, Game> OrderIncludes()
