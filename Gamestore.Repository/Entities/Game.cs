@@ -39,4 +39,6 @@ public class Game
     public List<GamePlatform> GamePlatforms { get; set; }
 
     public List<OrderGame> OrderGames { get; set; }
+
+    public List<Comment> Comments { get; set; }
 }

@@ -14,7 +14,10 @@ namespace Gamestore.Services.Services;
 
 public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
 {
+    private const string ReplyActionName = "Reply";
+    private const string QuoteActionName = "Quote";
     private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
+    private readonly CommentModelDtoValidator _commentModelDtoValidator = new();
 
     public async Task<IEnumerable<GameModelDto>> GetAllGamesAsync()
     {
@@ -173,6 +176,69 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
     }
 
+    public async Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey)
+    {
+        logger.LogInformation("Getting comments by game key: {@gameKey}", gameKey);
+        var comments = await unitOfWork.CommentRepository.GetByGameKeyAsync(gameKey);
+
+        var commentHelpers = new CommentHelpers(automapper);
+        List<CommentModel> commentList = commentHelpers.CommentListCreator(comments);
+
+        return commentList.AsEnumerable();
+    }
+
+    public async Task AddCommentToGameAsync(string gameKey, CommentModelDto comment)
+    {
+        logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
+        await _commentModelDtoValidator.ValidateComment(comment);
+
+        var gameId = (await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey)).Id;
+        comment.Comment.Body = comment.Comment.Body.Replace('[', ' ');
+        comment.Comment.Body = comment.Comment.Body.Replace(']', ' ');
+        var commenttoAdd = ConvertCommentModelDtoToComment(comment, gameId);
+
+        if (comment.Action == ReplyActionName && comment.ParentId != null)
+        {
+            await ComposeReplyMessage(unitOfWork, comment, commenttoAdd);
+        }
+
+        if (comment.Action == QuoteActionName && comment.ParentId != null)
+        {
+            await ComposeQuoteMessage(unitOfWork, comment, commenttoAdd);
+        }
+
+        await AddMessageToRepository(unitOfWork, commenttoAdd);
+    }
+
+    public async Task DeleteCommentAsync(string gameKey, Guid commentId)
+    {
+        logger.LogInformation("Deleting comment: {@commentId}", commentId);
+
+        var comment = await unitOfWork.CommentRepository.GetByIdAsync(commentId);
+
+        if (comment != null)
+        {
+            comment.Body = "A comment/quote was deleted";
+            await unitOfWork.CommentRepository.UpdateAsync(comment);
+            await unitOfWork.SaveAsync();
+
+            var childComments = await unitOfWork.CommentRepository.GetChildCommentsByCommentIdAsync(commentId);
+            foreach (var childComment in childComments)
+            {
+                if (childComment.Body.StartsWith("[[", StringComparison.InvariantCulture))
+                {
+                    var firstIndex = childComment.Body.IndexOf(']');
+                    var lastIndex = childComment.Body.LastIndexOf(']');
+                    var length = lastIndex - firstIndex;
+                    childComment.Body = childComment.Body.Remove(length);
+
+                    await unitOfWork.CommentRepository.UpdateAsync(comment);
+                    await unitOfWork.SaveAsync();
+                }
+            }
+        }
+    }
+
     private static async Task UpdateExistingOrder(IUnitOfWork unitOfWork, int quantity, Game game, int unitInStock, Order? exisitngOrder)
     {
         OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, game.Id);
@@ -296,6 +362,41 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
     private static async Task DeleteGameFromRepository(IUnitOfWork unitOfWork, Game game)
     {
         unitOfWork.GameRepository.Delete(game);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static Comment ConvertCommentModelDtoToComment(CommentModelDto comment, Guid gameId)
+    {
+        return new Comment()
+        {
+            GameId = gameId,
+            ParentCommentId = comment.ParentId,
+            Body = comment.Comment.Body,
+            Name = comment.Comment.Name,
+        };
+    }
+
+    private static async Task ComposeQuoteMessage(IUnitOfWork unitOfWork, CommentModelDto comment, Comment commenttoAdd)
+    {
+        if (comment.ParentId != null)
+        {
+            var parentComment = await unitOfWork.CommentRepository.GetByIdAsync((Guid)comment.ParentId);
+            commenttoAdd.Body = commenttoAdd.Body.Insert(0, $"[{parentComment.Body}], ");
+        }
+    }
+
+    private static async Task ComposeReplyMessage(IUnitOfWork unitOfWork, CommentModelDto comment, Comment commenttoAdd)
+    {
+        if (comment.ParentId != null)
+        {
+            var parentComment = await unitOfWork.CommentRepository.GetByIdAsync((Guid)comment.ParentId);
+            commenttoAdd.Body = commenttoAdd.Body.Insert(0, $"[{parentComment.Name}], ");
+        }
+    }
+
+    private static async Task AddMessageToRepository(IUnitOfWork unitOfWork, Comment commenttoAdd)
+    {
+        await unitOfWork.CommentRepository.AddAsync(commenttoAdd);
         await unitOfWork.SaveAsync();
     }
 }

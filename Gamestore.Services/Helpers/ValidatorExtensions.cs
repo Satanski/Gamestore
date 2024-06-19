@@ -59,4 +59,13 @@ internal static class ValidatorExtensions
             throw new ArgumentException(result.Errors[0].ToString());
         }
     }
+
+    internal static async Task ValidateComment(this CommentModelDtoValidator validator, CommentModelDto comment)
+    {
+        var result = await validator.ValidateAsync(comment);
+        if (!result.IsValid)
+        {
+            throw new ArgumentException(result.Errors[0].ToString());
+        }
+    }
 }

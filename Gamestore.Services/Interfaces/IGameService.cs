@@ -26,4 +26,10 @@ public interface IGameService
     Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey);
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
+
+    Task AddCommentToGameAsync(string gameKey, CommentModelDto comment);
+
+    Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
+
+    Task DeleteCommentAsync(string gameKey, Guid commentId);
 }

@@ -21,6 +21,8 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
 
     public DbSet<GamePlatform> GamePlatforms { get; set; }
 
+    public DbSet<Comment> Comments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
