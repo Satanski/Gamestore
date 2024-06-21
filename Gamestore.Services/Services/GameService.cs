@@ -129,6 +129,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         if (game != null)
         {
+            await DeleteOrderGamesFromRepository(unitOfWork, game);
             await DeleteGameGenresFromRepository(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepository(unitOfWork, game.Id);
             await DeleteGameFromRepository(unitOfWork, game);
