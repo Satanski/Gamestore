@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
+using Gamestore.WebApi.Stubs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -22,7 +23,6 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games/find/GUID
     [HttpGet("find/{id}")]
-    [ResponseCache(Duration = 1)]
     public async Task<IActionResult> GetGameByIdAsync(Guid id)
     {
         var game = await _gameService.GetGameByIdAsync(id);
@@ -100,6 +100,16 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         return Ok();
     }
 
+    // POST: games/STRING/buy
+    [HttpPost("{key}/buy")]
+    public async Task<IActionResult> AddGameToCartAsync(string key)
+    {
+        var customerStub = new CustomerStub();
+        await _gameService.AddGameToCartAsync(customerStub.Id, key, 1);
+
+        return Ok();
+    }
+
     // PUT: games
     [HttpPut]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
@@ -113,7 +123,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpDelete("{key}")]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
-        await _gameService.DeleteGameByKeyAsync(key);
+        await _gameService.SoftDeleteGameByKeyAsync(key);
 
         return Ok();
     }

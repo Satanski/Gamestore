@@ -4,6 +4,7 @@ using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
+using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
@@ -128,9 +129,25 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         if (game != null)
         {
+            await DeleteOrderGamesFromRepository(unitOfWork, game);
             await DeleteGameGenresFromRepository(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepository(unitOfWork, game.Id);
             await DeleteGameFromRepository(unitOfWork, game);
+        }
+        else
+        {
+            throw new GamestoreException($"No game found with given id: {gameId}");
+        }
+    }
+
+    public async Task SoftDeleteGameByIdAsync(Guid gameId)
+    {
+        logger.LogInformation("Deleting game by Id: {gameId}", gameId);
+        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+
+        if (game != null)
+        {
+            await SoftDeleteGameFromRepository(unitOfWork, game);
         }
         else
         {
@@ -145,6 +162,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         if (game != null)
         {
+            await DeleteOrderGamesFromRepository(unitOfWork, game);
             await DeleteGameGenresFromRepository(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepository(unitOfWork, game.Id);
             await DeleteGameFromRepository(unitOfWork, game);
@@ -153,6 +171,94 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         {
             throw new GamestoreException($"No game found with given key: {gameKey}");
         }
+    }
+
+    public async Task SoftDeleteGameByKeyAsync(string gameKey)
+    {
+        logger.LogInformation("Deleting game by Key: {gameKey}", gameKey);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+
+        if (game != null)
+        {
+            await SoftDeleteGameFromRepository(unitOfWork, game);
+        }
+        else
+        {
+            throw new GamestoreException($"No game found with given key: {gameKey}");
+        }
+    }
+
+    public async Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity)
+    {
+        logger.LogInformation("Adding game to cart: {@gameKey}", gameKey);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey) ?? throw new GamestoreException($"No game found with given key: {gameKey}");
+        var unitInStock = game.UnitInStock;
+
+        var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customerId);
+        if (exisitngOrder == null)
+        {
+            await CreateNewOrder(unitOfWork, customerId, quantity, game, unitInStock);
+        }
+        else
+        {
+            await UpdateExistingOrder(unitOfWork, quantity, game, unitInStock, exisitngOrder);
+        }
+    }
+
+    private static async Task UpdateExistingOrder(IUnitOfWork unitOfWork, int quantity, Game game, int unitInStock, Order? exisitngOrder)
+    {
+        OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, game.Id);
+
+        if (existingOrderGame != null)
+        {
+            await UpdateExistingOrderGame(unitOfWork, quantity, unitInStock, existingOrderGame);
+        }
+        else
+        {
+            await CreateNewOrderGame(unitOfWork, quantity, game, unitInStock, exisitngOrder);
+        }
+    }
+
+    private static async Task CreateNewOrderGame(IUnitOfWork unitOfWork, int quantity, Game game, int unitInStock, Order? exisitngOrder)
+    {
+        var expectedTotalQuantity = quantity < unitInStock ? quantity : unitInStock;
+
+        OrderGame newOrderGame = new OrderGame()
+        {
+            OrderId = exisitngOrder.Id,
+            ProductId = game.Id,
+            Price = game.Price,
+            Discount = game.Discount,
+            Quantity = expectedTotalQuantity,
+        };
+
+        await unitOfWork.OrderGameRepository.AddAsync(newOrderGame);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task UpdateExistingOrderGame(IUnitOfWork unitOfWork, int quantity, int unitInStock, OrderGame existingOrderGame)
+    {
+        var expectedTotalQuantity = quantity + existingOrderGame.Quantity;
+        expectedTotalQuantity = expectedTotalQuantity < unitInStock ? expectedTotalQuantity : unitInStock;
+        existingOrderGame.Quantity = expectedTotalQuantity;
+        await unitOfWork.OrderGameRepository.UpdateAsync(existingOrderGame);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task<int> CreateNewOrder(IUnitOfWork unitOfWork, Guid customerId, int quantity, Game game, int unitInStock)
+    {
+        if (quantity > unitInStock)
+        {
+            quantity = unitInStock;
+        }
+
+        var newOrderId = Guid.NewGuid();
+        List<OrderGame> orderGames = [new() { OrderId = newOrderId, ProductId = game.Id, Price = game.Price, Discount = game.Discount, Quantity = quantity }];
+        Order order = new() { Id = newOrderId, CustomerId = customerId, Date = DateTime.Now, OrderGames = orderGames, Status = OrderStatus.Open };
+        await unitOfWork.OrderRepository.AddAsync(order);
+        await unitOfWork.OrderGameRepository.AddAsync(orderGames[0]);
+        await unitOfWork.SaveAsync();
+        return quantity;
     }
 
     private static async Task<Game> AddGameToRepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)
@@ -217,6 +323,22 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
             await unitOfWork.SaveAsync();
         }
+    }
+
+    private static async Task DeleteOrderGamesFromRepository(IUnitOfWork unitOfWork, Game? game)
+    {
+        var orderGames = await unitOfWork.OrderGameRepository.GetAllAsync();
+        var orderGamesToRemove = orderGames.Where(x => x.ProductId == game.Id);
+        foreach (var og in orderGamesToRemove)
+        {
+            unitOfWork.OrderGameRepository.Delete(og);
+        }
+    }
+
+    private static async Task SoftDeleteGameFromRepository(IUnitOfWork unitOfWork, Game game)
+    {
+        await unitOfWork.GameRepository.SoftDelete(game);
+        await unitOfWork.SaveAsync();
     }
 
     private static async Task DeleteGameFromRepository(IUnitOfWork unitOfWork, Game game)
