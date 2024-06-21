@@ -25,7 +25,11 @@ public class PaymentContext(IEnumerable<IPaymentStrategy> strategies)
     private static string MakeMethodNameFromRequestClassNameFriendly(string method)
     {
         var index = method.IndexOf(' ');
-        method = method.Remove(index);
+        if (index >= 0)
+        {
+            method = method.Remove(index);
+        }
+
         method = method.ToLower(CultureInfo.InvariantCulture);
         method = char.ToUpper(method[0]) + method[1..];
         return method;

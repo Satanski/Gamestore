@@ -55,9 +55,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
     {
         var customerStub = new CustomerStub();
 
-        var result = await paymentContext.ExecuteStrategyAsync(payment.Method, payment, customerStub);
-
-        return Ok(result);
+        return await paymentContext.ExecuteStrategyAsync(payment.Method, payment, customerStub);
     }
 
     // GET: orders/cart
