@@ -5,7 +5,7 @@ namespace Gamestore.DAL;
 
 public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository, IGenreRepository genreRepository,
     IPlatformRepository platformRepository, IGameGenreRepository gameGenreRepository, IGamePlatformRepository gamePlatformRepository,
-    IPublisherRepository publisherRepository) : IUnitOfWork
+    IPublisherRepository publisherRepository, IOrderRepository orderRepository, IOrderGameRepository orderGameRepository) : IUnitOfWork
 {
     private readonly GamestoreContext _context = context;
 
@@ -20,6 +20,10 @@ public class UnitOfWork(GamestoreContext context, IGameRepository gameRepository
     public IGamePlatformRepository GamePlatformRepository { get; } = gamePlatformRepository;
 
     public IPublisherRepository PublisherRepository { get; } = publisherRepository;
+
+    public IOrderRepository OrderRepository { get; } = orderRepository;
+
+    public IOrderGameRepository OrderGameRepository { get; } = orderGameRepository;
 
     public async Task SaveAsync()
     {
