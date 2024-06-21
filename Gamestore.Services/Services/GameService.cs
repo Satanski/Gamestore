@@ -161,6 +161,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         if (game != null)
         {
+            await DeleteOrderGamesFromRepository(unitOfWork, game);
             await DeleteGameGenresFromRepository(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepository(unitOfWork, game.Id);
             await DeleteGameFromRepository(unitOfWork, game);
@@ -320,6 +321,16 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
             }
 
             await unitOfWork.SaveAsync();
+        }
+    }
+
+    private static async Task DeleteOrderGamesFromRepository(IUnitOfWork unitOfWork, Game? game)
+    {
+        var orderGames = await unitOfWork.OrderGameRepository.GetAllAsync();
+        var orderGamesToRemove = orderGames.Where(x => x.ProductId == game.Id);
+        foreach (var og in orderGamesToRemove)
+        {
+            unitOfWork.OrderGameRepository.Delete(og);
         }
     }
 
