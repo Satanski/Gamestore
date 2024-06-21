@@ -25,5 +25,9 @@ public interface IGameService
 
     Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey);
 
+    Task SoftDeleteGameByIdAsync(Guid gameId);
+
+    Task SoftDeleteGameByKeyAsync(string gameKey);
+
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 }

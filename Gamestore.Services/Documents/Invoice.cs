@@ -28,7 +28,7 @@ public class Invoice(Order order, double amountToPay) : IDocument
                      .PaddingVertical(1, Unit.Centimetre)
                      .Column(column =>
                      {
-                         column.Item().Text($"User id: {order.CustomerId}");
+                         column.Item().Text($"Customer: {order.CustomerId}");
                          column.Item().Text($"Order id: {order.Id}");
                          column.Item().Text($"Creation date: {order.Date}");
                          column.Item().Text($"Valid till: {validTill:dd-MM-yyyy}");

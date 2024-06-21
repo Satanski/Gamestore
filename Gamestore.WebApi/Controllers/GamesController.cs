@@ -123,7 +123,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpDelete("{key}")]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
-        await _gameService.DeleteGameByKeyAsync(key);
+        await _gameService.SoftDeleteGameByKeyAsync(key);
 
         return Ok();
     }

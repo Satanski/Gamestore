@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models.Payment;
+using Gamestore.WebApi.Strategies;
 using Gamestore.WebApi.Stubs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,11 +8,8 @@ namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class OrdersController([FromServices] IOrderService orderService) : ControllerBase
+public class OrdersController([FromServices] IOrderService orderService, [FromServices] PaymentContext paymentContext) : ControllerBase
 {
-    private const string VisaPaymentMethodName = "Visa";
-    private const string IboxPaymentMethodName = "IBox terminal";
-    private const string BankPaymentMethodName = "Bank";
     private readonly IOrderService _orderService = orderService;
 
     // GET: orders
@@ -57,23 +55,9 @@ public class OrdersController([FromServices] IOrderService orderService) : Contr
     {
         var customerStub = new CustomerStub();
 
-        switch (payment.Method)
-        {
-            case VisaPaymentMethodName:
-                await _orderService.PayWithVisaAsync(payment, customerStub);
-                return Ok();
+        var result = await paymentContext.ExecuteStrategyAsync(payment.Method, payment, customerStub);
 
-            case IboxPaymentMethodName:
-                await _orderService.PayWithIboxAsync(payment, customerStub);
-                return Ok();
-
-            case BankPaymentMethodName:
-                var invoicePdf = await _orderService.CreateInvoicePdf(payment, customerStub);
-                return File(invoicePdf, "application/pdf", "Invoice.pdf");
-
-            default:
-                return BadRequest();
-        }
+        return Ok(result);
     }
 
     // GET: orders/cart

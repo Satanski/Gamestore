@@ -1,6 +1,8 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
+using Gamestore.WebApi.Interfaces;
 using Gamestore.WebApi.Middlewares;
+using Gamestore.WebApi.Strategies;
 using Serilog;
 using Serilog.Events;
 
@@ -40,6 +42,10 @@ public static class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddScoped<IPaymentStrategy, VisaPaymentStrategy>();
+        builder.Services.AddScoped<IPaymentStrategy, IboxPaymentStrategy>();
+        builder.Services.AddScoped<IPaymentStrategy, BankPaymentStrategy>();
+        builder.Services.AddScoped<PaymentContext>();
 
         var app = builder.Build();
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Configurations;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Services;
@@ -17,6 +18,7 @@ public static class BllServices
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<PaymentServiceConfiguration>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
         var autoMapper = autoMapperConfiguration.CreateMapper();

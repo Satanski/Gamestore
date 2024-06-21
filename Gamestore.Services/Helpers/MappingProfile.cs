@@ -43,11 +43,5 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ExpirationYear, src => src.MapFrom(x => x.Model.YearExpire))
             .ForMember(dest => dest.TransactionAmount, src => src.MapFrom(x => x.Model.TransactionAmount))
             .ReverseMap();
-
-        CreateMap<PaymentModelDto, IboxPaymentModel>()
-            .ForMember(dest => dest.InvoiceNumber, src => src.MapFrom(x => x.OrderId))
-            .ForMember(dest => dest.AccountNumber, src => src.MapFrom(x => x.UserId))
-            .ForMember(dest => dest.TransactionAmount, src => src.MapFrom(x => x.Sum))
-            .ReverseMap();
     }
 }

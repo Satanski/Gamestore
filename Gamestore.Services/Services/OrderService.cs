@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using AutoMapper;
+using Gamestore.BLL.Configurations;
 using Gamestore.BLL.Documents;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Helpers;
@@ -13,14 +14,14 @@ using Gamestore.DAL.Interfaces;
 using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
 namespace Gamestore.BLL.Services;
 
-public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<OrderService> logger, IConfiguration config) : IOrderService
+public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<OrderService> logger, IOptions<PaymentServiceConfiguration> paymentServiceConfiguration) : IOrderService
 {
-    private readonly IConfiguration _config = config;
     private readonly VisaPaymentValidator _visaPaymentValidator = new();
 
     public async Task<OrderModelDto> GetOrderByIdAsync(Guid orderId)
@@ -120,16 +121,11 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id) ?? throw new GamestoreException("There is no order for given customer");
         var sum = await CalculateAmountToPay(unitOfWork, customer);
 
-        var t = await Task.Run(() =>
-        {
-            QuestPDF.Settings.License = LicenseType.Community;
-            var document = new Invoice(order, (double)sum);
-            byte[] pdfBytes = document.GeneratePdf();
+        QuestPDF.Settings.License = LicenseType.Community;
+        var document = new Invoice(order, (double)sum);
+        byte[] pdfBytes = document.GeneratePdf();
 
-            return pdfBytes;
-        });
-
-        return t;
+        return pdfBytes;
     }
 
     public async Task PayWithIboxAsync(PaymentModelDto payment, CustomerStub customer)
@@ -137,24 +133,11 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         logger.LogInformation("Executing payment by IBox {@payment}", payment);
 
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id) ?? throw new GamestoreException("There is no order for given customer");
+        var iboxPaymentModel = await CreateIboxPaymentModel(unitOfWork, customer, order);
 
-        var iboxPaymentModel = automapper.Map<IboxPaymentModel>(payment);
-        iboxPaymentModel.InvoiceNumber = order.CustomerId;
-        iboxPaymentModel.AccountNumber = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6");
-
-        var sum = await CalculateAmountToPay(unitOfWork, customer);
-        iboxPaymentModel.TransactionAmount = (decimal?)sum;
-
-        var json = JsonSerializer.Serialize(iboxPaymentModel);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        using HttpClient client = new HttpClient();
-        var paymentServiceUrl = GetPeymentServiceUrl();
-
-        var response = await client.PostAsync($"{paymentServiceUrl}/ibox", content);
-        response.EnsureSuccessStatusCode();
-
-        await DeleteOrderByCustomer(unitOfWork, customer);
+        string serviceUrl = paymentServiceConfiguration.Value.IboxServiceUrl;
+        await MakePaymentServiceRequest(iboxPaymentModel, serviceUrl);
+        await CloseOrderByCustomer(unitOfWork, customer);
     }
 
     public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerStub customer)
@@ -162,21 +145,11 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         logger.LogInformation("Executing payment by Visa {@payment.Model}", payment.Model);
         await _visaPaymentValidator.ValidateVisaPayment(payment);
 
-        var microservicePaymentModel = automapper.Map<VisaMicroservicePaymentModel>(payment);
+        var visaPaymentModel = await CreateVisaPaymentModel(unitOfWork, automapper, payment, customer);
+        string serviceUrl = paymentServiceConfiguration.Value.VisaServiceUrl;
 
-        var sum = await CalculateAmountToPay(unitOfWork, customer);
-        microservicePaymentModel.TransactionAmount = (double)sum;
-
-        var json = JsonSerializer.Serialize(microservicePaymentModel);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        using HttpClient client = new HttpClient();
-        var paymentServiceUrl = GetPeymentServiceUrl();
-
-        var response = await client.PostAsync($"{paymentServiceUrl}/visa", content);
-        response.EnsureSuccessStatusCode();
-
-        await DeleteOrderByCustomer(unitOfWork, customer);
+        await MakePaymentServiceRequest(visaPaymentModel, serviceUrl);
+        await CloseOrderByCustomer(unitOfWork, customer);
     }
 
     public PaymentMethodsDto GetPaymentMethods()
@@ -209,11 +182,6 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         return paymentMethods;
     }
 
-    private string GetPeymentServiceUrl()
-    {
-        return _config.GetSection("PaymentServiceUrl").Value;
-    }
-
     private static void DeleteOrderGames(IUnitOfWork unitOfWork, Order? order)
     {
         foreach (var item in order.OrderGames)
@@ -229,7 +197,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task DeleteOrderByCustomer(IUnitOfWork unitOfWork, CustomerStub customer)
+    private static async Task CloseOrderByCustomer(IUnitOfWork unitOfWork, CustomerStub customer)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
         if (order != null)
@@ -278,5 +246,37 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         }
 
         return sum;
+    }
+
+    private static async Task MakePaymentServiceRequest(object paymentModel, string serviceUrl)
+    {
+        var json = JsonSerializer.Serialize(paymentModel);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        HttpClient client = new HttpClient();
+
+        var response = await client.PostAsync(serviceUrl, content);
+        response.EnsureSuccessStatusCode();
+    }
+
+    private static async Task<VisaMicroservicePaymentModel> CreateVisaPaymentModel(IUnitOfWork unitOfWork, IMapper automapper, PaymentModelDto payment, CustomerStub customer)
+    {
+        var visaPaymentModel = automapper.Map<VisaMicroservicePaymentModel>(payment);
+
+        var sum = await CalculateAmountToPay(unitOfWork, customer);
+        visaPaymentModel.TransactionAmount = (double)sum;
+        return visaPaymentModel;
+    }
+
+    private static async Task<IboxPaymentModel> CreateIboxPaymentModel(IUnitOfWork unitOfWork, CustomerStub customer, Order order)
+    {
+        var iboxPaymentModel = new IboxPaymentModel()
+        {
+            InvoiceNumber = order.Id,
+            AccountNumber = customer.Id,
+        };
+
+        var sum = await CalculateAmountToPay(unitOfWork, customer);
+        iboxPaymentModel.TransactionAmount = (decimal?)sum;
+        return iboxPaymentModel;
     }
 }

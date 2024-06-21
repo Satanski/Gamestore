@@ -369,11 +369,5 @@ FodyWeavers.xsd
 /Gamestore.Repository/Migrations/20240610110112_Epic3Update.cs
 /Gamestore.Repository/Migrations/20240610110112_Epic3Update.Designer.cs
 /Gamestore.Repository/Migrations/GamestoreContextModelSnapshot.cs
-<<<<<<< HEAD
-/Gamestore.Repository/Migrations/20240610111016_RealEpic3Update.cs
 /Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs
 /Gamestore.Repository/Migrations/20240617150445_InitialCreate.Designer.cs
-=======
->>>>>>> main
-/Gamestore.Repository/Migrations/20240610111016_RealEpic3Update.cs
-/Gamestore.Repository/Migrations/20240610111016_RealEpic3Update.Designer.cs

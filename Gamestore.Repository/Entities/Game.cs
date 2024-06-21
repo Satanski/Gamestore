@@ -32,6 +32,8 @@ public class Game
 
     public string? Description { get; set; } = null!;
 
+    public bool IsDeleted { get; set; }
+
     public Publisher Publisher { get; set; }
 
     public List<GameGenre> GameGenres { get; set; }
