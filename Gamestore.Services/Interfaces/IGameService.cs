@@ -7,6 +7,8 @@ public interface IGameService
 {
     Task AddGameAsync(GameDtoWrapper gameModel);
 
+    Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity);
+
     Task DeleteGameByIdAsync(Guid gameId);
 
     Task DeleteGameByKeyAsync(string gameKey);
@@ -22,6 +24,10 @@ public interface IGameService
     Task<IEnumerable<PlatformModelDto>> GetPlatformsByGameKeyAsync(string gameKey);
 
     Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey);
+
+    Task SoftDeleteGameByIdAsync(Guid gameId);
+
+    Task SoftDeleteGameByKeyAsync(string gameKey);
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 }
