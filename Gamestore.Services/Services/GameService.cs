@@ -8,14 +8,15 @@ using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
+using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
 public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
 {
-    private const string ReplyActionName = "Reply";
     private const string QuoteActionName = "Quote";
+    private const string DeletedMessageTemplate = "A comment/quote was deleted";
     private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
     private readonly CommentModelDtoValidator _commentModelDtoValidator = new();
 
@@ -223,20 +224,14 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
     {
         logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
         await _commentModelDtoValidator.ValidateComment(comment);
+        CheckIfUserIsBanned(comment);
 
         var gameId = (await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey)).Id;
-        comment.Comment.Body = comment.Comment.Body.Replace('[', ' ');
-        comment.Comment.Body = comment.Comment.Body.Replace(']', ' ');
         var commenttoAdd = ConvertCommentModelDtoToComment(comment, gameId);
-
-        if (comment.Action == ReplyActionName && comment.ParentId != null)
-        {
-            await ComposeReplyMessage(unitOfWork, comment, commenttoAdd);
-        }
 
         if (comment.Action == QuoteActionName && comment.ParentId != null)
         {
-            await ComposeQuoteMessage(unitOfWork, comment, commenttoAdd);
+            ComposeQuotedMessage(commenttoAdd);
         }
 
         await AddMessageToRepository(unitOfWork, commenttoAdd);
@@ -250,24 +245,9 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         if (comment != null)
         {
-            comment.Body = "A comment/quote was deleted";
+            comment.Body = DeletedMessageTemplate;
             await unitOfWork.CommentRepository.UpdateAsync(comment);
             await unitOfWork.SaveAsync();
-
-            var childComments = await unitOfWork.CommentRepository.GetChildCommentsByCommentIdAsync(commentId);
-            foreach (var childComment in childComments)
-            {
-                if (childComment.Body.StartsWith("[[", StringComparison.InvariantCulture))
-                {
-                    var firstIndex = childComment.Body.IndexOf(']');
-                    var lastIndex = childComment.Body.LastIndexOf(']');
-                    var length = lastIndex - firstIndex;
-                    childComment.Body = childComment.Body.Remove(length);
-
-                    await unitOfWork.CommentRepository.UpdateAsync(comment);
-                    await unitOfWork.SaveAsync();
-                }
-            }
         }
     }
 
@@ -424,27 +404,22 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         };
     }
 
-    private static async Task ComposeQuoteMessage(IUnitOfWork unitOfWork, CommentModelDto comment, Comment commenttoAdd)
+    private static void ComposeQuotedMessage(Comment commenttoAdd)
     {
-        if (comment.ParentId != null)
-        {
-            var parentComment = await unitOfWork.CommentRepository.GetByIdAsync((Guid)comment.ParentId);
-            commenttoAdd.Body = commenttoAdd.Body.Insert(0, $"[{parentComment.Body}], ");
-        }
-    }
-
-    private static async Task ComposeReplyMessage(IUnitOfWork unitOfWork, CommentModelDto comment, Comment commenttoAdd)
-    {
-        if (comment.ParentId != null)
-        {
-            var parentComment = await unitOfWork.CommentRepository.GetByIdAsync((Guid)comment.ParentId);
-            commenttoAdd.Body = commenttoAdd.Body.Insert(0, $"[{parentComment.Name}], ");
-        }
+        commenttoAdd.Body = commenttoAdd.Body.Insert(0, "[$Quote$]");
     }
 
     private static async Task AddMessageToRepository(IUnitOfWork unitOfWork, Comment commenttoAdd)
     {
         await unitOfWork.CommentRepository.AddAsync(commenttoAdd);
         await unitOfWork.SaveAsync();
+    }
+
+    private static void CheckIfUserIsBanned(CommentModelDto comment)
+    {
+        if (comment.Comment.Name == CustomerStub.Name && CustomerStub.BannedTill > DateTime.Now)
+        {
+            throw new GamestoreException($"User banned till {CustomerStub.BannedTill}");
+        }
     }
 }

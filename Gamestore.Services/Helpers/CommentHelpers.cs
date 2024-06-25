@@ -6,6 +6,8 @@ namespace Gamestore.BLL.Helpers;
 
 internal class CommentHelpers(IMapper automapper)
 {
+    private const string QuoteTemplateString = "[$Quote$]";
+
     internal List<CommentModel> CommentListCreator(List<Comment> comments)
     {
         List<CommentModel> commentList = [];
@@ -29,7 +31,8 @@ internal class CommentHelpers(IMapper automapper)
         var parentComment = commentList.Find(x => x.Id == parentCommentId);
         if (parentComment != null)
         {
-            parentComment.ChildComments.Add(automapper.Map<CommentModel>(comment));
+            var commentModel = ComposeComment(automapper, comment, parentComment);
+            parentComment.ChildComments.Add(commentModel);
             return true;
         }
         else
@@ -47,5 +50,22 @@ internal class CommentHelpers(IMapper automapper)
         }
 
         return false;
+    }
+
+    private static CommentModel ComposeComment(IMapper automapper, Comment comment, CommentModel? parentComment)
+    {
+        var commentModel = automapper.Map<CommentModel>(comment);
+
+        if (commentModel.Body.Contains(QuoteTemplateString, StringComparison.InvariantCultureIgnoreCase))
+        {
+            commentModel.Body = commentModel.Body.Replace(QuoteTemplateString, string.Empty);
+            commentModel.Body = commentModel.Body.Insert(0, $"[Reply to: {parentComment.Name} \"{parentComment.Body}\"] ");
+        }
+        else
+        {
+            commentModel.Body = commentModel.Body.Insert(0, $"[Reply to: {parentComment.Name}] ");
+        }
+
+        return commentModel;
     }
 }

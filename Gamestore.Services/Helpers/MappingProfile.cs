@@ -44,12 +44,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.TransactionAmount, src => src.MapFrom(x => x.Model.TransactionAmount))
             .ReverseMap();
 
-        CreateMap<PaymentModelDto, IboxPaymentModel>()
-            .ForMember(dest => dest.InvoiceNumber, src => src.MapFrom(x => x.OrderId))
-            .ForMember(dest => dest.AccountNumber, src => src.MapFrom(x => x.UserId))
-            .ForMember(dest => dest.TransactionAmount, src => src.MapFrom(x => x.Sum))
-            .ReverseMap();
-
         CreateMap<Comment, CommentModel>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Name))
