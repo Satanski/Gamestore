@@ -113,7 +113,8 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpPost("{key}/buy")]
     public async Task<IActionResult> AddGameToCartAsync(string key)
     {
-        await _gameService.AddGameToCartAsync(CustomerStub.Id, key, 1);
+        var customerStub = new CustomerStub();
+        await _gameService.AddGameToCartAsync(customerStub.Id, key, 1);
 
         return Ok();
     }
@@ -140,7 +141,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpDelete("{key}")]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
-        await _gameService.DeleteGameByKeyAsync(key);
+        await _gameService.SoftDeleteGameByKeyAsync(key);
 
         return Ok();
     }

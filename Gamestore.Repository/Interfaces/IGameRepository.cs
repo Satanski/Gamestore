@@ -11,4 +11,6 @@ public interface IGameRepository : IRepository<Game>, IRepositoryBase<Game>
     Task<List<Platform>> GetPlatformsByGameAsync(Guid id);
 
     Task<Publisher?> GetPublisherByGameAsync(Guid gameId);
+
+    Task SoftDelete(Game game);
 }
