@@ -8,6 +8,8 @@ public class RepositoryBase<T>(GamestoreContext context)
 {
     private readonly DbSet<T> _entities = context.Set<T>();
 
+    protected GamestoreContext Context { get; } = context;
+
     public async Task<T> AddAsync(T entity)
     {
         var added = await _entities.AddAsync(entity);

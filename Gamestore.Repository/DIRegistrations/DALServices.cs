@@ -19,6 +19,7 @@ public static class DAlServices
         services.AddScoped<IPublisherRepository, PublisherRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderGameRepository, OrderGameRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 }

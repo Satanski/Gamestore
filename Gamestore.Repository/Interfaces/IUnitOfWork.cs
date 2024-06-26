@@ -18,5 +18,7 @@ public interface IUnitOfWork
 
     IOrderGameRepository OrderGameRepository { get; }
 
+    ICommentRepository CommentRepository { get; }
+
     Task SaveAsync();
 }
