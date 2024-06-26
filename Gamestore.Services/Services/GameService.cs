@@ -220,21 +220,28 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return commentList.AsEnumerable();
     }
 
-    public async Task AddCommentToGameAsync(string gameKey, CommentModelDto comment)
+    public async Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment)
     {
         logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
         await _commentModelDtoValidator.ValidateComment(comment);
-        CheckIfUserIsBanned(comment);
-
-        var gameId = (await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey)).Id;
-        var commenttoAdd = ConvertCommentModelDtoToComment(comment, gameId);
-
-        if (comment.Action == QuoteActionName && comment.ParentId != null)
+        if (CheckIfUserIsBanned(comment))
         {
-            ComposeQuotedMessage(commenttoAdd);
+            return $"User banned till {CustomerStub.BannedTill}";
+        }
+        else
+        {
+            var gameId = (await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey)).Id;
+            var commenttoAdd = ConvertCommentModelDtoToComment(comment, gameId);
+
+            if (comment.Action == QuoteActionName && comment.ParentId != null)
+            {
+                ComposeQuotedMessage(commenttoAdd);
+            }
+
+            await AddMessageToRepository(unitOfWork, commenttoAdd);
         }
 
-        await AddMessageToRepository(unitOfWork, commenttoAdd);
+        return "Comment added";
     }
 
     public async Task DeleteCommentAsync(string gameKey, Guid commentId)
@@ -415,11 +422,13 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         await unitOfWork.SaveAsync();
     }
 
-    private static void CheckIfUserIsBanned(CommentModelDto comment)
+    private static bool CheckIfUserIsBanned(CommentModelDto comment)
     {
         if (comment.Comment.Name == CustomerStub.Name && CustomerStub.BannedTill > DateTime.Now)
         {
-            throw new GamestoreException($"User banned till {CustomerStub.BannedTill}");
+            return true;
         }
+
+        return false;
     }
 }
