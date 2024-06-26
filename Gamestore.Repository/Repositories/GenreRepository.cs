@@ -14,7 +14,7 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
             .Include(x => x.Publisher)
             .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-            .Where(x => x.GameGenres.Contains(new GameGenre { GameId = x.Id, GenreId = id }))
+            .Where(x => x.GameGenres.Contains(new GameGenre { GameId = x.Id, GenreId = id }) && !x.IsDeleted)
             .ToListAsync();
     }
 

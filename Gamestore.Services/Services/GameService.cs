@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
@@ -32,6 +33,24 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
 
         return gameModels.AsEnumerable();
+    }
+
+    public async Task<FilteredGamesDto> GetFilteredGamesAsync(List<Guid> genresFilter, List<Guid> platformsFilter, List<Guid> publishersFilter)
+    {
+        logger.LogInformation("Getting games by filter");
+
+        List<Game> filteredGames = [];
+        var filterService = new FilterService();
+        filteredGames = await filterService.FilterGames(unitOfWork, filteredGames, genresFilter, platformsFilter, publishersFilter);
+
+        FilteredGamesDto filteredGameDtos = new();
+
+        foreach (var game in filteredGames)
+        {
+            filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
+        }
+
+        return filteredGameDtos;
     }
 
     public async Task<IEnumerable<GenreModelDto>> GetGenresByGameKeyAsync(string gameKey)
@@ -88,6 +107,21 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
 
         return game == null ? throw new GamestoreException($"No game found with given key: {key}") : automapper.Map<GameModelDto>(game);
+    }
+
+    public List<string> GetPaginationOptions()
+    {
+        return PaginationOptionsDto.PaginationOptions;
+    }
+
+    public List<string> GetPublishDateOptions()
+    {
+        return PublishDateOptionsDto.PublishDateOptions;
+    }
+
+    public List<string> GetSortingOptions()
+    {
+        return SortingOptionsDto.SortingOptions;
     }
 
     public async Task AddGameAsync(GameDtoWrapper gameModel)

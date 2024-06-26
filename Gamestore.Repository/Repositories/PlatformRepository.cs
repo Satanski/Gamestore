@@ -14,7 +14,7 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
            .Include(x => x.Publisher)
            .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
            .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-           .Where(x => x.GamePlatforms.Contains(new GamePlatform { GameId = x.Id, PlatformId = id }))
+           .Where(x => x.GamePlatforms.Contains(new GamePlatform { GameId = x.Id, PlatformId = id }) && !x.IsDeleted)
            .ToListAsync();
     }
 
