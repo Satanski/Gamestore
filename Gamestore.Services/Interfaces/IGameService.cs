@@ -34,7 +34,7 @@ public interface IGameService
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 
-    Task AddCommentToGameAsync(string gameKey, CommentModelDto comment);
+    Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment);
 
     Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
 

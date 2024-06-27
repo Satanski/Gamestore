@@ -150,9 +150,9 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpPost("{key}/comments")]
     public async Task<IActionResult> AddCommentToGameAsync([FromBody] CommentModelDto comment, string key)
     {
-        await _gameService.AddCommentToGameAsync(key, comment);
+        var result = await _gameService.AddCommentToGameAsync(key, comment);
 
-        return Ok();
+        return Ok(result);
     }
 
     // PUT: games
