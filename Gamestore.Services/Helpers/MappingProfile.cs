@@ -43,5 +43,10 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ExpirationYear, src => src.MapFrom(x => x.Model.YearExpire))
             .ForMember(dest => dest.TransactionAmount, src => src.MapFrom(x => x.Model.TransactionAmount))
             .ReverseMap();
+
+        CreateMap<Comment, CommentModel>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
+            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Name))
+            .ForMember(dest => dest.Body, src => src.MapFrom(x => x.Body));
     }
 }

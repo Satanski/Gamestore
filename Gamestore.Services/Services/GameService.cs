@@ -8,13 +8,17 @@ using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
+using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
 public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
 {
+    private const string QuoteActionName = "Quote";
+    private const string DeletedMessageTemplate = "A comment/quote was deleted";
     private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
+    private readonly CommentModelDtoValidator _commentModelDtoValidator = new();
 
     public async Task<IEnumerable<GameModelDto>> GetAllGamesAsync()
     {
@@ -205,6 +209,55 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
     }
 
+    public async Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey)
+    {
+        logger.LogInformation("Getting comments by game key: {@gameKey}", gameKey);
+        var comments = await unitOfWork.CommentRepository.GetByGameKeyAsync(gameKey);
+
+        var commentHelpers = new CommentHelpers(automapper);
+        List<CommentModel> commentList = commentHelpers.CommentListCreator(comments);
+
+        return commentList.AsEnumerable();
+    }
+
+    public async Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment)
+    {
+        logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
+        await _commentModelDtoValidator.ValidateComment(comment);
+        if (CheckIfUserIsBanned(comment))
+        {
+            return $"User banned till {CustomerStub.BannedTill}";
+        }
+        else
+        {
+            var gameId = (await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey)).Id;
+            var commenttoAdd = ConvertCommentModelDtoToComment(comment, gameId);
+
+            if (comment.Action == QuoteActionName && comment.ParentId != null)
+            {
+                ComposeQuotedMessage(commenttoAdd);
+            }
+
+            await AddMessageToRepository(unitOfWork, commenttoAdd);
+        }
+
+        return "Comment added";
+    }
+
+    public async Task DeleteCommentAsync(string gameKey, Guid commentId)
+    {
+        logger.LogInformation("Deleting comment: {@commentId}", commentId);
+
+        var comment = await unitOfWork.CommentRepository.GetByIdAsync(commentId);
+
+        if (comment != null)
+        {
+            comment.Body = DeletedMessageTemplate;
+            await unitOfWork.CommentRepository.UpdateAsync(comment);
+            await unitOfWork.SaveAsync();
+        }
+    }
+
     private static async Task UpdateExistingOrder(IUnitOfWork unitOfWork, int quantity, Game game, int unitInStock, Order? exisitngOrder)
     {
         OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, game.Id);
@@ -345,5 +398,37 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
     {
         unitOfWork.GameRepository.Delete(game);
         await unitOfWork.SaveAsync();
+    }
+
+    private static Comment ConvertCommentModelDtoToComment(CommentModelDto comment, Guid gameId)
+    {
+        return new Comment()
+        {
+            GameId = gameId,
+            ParentCommentId = comment.ParentId,
+            Body = comment.Comment.Body,
+            Name = comment.Comment.Name,
+        };
+    }
+
+    private static void ComposeQuotedMessage(Comment commenttoAdd)
+    {
+        commenttoAdd.Body = commenttoAdd.Body.Insert(0, "[$Quote$]");
+    }
+
+    private static async Task AddMessageToRepository(IUnitOfWork unitOfWork, Comment commenttoAdd)
+    {
+        await unitOfWork.CommentRepository.AddAsync(commenttoAdd);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static bool CheckIfUserIsBanned(CommentModelDto comment)
+    {
+        if (comment.Comment.Name == CustomerStub.Name && CustomerStub.BannedTill > DateTime.Now)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
