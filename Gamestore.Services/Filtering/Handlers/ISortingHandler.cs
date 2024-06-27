@@ -4,7 +4,7 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering;
 
-public interface IFilterService
+public interface ISortingHandler
 {
-    Task<List<Game>> FilterGames(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters);
+    Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters);
 }

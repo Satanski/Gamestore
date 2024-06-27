@@ -1,4 +1,5 @@
 ﻿using Gamestore.BLL.BanHandler;
+using Gamestore.BLL.Filtering.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 
@@ -13,11 +14,11 @@ public class FilterHandlerBase : IFilterHandler
         _nextHandler = nextHandler;
     }
 
-    public virtual async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, List<Guid> genresFilter, List<Guid> platformsFilter, List<Guid> publishersFilter)
+    public virtual async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
     {
         if (_nextHandler != null)
         {
-            return await _nextHandler.HandleAsync(unitOfWork, filteredGames, genresFilter, platformsFilter, publishersFilter);
+            return await _nextHandler.HandleAsync(unitOfWork, filteredGames, filters);
         }
 
         return filteredGames;

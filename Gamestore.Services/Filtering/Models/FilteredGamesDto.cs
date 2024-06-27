@@ -1,6 +1,6 @@
 ﻿using Gamestore.Services.Models;
 
-namespace Gamestore.BLL.Filtering;
+namespace Gamestore.BLL.Filtering.Models;
 
 public class FilteredGamesDto
 {

@@ -54,11 +54,12 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         g.IsDeleted = true;
     }
 
-    private IIncludableQueryable<Game, Publisher> GameIncludes()
+    private IIncludableQueryable<Game, List<Comment>> GameIncludes()
     {
         return _context.Games
             .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-            .Include(x => x.Publisher);
+            .Include(x => x.Publisher)
+            .Include(x => x.Comments);
     }
 }

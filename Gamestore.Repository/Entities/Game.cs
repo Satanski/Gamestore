@@ -30,7 +30,12 @@ public class Game
     [Required]
     public Guid PublisherId { get; set; }
 
+    [Required]
+    public DateOnly PublishDate { get; set; }
+
     public string? Description { get; set; } = null!;
+
+    public int NumberOfViews { get; set; }
 
     public bool IsDeleted { get; set; }
 

@@ -1,4 +1,4 @@
-﻿using Gamestore.BLL.Filtering;
+﻿using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Models;
 using Gamestore.Services.Models;
 
@@ -16,7 +16,7 @@ public interface IGameService
 
     Task<IEnumerable<GameModelDto>> GetAllGamesAsync();
 
-    Task<FilteredGamesDto> GetFilteredGamesAsync(List<Guid> genresFilter, List<Guid> platformsFilter, List<Guid> publishersFilter);
+    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFilters gameFilters);
 
     Task<GameModelDto> GetGameByIdAsync(Guid gameId);
 
