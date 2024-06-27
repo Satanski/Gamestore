@@ -287,7 +287,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
             await AddMessageToRepository(unitOfWork, commenttoAdd);
         }
 
-        return "Comment added";
+        return string.Empty;
     }
 
     public async Task DeleteCommentAsync(string gameKey, Guid commentId)
