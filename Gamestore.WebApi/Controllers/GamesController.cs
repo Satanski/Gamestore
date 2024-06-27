@@ -91,6 +91,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         return File(serialized, "txt/json", fileName);
     }
 
+    // GET: games/STRING/comments
+    [HttpGet("{key}/comments")]
+    public async Task<IActionResult> GetGameCommentsAsync(string key)
+    {
+        var comments = await _gameService.GetCommentsByGameKeyAsync(key);
+
+        return Ok(comments);
+    }
+
     // POST: games
     [HttpPost]
     public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
@@ -110,6 +119,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         return Ok();
     }
 
+    // POST: games/STRING/comments
+    [HttpPost("{key}/comments")]
+    public async Task<IActionResult> AddCommentToGameAsync([FromBody] CommentModelDto comment, string key)
+    {
+        var result = await _gameService.AddCommentToGameAsync(key, comment);
+
+        return Ok(result);
+    }
+
     // PUT: games
     [HttpPut]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
@@ -124,6 +142,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
         await _gameService.SoftDeleteGameByKeyAsync(key);
+
+        return Ok();
+    }
+
+    // DELETE: games
+    [HttpDelete("{key}/comments/{id}")]
+    public async Task<IActionResult> DeleteCommentAsync(string key, Guid id)
+    {
+        await _gameService.DeleteCommentAsync(key, id);
 
         return Ok();
     }

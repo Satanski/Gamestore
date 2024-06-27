@@ -30,4 +30,10 @@ public interface IGameService
     Task SoftDeleteGameByKeyAsync(string gameKey);
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
+
+    Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment);
+
+    Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
+
+    Task DeleteCommentAsync(string gameKey, Guid commentId);
 }
