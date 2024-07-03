@@ -24,16 +24,16 @@ public static class BllServices
         services.AddScoped<PaymentServiceConfiguration>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IBanService, BanService>();
-        services.AddScoped<IGenreFilterHandler, GenreFilterHandler>();
-        services.AddScoped<INameFilterHandler, NameFilterHandler>();
-        services.AddScoped<IPaginationFilterHandler, PaginationFilterHandler>();
-        services.AddScoped<IPlatformFilterHandler, PlatformFilterHandler>();
-        services.AddScoped<IPriceFilterHandler, PriceFilterHandler>();
-        services.AddScoped<IPublishDateHandler, PublishDateHandler>();
-        services.AddScoped<IPublisherFilterHandler, PublisherFilterHandler>();
-        services.AddScoped<ISortingHandler, SortingHandler>();
-        services.AddScoped<IFilterServiceBuilder, FilterServiceBuilder>();
-        services.AddScoped<IFilterServiceDirector, FilterServiceDirector>();
+        services.AddScoped<GenreFilterHandler>();
+        services.AddScoped<NameFilterHandler>();
+        services.AddScoped<PaginationFilterHandler>();
+        services.AddScoped<PlatformFilterHandler>();
+        services.AddScoped<PriceFilterHandler>();
+        services.AddScoped<PublishDateHandler>();
+        services.AddScoped<PublisherFilterHandler>();
+        services.AddScoped<SortingHandler>();
+        services.AddScoped<IGameProcessingPipelineBuilder, GameProcessingPipelineBuilder>();
+        services.AddScoped<IGameProcessingPipelineDirector, GameProcessingPipelineDirector>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
         var autoMapper = autoMapperConfiguration.CreateMapper();

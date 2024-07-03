@@ -4,13 +4,13 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
-public class GenreFilterHandler : FilterHandlerBase, IGenreFilterHandler
+public class GenreFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
+    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
-        if (filters.GenresFilter.Count == 0 && filters.PlatformsFilter.Count == 0 && filters.PublishersFilter.Count == 0)
+        if (filters.GenresFilter.Count == 0)
         {
-            filters.GenresFilter.AddRange((await unitOfWork.GenreRepository.GetAllAsync()).Select(x => x.Id));
+            await SelectAllGenres(unitOfWork, filters);
         }
 
         List<Game> gamesByGenres = [];
@@ -24,5 +24,10 @@ public class GenreFilterHandler : FilterHandlerBase, IGenreFilterHandler
         filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
 
         return filteredGames;
+    }
+
+    private static async Task SelectAllGenres(IUnitOfWork unitOfWork, GameFiltersDto filters)
+    {
+        filters.GenresFilter.AddRange((await unitOfWork.GenreRepository.GetAllAsync()).Select(x => x.Id));
     }
 }

@@ -5,9 +5,9 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
-public class PriceFilterHandler : FilterHandlerBase, IPriceFilterHandler
+public class PriceFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
+    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
         if (filters.MaxPrice < filters.MinPrice)
         {

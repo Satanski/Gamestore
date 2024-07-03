@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.BLL.Filtering.Models;
 
-public class GameFilters
+public class GameFiltersDto
 {
     public List<Guid> GenresFilter { get; set; } = [];
 
@@ -22,5 +22,5 @@ public class GameFilters
 
     public string? Name { get; set; }
 
-    public int NumberOfPagesAfterFiltration { get; set; }
+    public int? NumberOfPagesAfterFiltration { get; set; }
 }

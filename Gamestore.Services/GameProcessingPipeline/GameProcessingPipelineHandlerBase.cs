@@ -5,16 +5,16 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering;
 
-public class FilterHandlerBase : IFilterHandler
+public class GameProcessingPipelineHandlerBase : IGameProcessingPipelineHandler
 {
-    private IFilterHandler _nextHandler;
+    private IGameProcessingPipelineHandler _nextHandler;
 
-    public void SetNext(IFilterHandler nextHandler)
+    public void SetNext(IGameProcessingPipelineHandler nextHandler)
     {
         _nextHandler = nextHandler;
     }
 
-    public virtual async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
+    public virtual async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
         if (_nextHandler != null)
         {

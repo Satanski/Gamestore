@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger, IFilterServiceDirector filterServiceDirector) : IGameService
+public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
 {
     private const string QuoteActionName = "Quote";
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
@@ -36,14 +36,14 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         return gameModels.AsEnumerable();
     }
 
-    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFilters gameFilters)
+    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters)
     {
         logger.LogInformation("Getting games by filter");
 
         List<Game> filteredGames = [];
-        var filterService = filterServiceDirector.ConstructFilterService();
+        var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionOperationService();
 
-        filteredGames = await filterService.FilterGames(unitOfWork, filteredGames, gameFilters);
+        filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, filteredGames, gameFilters);
 
         FilteredGamesDto filteredGameDtos = new();
 
@@ -109,13 +109,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
     public async Task<GameModelDto> GetGameByKeyAsync(string key)
     {
         logger.LogInformation("Getting game by Key: {key}", key);
-        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
-
-        if (game == null)
-        {
-            throw new GamestoreException($"No game found with given key: {key}");
-        }
-
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key) ?? throw new GamestoreException($"No game found with given key: {key}");
         await IncreaseGameViewCounter(unitOfWork, game);
 
         return automapper.Map<GameModelDto>(game);

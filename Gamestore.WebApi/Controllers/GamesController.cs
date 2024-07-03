@@ -15,32 +15,8 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games
     [HttpGet]
-    public async Task<IActionResult> GetGamesAsync(
-        [FromQuery] List<Guid> genres,
-        [FromQuery] List<Guid> platforms,
-        [FromQuery] List<Guid> publishers,
-        [FromQuery] int? minPrice,
-        [FromQuery] int? maxPrice,
-        [FromQuery] string? datePublishing,
-        [FromQuery] string? sort,
-        [FromQuery] string? name,
-        [FromQuery] int page,
-        [FromQuery] string? pageCount)
+    public async Task<IActionResult> GetGamesAsync([FromQuery] GameFiltersDto filters)
     {
-        GameFilters filters = new GameFilters()
-        {
-            GenresFilter = genres,
-            PlatformsFilter = platforms,
-            PublishersFilter = publishers,
-            MaxPrice = maxPrice,
-            MinPrice = minPrice,
-            DatePublishing = datePublishing,
-            Name = name,
-            Sort = sort,
-            Page = page,
-            PageCount = pageCount,
-        };
-
         var games = await _gameService.GetFilteredGamesAsync(filters);
 
         return Ok(games);

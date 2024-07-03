@@ -5,9 +5,9 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
-public class NameFilterHandler : FilterHandlerBase, INameFilterHandler
+public class NameFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
+    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
         if (filters.Name is not null)
         {

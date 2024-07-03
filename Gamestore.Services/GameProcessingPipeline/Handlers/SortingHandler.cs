@@ -5,33 +5,33 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering;
 
-public class SortingHandler : FilterHandlerBase, ISortingHandler
+public class SortingHandler : GameProcessingPipelineHandlerBase
 {
-    private const string MostPoplar = "Most popular";
-    private const string MostCommented = "Most commented";
-    private const string PriceAsc = "Price ASC";
-    private const string PriceDesc = "Price DESC";
-    private const string New = "New";
+    private readonly string _mostPoplar = SortingOptionsDto.SortingOptions[0];
+    private readonly string _mostCommented = SortingOptionsDto.SortingOptions[1];
+    private readonly string _priceAsc = SortingOptionsDto.SortingOptions[2];
+    private readonly string _priceDesc = SortingOptionsDto.SortingOptions[3];
+    private readonly string _new = SortingOptionsDto.SortingOptions[4];
 
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
+    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
         string sortOption = filters.Sort;
 
         switch (sortOption)
         {
-            case MostPoplar:
+            case var filter when filter == _mostPoplar:
                 filteredGames = [.. filteredGames.OrderByDescending(x => x.NumberOfViews)];
                 break;
-            case MostCommented:
+            case var filter when filter == _mostCommented:
                 filteredGames = [.. filteredGames.OrderByDescending(x => x.Comments.Count)];
                 break;
-            case PriceAsc:
+            case var filter when filter == _priceAsc:
                 filteredGames = [.. filteredGames.OrderBy(x => x.Price)];
                 break;
-            case PriceDesc:
+            case var filter when filter == _priceDesc:
                 filteredGames = [.. filteredGames.OrderByDescending(x => x.Price)];
                 break;
-            case New:
+            case var filter when filter == _new:
                 filteredGames = [.. filteredGames.OrderByDescending(x => x.PublishDate)];
                 break;
             case null:

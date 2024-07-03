@@ -4,17 +4,17 @@ using Gamestore.DAL.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
-public class PaginationFilterHandler : FilterHandlerBase, IPaginationFilterHandler
+public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
 {
-    private const string AllGames = "all";
+    private readonly string _allGames = PaginationOptionsDto.PaginationOptions[4];
 
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFilters filters)
+    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
         var pageCount = filters.PageCount;
 
         switch (pageCount)
         {
-            case AllGames:
+            case var filter when filter == _allGames:
             case null:
                 filters.NumberOfPagesAfterFiltration = 1;
                 filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
@@ -27,11 +27,11 @@ public class PaginationFilterHandler : FilterHandlerBase, IPaginationFilterHandl
         }
     }
 
-    private static void CheckIfPageNumberDoesntExceedLastPage(GameFilters filters)
+    private static void CheckIfPageNumberDoesntExceedLastPage(GameFiltersDto filters)
     {
         if (filters.Page > filters.NumberOfPagesAfterFiltration)
         {
-            filters.Page = filters.NumberOfPagesAfterFiltration;
+            filters.Page = (int)filters.NumberOfPagesAfterFiltration;
         }
     }
 
@@ -40,7 +40,7 @@ public class PaginationFilterHandler : FilterHandlerBase, IPaginationFilterHandl
         return (int)Math.Ceiling((double)filteredGames.Count / numberOfGamesPerPage);
     }
 
-    private static List<Game> FilterGames(int numberOfGamesPerPage, List<Game> filteredGames, GameFilters filters)
+    private static List<Game> FilterGames(int numberOfGamesPerPage, List<Game> filteredGames, GameFiltersDto filters)
     {
         return filteredGames.Skip(numberOfGamesPerPage * (filters.Page - 1)).Take(numberOfGamesPerPage).ToList();
     }

@@ -16,7 +16,7 @@ public interface IGameService
 
     Task<IEnumerable<GameModelDto>> GetAllGamesAsync();
 
-    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFilters gameFilters);
+    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters);
 
     Task<GameModelDto> GetGameByIdAsync(Guid gameId);
 
