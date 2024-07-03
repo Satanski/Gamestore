@@ -53,9 +53,9 @@ public class GameServiceTests
         var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
-            GenresFilter = [BllHelpers.Genres.Find(x => x.Name == genreName).Id],
-            PlatformsFilter = [BllHelpers.Platforms.Find(x => x.Type == platformType).Id],
-            PublishersFilter = [BllHelpers.Publishers.Find(x => x.CompanyName == publisherCompanyName).Id],
+            Genres = [BllHelpers.Genres.Find(x => x.Name == genreName).Id],
+            Platforms = [BllHelpers.Platforms.Find(x => x.Type == platformType).Id],
+            Publishers = [BllHelpers.Publishers.Find(x => x.CompanyName == publisherCompanyName).Id],
         };
 
         SetupUnitOfWorkForFilterTests(unitOfWork);
@@ -75,9 +75,9 @@ public class GameServiceTests
         var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
-            GenresFilter = [BllHelpers.Genres.Find(x => x.Name == genreName).Id],
-            PlatformsFilter = [BllHelpers.Platforms.Find(x => x.Type == platformType).Id],
-            PublishersFilter = [BllHelpers.Publishers.Find(x => x.CompanyName == publisherCompanyName).Id],
+            Genres = [BllHelpers.Genres.Find(x => x.Name == genreName).Id],
+            Platforms = [BllHelpers.Platforms.Find(x => x.Type == platformType).Id],
+            Publishers = [BllHelpers.Publishers.Find(x => x.CompanyName == publisherCompanyName).Id],
         };
 
         SetupUnitOfWorkForFilterTests(unitOfWork);

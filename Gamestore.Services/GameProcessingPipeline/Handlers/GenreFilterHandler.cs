@@ -8,13 +8,13 @@ public class GenreFilterHandler : GameProcessingPipelineHandlerBase
 {
     public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
-        if (filters.GenresFilter.Count == 0)
+        if (filters.Genres.Count == 0)
         {
             await SelectAllGenres(unitOfWork, filters);
         }
 
         List<Game> gamesByGenres = [];
-        foreach (var genreId in filters.GenresFilter)
+        foreach (var genreId in filters.Genres)
         {
             gamesByGenres.AddRange(await unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId));
         }
@@ -28,6 +28,6 @@ public class GenreFilterHandler : GameProcessingPipelineHandlerBase
 
     private static async Task SelectAllGenres(IUnitOfWork unitOfWork, GameFiltersDto filters)
     {
-        filters.GenresFilter.AddRange((await unitOfWork.GenreRepository.GetAllAsync()).Select(x => x.Id));
+        filters.Genres.AddRange((await unitOfWork.GenreRepository.GetAllAsync()).Select(x => x.Id));
     }
 }

@@ -8,13 +8,13 @@ public class PublisherFilterHandler : GameProcessingPipelineHandlerBase
 {
     public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
-        if (filters.PublishersFilter.Count == 0 && filteredGames.Count == 0)
+        if (filters.Publishers.Count == 0 && filteredGames.Count == 0)
         {
             await SelectAllPublishers(unitOfWork, filters);
         }
 
         List<Game> gamesByPublishers = [];
-        foreach (var publisherId in filters.PublishersFilter)
+        foreach (var publisherId in filters.Publishers)
         {
             gamesByPublishers.AddRange(await unitOfWork.PublisherRepository.GetGamesByPublisherIdAsync(publisherId));
         }
@@ -28,6 +28,6 @@ public class PublisherFilterHandler : GameProcessingPipelineHandlerBase
 
     private static async Task SelectAllPublishers(IUnitOfWork unitOfWork, GameFiltersDto filters)
     {
-        filters.PublishersFilter.AddRange((await unitOfWork.PublisherRepository.GetAllAsync()).Select(x => x.Id));
+        filters.Publishers.AddRange((await unitOfWork.PublisherRepository.GetAllAsync()).Select(x => x.Id));
     }
 }

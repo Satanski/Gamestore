@@ -8,13 +8,13 @@ public class PlatformFilterHandler : GameProcessingPipelineHandlerBase
 {
     public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
     {
-        if (filters.PlatformsFilter.Count == 0 && filteredGames.Count == 0)
+        if (filters.Platforms.Count == 0 && filteredGames.Count == 0)
         {
             await SelectAllPLatforms(unitOfWork, filters);
         }
 
         List<Game> gamesByPlatforms = [];
-        foreach (var platformId in filters.PlatformsFilter)
+        foreach (var platformId in filters.Platforms)
         {
             gamesByPlatforms.AddRange(await unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId));
         }
@@ -28,6 +28,6 @@ public class PlatformFilterHandler : GameProcessingPipelineHandlerBase
 
     private static async Task SelectAllPLatforms(IUnitOfWork unitOfWork, GameFiltersDto filters)
     {
-        filters.PlatformsFilter.AddRange((await unitOfWork.PlatformRepository.GetAllAsync()).Select(x => x.Id));
+        filters.Platforms.AddRange((await unitOfWork.PlatformRepository.GetAllAsync()).Select(x => x.Id));
     }
 }
