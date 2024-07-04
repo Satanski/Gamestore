@@ -8,6 +8,7 @@ using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
@@ -15,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
+public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GameService> logger, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
 {
     private const string QuoteActionName = "Quote";
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
@@ -39,6 +40,13 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
     public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters)
     {
         logger.LogInformation("Getting games by filter");
+
+        var products = await mongoUnitOfWork.ProductRepository.GetAllAsync();
+
+        foreach (var product in products)
+        {
+            product.ProductName = "aa";
+        }
 
         List<Game> filteredGames = [];
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionOperationService();

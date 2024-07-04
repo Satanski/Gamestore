@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Gamestore.MongoRepository\Gamestore.MongoRepository.csproj" />
     <ProjectReference Include="..\Gamestore.Repository\Gamestore.DAL.csproj" />
   </ItemGroup>
 

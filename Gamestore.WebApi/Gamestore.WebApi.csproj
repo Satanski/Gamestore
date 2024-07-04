@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Gamestore.MongoRepository\Gamestore.MongoRepository.csproj" />
     <ProjectReference Include="..\Gamestore.Services\Gamestore.BLL.csproj" />
   </ItemGroup>
 
