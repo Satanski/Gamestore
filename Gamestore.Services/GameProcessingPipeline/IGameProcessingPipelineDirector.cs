@@ -2,5 +2,5 @@
 
 public interface IGameProcessingPipelineDirector
 {
-    IGameProcessingPipelineService ConstructGameCollectionOperationService();
+    IGameProcessingPipelineService ConstructGameCollectionPipelineService();
 }

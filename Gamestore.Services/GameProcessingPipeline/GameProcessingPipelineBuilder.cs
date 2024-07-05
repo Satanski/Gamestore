@@ -7,7 +7,7 @@ public class GameProcessingPipelineBuilder : IGameProcessingPipelineBuilder
     private IGameProcessingPipelineHandler _firstHandler;
     private IGameProcessingPipelineHandler _lastHandler;
 
-    public GameProcessingPipelineBuilder AddHandler(IGameProcessingPipelineHandler handler)
+    public IGameProcessingPipelineBuilder AddHandler(IGameProcessingPipelineHandler handler)
     {
         if (_firstHandler == null)
         {

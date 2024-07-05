@@ -7,7 +7,7 @@ namespace Gamestore.BLL.Filtering.Handlers;
 
 public class PriceFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         if (filters.MaxPrice < filters.MinPrice)
         {
@@ -16,16 +16,16 @@ public class PriceFilterHandler : GameProcessingPipelineHandlerBase
 
         if (filters.MinPrice != null)
         {
-            filteredGames = filteredGames.Where(x => x.Price >= filters.MinPrice).ToList();
+            query = query.Where(x => x.Price >= filters.MinPrice);
         }
 
         if (filters.MaxPrice != null)
         {
-            filteredGames = filteredGames.Where(x => x.Price <= filters.MaxPrice).ToList();
+            query = query.Where(x => x.Price <= filters.MaxPrice);
         }
 
-        filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
+        query = await base.HandleAsync(unitOfWork, filters, query);
 
-        return filteredGames;
+        return query;
     }
 }

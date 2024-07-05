@@ -8,5 +8,5 @@ public interface IGameProcessingPipelineHandler
 {
     void SetNext(IGameProcessingPipelineHandler nextHandler);
 
-    Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters);
+    Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query);
 }

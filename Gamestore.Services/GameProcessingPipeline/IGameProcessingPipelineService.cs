@@ -6,5 +6,5 @@ namespace Gamestore.BLL.Filtering;
 
 public interface IGameProcessingPipelineService
 {
-    Task<List<Game>> ProcessGamesAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters);
+    Task<IQueryable<Game>> ProcessGamesAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query);
 }

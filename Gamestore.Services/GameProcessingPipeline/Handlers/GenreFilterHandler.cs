@@ -6,24 +6,17 @@ namespace Gamestore.BLL.Filtering.Handlers;
 
 public class GenreFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         if (filters.Genres.Count == 0)
         {
             await SelectAllGenres(unitOfWork, filters);
         }
 
-        List<Game> gamesByGenres = [];
-        foreach (var genreId in filters.Genres)
-        {
-            gamesByGenres.AddRange(await unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId));
-        }
+        query = query.Where(game => game.GameGenres.Any(gp => filters.Genres.Contains(gp.GenreId)));
+        query = await base.HandleAsync(unitOfWork, filters, query);
 
-        filteredGames.AddRange(gamesByGenres);
-
-        filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
-
-        return filteredGames;
+        return query;
     }
 
     private static async Task SelectAllGenres(IUnitOfWork unitOfWork, GameFiltersDto filters)

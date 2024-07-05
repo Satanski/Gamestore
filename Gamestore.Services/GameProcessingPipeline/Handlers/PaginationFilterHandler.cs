@@ -8,7 +8,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
 {
     private readonly string _allGames = PaginationOptionsDto.PaginationOptions[4];
 
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         var pageCount = filters.PageCount;
 
@@ -17,13 +17,16 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
             case var filter when filter == _allGames:
             case null:
                 filters.NumberOfPagesAfterFiltration = 1;
-                filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
-                return filteredGames;
+                query = await base.HandleAsync(unitOfWork, filters, query);
+                return query;
             default:
-                filters.NumberOfPagesAfterFiltration = CountNumberOfPagesAfterFiltration(int.Parse(pageCount), filteredGames);
+                filters.NumberOfPagesAfterFiltration = CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query);
                 CheckIfPageNumberDoesntExceedLastPage(filters);
-                filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
-                return FilterGames(int.Parse(pageCount), filteredGames, filters);
+
+                var numberOfGamesPerPage = int.Parse(pageCount);
+                query = query.Skip(numberOfGamesPerPage * (filters.Page - 1)).Take(numberOfGamesPerPage);
+
+                return query;
         }
     }
 
@@ -35,13 +38,8 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
         }
     }
 
-    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, List<Game> filteredGames)
+    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> filteredGames)
     {
-        return (int)Math.Ceiling((double)filteredGames.Count / numberOfGamesPerPage);
-    }
-
-    private static List<Game> FilterGames(int numberOfGamesPerPage, List<Game> filteredGames, GameFiltersDto filters)
-    {
-        return filteredGames.Skip(numberOfGamesPerPage * (filters.Page - 1)).Take(numberOfGamesPerPage).ToList();
+        return (int)Math.Ceiling((double)filteredGames.Count() / numberOfGamesPerPage);
     }
 }
