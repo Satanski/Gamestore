@@ -1,6 +1,6 @@
 ﻿namespace Gamestore.MongoRepository.MongoDB;
 
-public class MongoDBSettings
+public class MongoDBSettingsModel
 {
     public string ConnectionString { get; set; }
 

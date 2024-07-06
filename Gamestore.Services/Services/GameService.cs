@@ -13,6 +13,7 @@ using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Gamestore.Services.Services;
 
@@ -42,11 +43,23 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         logger.LogInformation("Getting games by filter");
 
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
-        var gamesQueryable = unitOfWork.GameRepository.GetGamesAsQueryable();
-        var filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, gamesQueryable);
+        var games = unitOfWork.GameRepository.GetGamesAsQueryable();
+        var filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, games);
+
+        var products = await mongoUnitOfWork.ProductRepository.GetAllAsync();
+        List<Game> gamesFromProducts = [];
+        foreach (var item in products)
+        {
+            gamesFromProducts.Add(automapper.Map<Game>(item));
+        }
 
         FilteredGamesDto filteredGameDtos = new();
         foreach (var game in filteredGames)
+        {
+            filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
+        }
+
+        foreach (var game in gamesFromProducts)
         {
             filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
         }
@@ -60,14 +73,9 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     public async Task<IEnumerable<GenreModelDto>> GetGenresByGameKeyAsync(string gameKey)
     {
         logger.LogInformation("Getting genres by game Id: {gameKey}", gameKey);
-        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
-        var genres = await unitOfWork.GameRepository.GetGenresByGameAsync(game.Id);
-        List<GenreModelDto> genreModels = [];
 
-        foreach (var genre in genres)
-        {
-            genreModels.Add(automapper.Map<GenreModelDto>(genre));
-        }
+        var genreModels = await GetGenresFromSQLServerByGameKey(unitOfWork, automapper, gameKey);
+        genreModels ??= await GetGenresFromMongoDBByGameKey(mongoUnitOfWork, automapper, gameKey);
 
         return genreModels.AsEnumerable();
     }
@@ -76,25 +84,36 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         logger.LogInformation("Getting platforms by game Key: {gameKey}", gameKey);
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
-        var platforms = await unitOfWork.GameRepository.GetPlatformsByGameAsync(game.Id);
-        List<PlatformModelDto> platformModels = [];
-
-        foreach (var platform in platforms)
+        if (game is not null)
         {
-            platformModels.Add(automapper.Map<PlatformModelDto>(platform));
+            var platforms = await unitOfWork.GameRepository.GetPlatformsByGameAsync(game.Id);
+
+            if (platforms.IsNullOrEmpty())
+            {
+                return [];
+            }
+
+            List<PlatformModelDto> platformModels = [];
+
+            foreach (var platform in platforms)
+            {
+                platformModels.Add(automapper.Map<PlatformModelDto>(platform));
+            }
+
+            return platformModels.AsEnumerable();
         }
 
-        return platformModels.AsEnumerable();
+        return [];
     }
 
     public async Task<PublisherModelDto> GetPublisherByGameKeyAsync(string gameKey)
     {
         logger.LogInformation("Getting publisher by game Key: {gameKey}", gameKey);
 
-        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
-        var publisher = await unitOfWork.GameRepository.GetPublisherByGameAsync(game.Id);
+        var publisher = await GetPublisherFromSQLServerByGameKey(unitOfWork, automapper, gameKey);
+        publisher ??= await GetPublisherFromMongoDBByGameKey(mongoUnitOfWork, automapper, gameKey);
 
-        return automapper.Map<PublisherModelDto>(publisher);
+        return publisher;
     }
 
     public async Task<GameModelDto> GetGameByIdAsync(Guid gameId)
@@ -108,10 +127,11 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     public async Task<GameModelDto> GetGameByKeyAsync(string key)
     {
         logger.LogInformation("Getting game by Key: {key}", key);
-        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key) ?? throw new GamestoreException($"No game found with given key: {key}");
-        await IncreaseGameViewCounter(unitOfWork, game);
 
-        return automapper.Map<GameModelDto>(game);
+        var game = await GetGameFromSQLServerByKey(unitOfWork, automapper, key);
+        game ??= await GetGameFromMongoDBByKey(mongoUnitOfWork, automapper, key);
+
+        return game ?? throw new GamestoreException($"No game found with given key: {key}");
     }
 
     public List<string> GetPaginationOptions()
@@ -473,7 +493,73 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
 
     private static async Task IncreaseGameViewCounter(IUnitOfWork unitOfWork, Game? game)
     {
-        game.NumberOfViews++;
-        await unitOfWork.SaveAsync();
+        if (game is not null)
+        {
+            game.NumberOfViews++;
+            await unitOfWork.SaveAsync();
+        }
+    }
+
+    private static async Task<List<GenreModelDto>> GetGenresFromMongoDBByGameKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string gameKey)
+    {
+        var product = await mongoUnitOfWork.ProductRepository.GetProductByNameAsync(gameKey);
+        var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(product.CategoryID);
+
+        return [automapper.Map<GenreModelDto>(category)];
+    }
+
+    private static async Task<List<GenreModelDto>> GetGenresFromSQLServerByGameKey(IUnitOfWork unitOfWork, IMapper automapper, string gameKey)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+
+        List<GenreModelDto> genreModels = [];
+        if (game is not null)
+        {
+            var genres = await unitOfWork.GameRepository.GetGenresByGameAsync(game.Id);
+
+            foreach (var genre in genres)
+            {
+                genreModels.Add(automapper.Map<GenreModelDto>(genre));
+            }
+
+            return genreModels;
+        }
+
+        return null;
+    }
+
+    private static async Task<PublisherModelDto> GetPublisherFromMongoDBByGameKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string gameKey)
+    {
+        var product = await mongoUnitOfWork.ProductRepository.GetProductByNameAsync(gameKey);
+        var supplier = await mongoUnitOfWork.SupplierRepository.GetSupplierByIdAsync(product.SupplierID);
+
+        return automapper.Map<PublisherModelDto>(supplier);
+    }
+
+    private static async Task<PublisherModelDto> GetPublisherFromSQLServerByGameKey(IUnitOfWork unitOfWork, IMapper automapper, string gameKey)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
+        if (game is not null)
+        {
+            var publisher = await unitOfWork.GameRepository.GetPublisherByGameAsync(game.Id);
+
+            return automapper.Map<PublisherModelDto>(publisher);
+        }
+
+        return null;
+    }
+
+    private static async Task<GameModelDto> GetGameFromMongoDBByKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string key)
+    {
+        var product = await mongoUnitOfWork.ProductRepository.GetProductByNameAsync(key);
+        var gameFromProduct = automapper.Map<Game>(product);
+        return automapper.Map<GameModelDto>(gameFromProduct);
+    }
+
+    private static async Task<GameModelDto> GetGameFromSQLServerByKey(IUnitOfWork unitOfWork, IMapper automapper, string key)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
+        await IncreaseGameViewCounter(unitOfWork, game);
+        return automapper.Map<GameModelDto>(game);
     }
 }

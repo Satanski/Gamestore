@@ -30,4 +30,7 @@ public class Product
 
     [BsonElement("Discontinued")]
     public int Discontinued { get; set; }
+
+    [BsonElement("QuantityPerUnit")]
+    public string QuantityPerUnit { get; set; }
 }

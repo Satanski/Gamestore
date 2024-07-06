@@ -6,13 +6,15 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Entities;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.Services.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.BLL.Services;
 
-public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IPublisherService
+public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GameService> logger) : IPublisherService
 {
     private readonly PublisherDtoWrapperValidator _publisherDtoWrapperValidator = new(unitOfWork);
 
@@ -42,7 +44,9 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
     public async Task<PublisherModelDto> GetPublisherByCompanyNameAsync(string companyName)
     {
         logger.LogInformation("Getting publisher by CompanyName: {companyName}", companyName);
-        var publisher = await unitOfWork.PublisherRepository.GetByCompanyNameAsync(companyName);
+
+        var publisher = await GetPublisherFromSQLServerByCompanyName(unitOfWork, companyName);
+        publisher ??= await GetPublisherFromMongoDB(mongoUnitOfWork, automapper, companyName);
 
         return publisher == null ? throw new GamestoreException($"No publisher found with given company name: {companyName}") : automapper.Map<PublisherModelDto>(publisher);
     }
@@ -50,13 +54,9 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
     public async Task<IEnumerable<PublisherModelDto>> GetAllPublishersAsync()
     {
         logger.LogInformation("Getting all publishers");
-        var publishers = await unitOfWork.PublisherRepository.GetAllAsync();
-        List<PublisherModelDto> publisherModels = [];
 
-        foreach (var publisher in publishers)
-        {
-            publisherModels.Add(automapper.Map<PublisherModelDto>(publisher));
-        }
+        var publisherModels = await GetPublishersFromSQLServer(unitOfWork, automapper);
+        publisherModels.AddRange(await GetPublishersFromMongoDB(mongoUnitOfWork, automapper));
 
         return publisherModels.AsEnumerable();
     }
@@ -79,13 +79,11 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
     public async Task<IEnumerable<GameModelDto>> GetGamesByPublisherNameAsync(string publisherName)
     {
         logger.LogInformation("Getting games by publisher: {publisherName}", publisherName);
-        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherNameAsync(publisherName);
 
-        List<GameModelDto> gameModels = [];
-
-        foreach (var game in games)
+        var gameModels = await GetGamesByPublisherNameFromSQLServer(unitOfWork, automapper, publisherName);
+        if (gameModels.Count == 0)
         {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
+            gameModels = await GetGamesByPublisherNameFromMongoDB(mongoUnitOfWork, automapper, publisherName);
         }
 
         return gameModels.AsEnumerable();
@@ -113,5 +111,50 @@ public class PublisherService(IUnitOfWork unitOfWork, IMapper automapper, ILogge
         await unitOfWork.PublisherRepository.UpdateAsync(publisher);
 
         await unitOfWork.SaveAsync();
+    }
+
+    private static async Task<Publisher?> GetPublisherFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string companyName)
+    {
+        var supplier = await mongoUnitOfWork.SupplierRepository.GetSupplierByNameAsync(companyName);
+        var publisher = automapper.Map<Publisher>(supplier);
+        return publisher;
+    }
+
+    private static async Task<Publisher?> GetPublisherFromSQLServerByCompanyName(IUnitOfWork unitOfWork, string companyName)
+    {
+        return await unitOfWork.PublisherRepository.GetByCompanyNameAsync(companyName);
+    }
+
+    private static async Task<List<GameModelDto>> GetGamesByPublisherNameFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper, string publisherName)
+    {
+        var games = await unitOfWork.PublisherRepository.GetGamesByPublisherNameAsync(publisherName);
+        var gameModels = automapper.Map<List<GameModelDto>>(games);
+
+        return gameModels;
+    }
+
+    private static async Task<List<GameModelDto>> GetGamesByPublisherNameFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string publisherName)
+    {
+        var supplier = await mongoUnitOfWork.SupplierRepository.GetSupplierByNameAsync(publisherName);
+        var games = await mongoUnitOfWork.ProductRepository.GetProductBySupplierIdAsync(supplier.SupplierID);
+        var gameModels = automapper.Map<List<GameModelDto>>(games);
+
+        return gameModels;
+    }
+
+    private static async Task<List<PublisherModelDto>> GetPublishersFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper)
+    {
+        var publishers = await unitOfWork.PublisherRepository.GetAllAsync();
+        var publisherModels = automapper.Map<List<PublisherModelDto>>(publishers);
+
+        return publisherModels;
+    }
+
+    private static async Task<List<PublisherModelDto>> GetPublishersFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper)
+    {
+        var suppliers = await mongoUnitOfWork.SupplierRepository.GetAllAsync();
+        var publishers = automapper.Map<List<PublisherModelDto>>(suppliers);
+
+        return publishers;
     }
 }

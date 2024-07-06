@@ -2,7 +2,11 @@
 
 namespace Gamestore.MongoRepository;
 
-public class MongoUnitOfWork(IProductRepository productRepository) : IMongoUnitOfWork
+public class MongoUnitOfWork(IProductRepository productRepository, ICategoryRepository categoryRepository, ISupplierRepository supplierRepository) : IMongoUnitOfWork
 {
     public IProductRepository ProductRepository => productRepository;
+
+    public ICategoryRepository CategoryRepository => categoryRepository;
+
+    public ISupplierRepository SupplierRepository => supplierRepository;
 }

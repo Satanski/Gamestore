@@ -25,7 +25,7 @@ public class PublisherRepository(GamestoreContext context) : RepositoryBase<Publ
 
     public Task<List<Game>> GetGamesByPublisherNameAsync(string name)
     {
-        return _context.Games.Where(x => x.Name == name && !x.IsDeleted).ToListAsync();
+        return _context.Games.Where(x => x.Publisher.CompanyName == name && !x.IsDeleted).ToListAsync();
     }
 
     public async Task UpdateAsync(Publisher entity)

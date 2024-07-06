@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Models;
 using Gamestore.DAL.Entities;
+using Gamestore.MongoRepository.Entities;
 using Gamestore.Services.Models;
 
 namespace Gamestore.Tests.Helpers;
@@ -35,5 +36,16 @@ public class MappingProfile : Profile
             .ReverseMap();
         CreateMap<Platform, PlatformModelDto>().ReverseMap();
         CreateMap<Publisher, PublisherModelDto>().ReverseMap();
+
+        CreateMap<Product, Game>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.ProductId))
+            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.ProductName))
+            .ForMember(dest => dest.Price, src => src.MapFrom(x => x.UnitPrice))
+            .ForMember(dest => dest.UnitInStock, src => src.MapFrom(x => x.UnitsInStock))
+            .ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued))
+            .ForMember(dest => dest.Key, src => src.MapFrom(x => x.ProductName))
+            .ForMember(dest => dest.PublisherId, src => src.MapFrom(x => x.SupplierID))
+            .ForMember(dest => dest.GameGenres, src => src.MapFrom(x => new GameGenre() { GameId = Guid.Parse(x.ObjectId), GenreId = Guid.Parse(x.CategoryID.ToString()) }))
+            .ReverseMap();
     }
 }

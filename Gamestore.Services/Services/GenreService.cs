@@ -5,13 +5,14 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GenreService> logger) : IGenreService
+public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GenreService> logger) : IGenreService
 {
     private readonly GenreDtoWrapperAddValidator _genreDtoWrapperAddValidator = new(unitOfWork);
     private readonly GenreDtoWrapperUpdateValidator _genreDtoWrapperUpdateValidator = new(unitOfWork);
@@ -41,13 +42,9 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     public async Task<IEnumerable<GenreModelDto>> GetAllGenresAsync()
     {
         logger.LogInformation("Getting all genres");
-        var genres = await unitOfWork.GenreRepository.GetAllAsync();
-        List<GenreModelDto> genreModels = [];
 
-        foreach (var genre in genres)
-        {
-            genreModels.Add(automapper.Map<GenreModelDto>(genre));
-        }
+        var genreModels = await GetGenresFromSQLServer(unitOfWork, automapper);
+        genreModels.AddRange(await GetCategoriesFromMongoDB(mongoUnitOfWork, automapper));
 
         return genreModels.AsEnumerable();
     }
@@ -55,22 +52,22 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     public async Task<IEnumerable<GameModelDto>> GetGamesByGenreAsync(Guid genreId)
     {
         logger.LogInformation("Getting games by genre: {genreId}", genreId);
-        var games = await unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId);
 
-        List<GameModelDto> gameModels = [];
-
-        foreach (var game in games)
+        var games = await GetGamesByGenreIdFromSQLServer(unitOfWork, automapper, genreId);
+        if (games.Count == 0)
         {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
+            games = await GetGamesByGenreIdFromMongoDB(mongoUnitOfWork, automapper, genreId);
         }
 
-        return gameModels.AsEnumerable();
+        return games;
     }
 
     public async Task<GenreModelDto> GetGenreByIdAsync(Guid genreId)
     {
         logger.LogInformation("Getting genre by id: {genreId}", genreId);
-        var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+
+        var genre = await GetGenreFromSQLServerById(unitOfWork, genreId);
+        genre ??= await GetGenreFromMongoDB(mongoUnitOfWork, automapper, genreId);
 
         return genre == null ? throw new GamestoreException($"No genre found with given id: {genreId}") : automapper.Map<GenreModelDto>(genre);
     }
@@ -113,5 +110,83 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         await unitOfWork.GenreRepository.UpdateAsync(genre);
 
         await unitOfWork.SaveAsync();
+    }
+
+    private static int ConvertFirstFourCharactersOfGuidToId(Guid genreId)
+    {
+        return int.Parse(genreId.ToString()[..4]);
+    }
+
+    private static async Task<Genre?> GetGenreFromSQLServerById(IUnitOfWork unitOfWork, Guid genreId)
+    {
+        return await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+    }
+
+    private static async Task<Genre?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
+    {
+        int id = ConvertFirstFourCharactersOfGuidToId(genreId);
+        var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
+        var genre = automapper.Map<Genre>(category);
+        return genre;
+    }
+
+    private static async Task<List<GameModelDto>> GetGamesByGenreIdFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper, Guid genreId)
+    {
+        var games = await unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId);
+
+        List<GameModelDto> gameModels = [];
+        if (games is not null)
+        {
+            foreach (var game in games)
+            {
+                gameModels.Add(automapper.Map<GameModelDto>(game));
+            }
+        }
+
+        return gameModels;
+    }
+
+    private static async Task<List<GameModelDto>> GetGamesByGenreIdFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
+    {
+        List<GameModelDto> games = [];
+        int id = ConvertFirstFourCharactersOfGuidToId(genreId);
+        var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
+        var products = await mongoUnitOfWork.ProductRepository.GetProductsByCategoryIdAsync(category.CategoryId);
+
+        if (products is not null)
+        {
+            foreach (var game in products)
+            {
+                games.Add(automapper.Map<GameModelDto>(game));
+            }
+        }
+
+        return games;
+    }
+
+    private static async Task<List<GenreModelDto>> GetGenresFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper)
+    {
+        var genres = await unitOfWork.GenreRepository.GetAllAsync();
+        List<GenreModelDto> genreModels = [];
+
+        foreach (var genre in genres)
+        {
+            genreModels.Add(automapper.Map<GenreModelDto>(genre));
+        }
+
+        return genreModels;
+    }
+
+    private static async Task<List<GenreModelDto>> GetCategoriesFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper)
+    {
+        var categories = await mongoUnitOfWork.CategoryRepository.GetAllAsync();
+        List<GenreModelDto> genres = [];
+
+        foreach (var category in categories)
+        {
+            genres.Add(automapper.Map<GenreModelDto>(category));
+        }
+
+        return genres;
     }
 }

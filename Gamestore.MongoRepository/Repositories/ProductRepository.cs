@@ -12,4 +12,25 @@ public class ProductRepository(IMongoDatabase database) : IProductRepository
         var products = await collection.Find(_ => true).ToListAsync();
         return products;
     }
+
+    public async Task<Product?> GetProductByNameAsync(string key)
+    {
+        var collection = database.GetCollection<Product>("products");
+        var products = await collection.Find(x => x.ProductName == key).FirstOrDefaultAsync();
+        return products;
+    }
+
+    public async Task<List<Product>> GetProductBySupplierIdAsync(int supplierID)
+    {
+        var collection = database.GetCollection<Product>("products");
+        var products = await collection.Find(x => x.SupplierID == supplierID).ToListAsync();
+        return products;
+    }
+
+    public async Task<List<Product>> GetProductsByCategoryIdAsync(int categoryId)
+    {
+        var collection = database.GetCollection<Product>("products");
+        var products = await collection.Find(x => x.CategoryID == categoryId).ToListAsync();
+        return products;
+    }
 }

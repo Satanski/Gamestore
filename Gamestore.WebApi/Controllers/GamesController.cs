@@ -55,7 +55,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         var platforms = await _gameService.GetPlatformsByGameKeyAsync(key);
 
-        return platforms.Any() ? Ok(platforms) : NotFound();
+        return Ok(platforms);
     }
 
     // GET: games/GUID/publisher
@@ -63,11 +63,6 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     public async Task<IActionResult> GetPublisherByGameKeyAsync(string key)
     {
         var publisher = await _gameService.GetPublisherByGameKeyAsync(key);
-
-        if (publisher == null)
-        {
-            return NotFound();
-        }
 
         return Ok(publisher);
     }
