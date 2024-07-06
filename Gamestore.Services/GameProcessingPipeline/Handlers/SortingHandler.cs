@@ -13,26 +13,26 @@ public class SortingHandler : GameProcessingPipelineHandlerBase
     private readonly string _priceDesc = SortingOptionsDto.SortingOptions[3];
     private readonly string _new = SortingOptionsDto.SortingOptions[4];
 
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         string sortOption = filters.Sort;
 
         switch (sortOption)
         {
             case var filter when filter == _mostPoplar:
-                filteredGames = [.. filteredGames.OrderByDescending(x => x.NumberOfViews)];
+                query = query.OrderByDescending(x => x.NumberOfViews);
                 break;
             case var filter when filter == _mostCommented:
-                filteredGames = [.. filteredGames.OrderByDescending(x => x.Comments.Count)];
+                query = query.OrderByDescending(x => x.Comments.Count);
                 break;
             case var filter when filter == _priceAsc:
-                filteredGames = [.. filteredGames.OrderBy(x => x.Price)];
+                query = query.OrderBy(x => x.Price);
                 break;
             case var filter when filter == _priceDesc:
-                filteredGames = [.. filteredGames.OrderByDescending(x => x.Price)];
+                query = query.OrderByDescending(x => x.Price);
                 break;
             case var filter when filter == _new:
-                filteredGames = [.. filteredGames.OrderByDescending(x => x.PublishDate)];
+                query = query.OrderByDescending(x => x.PublishDate);
                 break;
             case null:
                 break;
@@ -40,8 +40,8 @@ public class SortingHandler : GameProcessingPipelineHandlerBase
                 throw new GamestoreException("Wrong sorting option");
         }
 
-        filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
+        query = await base.HandleAsync(unitOfWork, filters, query);
 
-        return filteredGames;
+        return query;
     }
 }

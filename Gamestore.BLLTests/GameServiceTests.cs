@@ -70,7 +70,7 @@ public class GameServiceTests
     [InlineData("Rpg", "Mobile", "BioWare")]
     [InlineData("Racing", "Desktop", "BioWare")]
     [InlineData("Simulator", "Mobile", "Blizzard")]
-    public async Task GetFilteredGamesAsyncShouldreturnThreeGamesForGenrePlatformPublisherCombination(string genreName, string platformType, string publisherCompanyName)
+    public async Task GetFilteredGamesAsyncShouldreturnNoGamesForGenrePlatformPublisherCombination(string genreName, string platformType, string publisherCompanyName)
     {
         var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
@@ -85,7 +85,7 @@ public class GameServiceTests
         var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
-        Assert.Equal(3, result.Games.Count);
+        Assert.Empty(result.Games);
     }
 
     [Theory]
@@ -273,7 +273,20 @@ public class GameServiceTests
         List<Game> games = [];
         for (int i = 0; i < 100; i++)
         {
-            games.Add(new Game() { Id = Guid.NewGuid(), Name = i.ToString(), Key = i.ToString() });
+            games.Add(new Game()
+            {
+                Id = Guid.NewGuid(),
+                Name = i.ToString(),
+                Key = i.ToString(),
+                IsDeleted = false,
+                Comments = [],
+                GameGenres = [BllHelpers.GameGenres[0]],
+                GamePlatforms = [BllHelpers.GamePlatforms[0]],
+                OrderGames = [],
+                Publisher = BllHelpers.Publishers[0],
+                PublishDate = DateOnly.FromDateTime(DateTime.Now),
+                NumberOfViews = i,
+            });
         }
 
         int expectedNumberOfPages = 0;
@@ -666,12 +679,14 @@ public class GameServiceTests
             unitOfWork.Setup(x => x.GenreRepository.GetGamesByGenreAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGamesByGenreAsync(id)));
             unitOfWork.Setup(x => x.PlatformRepository.GetGamesByPlatformAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGamesByPlatformAsync(id)));
             unitOfWork.Setup(x => x.PublisherRepository.GetGamesByPublisherIdAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGamesByPublisherAsync(id)));
+            unitOfWork.Setup(x => x.GameRepository.GetGamesAsQueryable()).Returns(BllHelpers.Games.AsQueryable());
         }
         else
         {
             unitOfWork.Setup(x => x.GenreRepository.GetGamesByGenreAsync(It.IsAny<Guid>())).ReturnsAsync(games);
             unitOfWork.Setup(x => x.PlatformRepository.GetGamesByPlatformAsync(It.IsAny<Guid>())).ReturnsAsync(games);
             unitOfWork.Setup(x => x.PublisherRepository.GetGamesByPublisherIdAsync(It.IsAny<Guid>())).ReturnsAsync(games);
+            unitOfWork.Setup(x => x.GameRepository.GetGamesAsQueryable()).Returns(games.AsQueryable());
         }
 
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Genres]);

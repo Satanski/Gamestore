@@ -41,20 +41,11 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         logger.LogInformation("Getting games by filter");
 
-        var products = await mongoUnitOfWork.ProductRepository.GetAllAsync();
-
-        foreach (var product in products)
-        {
-            product.ProductName = "aa";
-        }
-
-        List<Game> filteredGames = [];
-        var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionOperationService();
-
-        filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, filteredGames, gameFilters);
+        var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
+        var gamesQueryable = unitOfWork.GameRepository.GetGamesAsQueryable();
+        var filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, gamesQueryable);
 
         FilteredGamesDto filteredGameDtos = new();
-
         foreach (var game in filteredGames)
         {
             filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));

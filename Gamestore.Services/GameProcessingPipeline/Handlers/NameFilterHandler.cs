@@ -7,7 +7,7 @@ namespace Gamestore.BLL.Filtering.Handlers;
 
 public class NameFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         if (filters.Name is not null)
         {
@@ -16,11 +16,11 @@ public class NameFilterHandler : GameProcessingPipelineHandlerBase
                 throw new GamestoreException("Name should be at least 3 characters long");
             }
 
-            filteredGames = [.. filteredGames.Where(x => x.Name.Contains(filters.Name, StringComparison.CurrentCultureIgnoreCase))];
+            query = query.Where(x => x.Name.Contains(filters.Name, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
+        query = await base.HandleAsync(unitOfWork, filters, query);
 
-        return filteredGames;
+        return query;
     }
 }

@@ -15,7 +15,7 @@ public class GameProcessingPipelineDirector(
 {
     private readonly IGameProcessingPipelineBuilder _builder = builder;
 
-    public IGameProcessingPipelineService ConstructGameCollectionOperationService()
+    public IGameProcessingPipelineService ConstructGameCollectionPipelineService()
     {
         return _builder
             .AddHandler(genreFilterHandler)

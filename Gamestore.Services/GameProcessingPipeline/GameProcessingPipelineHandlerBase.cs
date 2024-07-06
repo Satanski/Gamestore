@@ -14,13 +14,13 @@ public class GameProcessingPipelineHandlerBase : IGameProcessingPipelineHandler
         _nextHandler = nextHandler;
     }
 
-    public virtual async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public virtual async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         if (_nextHandler != null)
         {
-            return await _nextHandler.HandleAsync(unitOfWork, filteredGames, filters);
+            return await _nextHandler.HandleAsync(unitOfWork, filters, query);
         }
 
-        return filteredGames;
+        return query;
     }
 }

@@ -4,7 +4,7 @@ namespace Gamestore.BLL.Filtering;
 
 public interface IGameProcessingPipelineBuilder
 {
-    GameProcessingPipelineBuilder AddHandler(IGameProcessingPipelineHandler handler);
+    IGameProcessingPipelineBuilder AddHandler(IGameProcessingPipelineHandler handler);
 
     IGameProcessingPipelineService Build();
 }

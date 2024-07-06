@@ -13,7 +13,7 @@ public class PublishDateHandler : GameProcessingPipelineHandlerBase
     private readonly string _twoYears = PublishDateOptionsDto.PublishDateOptions[3];
     private readonly string _threeYears = PublishDateOptionsDto.PublishDateOptions[4];
 
-    public override async Task<List<Game>> HandleAsync(IUnitOfWork unitOfWork, List<Game> filteredGames, GameFiltersDto filters)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         var publishingDate = filters.DatePublishing;
         var now = DateOnly.FromDateTime(DateTime.Now);
@@ -21,23 +21,23 @@ public class PublishDateHandler : GameProcessingPipelineHandlerBase
         switch (publishingDate)
         {
             case var filter when filter == _lastWeek:
-                filteredGames = filteredGames.Where(x => x.PublishDate >= now.AddDays(-7)).ToList();
+                query = query.Where(x => x.PublishDate >= now.AddDays(-7));
                 break;
 
             case var filter when filter == _lastMonth:
-                filteredGames = filteredGames.Where(x => x.PublishDate >= now.AddMonths(-1)).ToList();
+                query = query.Where(x => x.PublishDate >= now.AddMonths(-1));
                 break;
 
             case var filter when filter == _lastYear:
-                filteredGames = filteredGames.Where(x => x.PublishDate >= now.AddYears(-1)).ToList();
+                query = query.Where(x => x.PublishDate >= now.AddYears(-1));
                 break;
 
             case var filter when filter == _twoYears:
-                filteredGames = filteredGames.Where(x => x.PublishDate >= now.AddYears(-2)).ToList();
+                query = query.Where(x => x.PublishDate >= now.AddYears(-2));
                 break;
 
             case var filter when filter == _threeYears:
-                filteredGames = filteredGames.Where(x => x.PublishDate >= now.AddYears(-3)).ToList();
+                query = query.Where(x => x.PublishDate >= now.AddYears(-3));
                 break;
 
             case null:
@@ -47,8 +47,8 @@ public class PublishDateHandler : GameProcessingPipelineHandlerBase
                 throw new GamestoreException("Wrong publishing date filter");
         }
 
-        filteredGames = await base.HandleAsync(unitOfWork, filteredGames, filters);
+        query = await base.HandleAsync(unitOfWork, filters, query);
 
-        return filteredGames;
+        return query;
     }
 }
