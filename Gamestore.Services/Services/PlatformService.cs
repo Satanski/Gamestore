@@ -19,13 +19,7 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
     {
         logger.LogInformation("Getting games by platform id: {platformId}", platformId);
         var games = await unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId);
-
-        List<GameModelDto> gameModels = [];
-
-        foreach (var game in games)
-        {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
-        }
+        List<GameModelDto> gameModels = automapper.Map<List<GameModelDto>>(games);
 
         return gameModels.AsEnumerable();
     }
@@ -42,12 +36,7 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
     {
         logger.LogInformation("Getting all platforms");
         var platforms = await unitOfWork.PlatformRepository.GetAllAsync();
-        List<PlatformModelDto> platformModels = [];
-
-        foreach (var platform in platforms)
-        {
-            platformModels.Add(automapper.Map<PlatformModelDto>(platform));
-        }
+        List<PlatformModelDto> platformModels = automapper.Map<List<PlatformModelDto>>(platforms);
 
         return platformModels.AsEnumerable();
     }

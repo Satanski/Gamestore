@@ -28,12 +28,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         logger.LogInformation("Getting all games");
         var games = await unitOfWork.GameRepository.GetAllAsync();
-        List<GameModelDto> gameModels = [];
-
-        foreach (var game in games)
-        {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
-        }
+        var gameModels = automapper.Map<List<GameModelDto>>(games);
 
         return gameModels.AsEnumerable();
     }
@@ -43,27 +38,19 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         logger.LogInformation("Getting games by filter");
 
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
+
         var games = unitOfWork.GameRepository.GetGamesAsQueryable();
-        var filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, games);
+        var gamesFromSQLServer = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, games);
 
-        var products = await mongoUnitOfWork.ProductRepository.GetAllAsync();
-        List<Game> gamesFromProducts = [];
-        foreach (var item in products)
+        var productsFromMongoDB = await mongoUnitOfWork.ProductRepository.GetAllAsync();
+        var gamesFromProducts = automapper.Map<List<Game>>(productsFromMongoDB);
+
+        FilteredGamesDto filteredGameDtos = new()
         {
-            gamesFromProducts.Add(automapper.Map<Game>(item));
-        }
+            Games = automapper.Map<List<GameModelDto>>(gamesFromSQLServer),
+        };
 
-        FilteredGamesDto filteredGameDtos = new();
-        foreach (var game in filteredGames)
-        {
-            filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
-        }
-
-        foreach (var game in gamesFromProducts)
-        {
-            filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
-        }
-
+        filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(gamesFromProducts));
         filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
         filteredGameDtos.CurrentPage = gameFilters.Page;
 
@@ -93,12 +80,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
                 return [];
             }
 
-            List<PlatformModelDto> platformModels = [];
-
-            foreach (var platform in platforms)
-            {
-                platformModels.Add(automapper.Map<PlatformModelDto>(platform));
-            }
+            var platformModels = automapper.Map<List<PlatformModelDto>>(platforms);
 
             return platformModels.AsEnumerable();
         }

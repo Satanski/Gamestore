@@ -6,7 +6,6 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.Services.Services;
@@ -65,13 +64,7 @@ public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnit
     {
         logger.LogInformation("Getting games by publisher: {publisherId}", publisherId);
         var games = await unitOfWork.PublisherRepository.GetGamesByPublisherIdAsync(publisherId);
-
-        List<GameModelDto> gameModels = [];
-
-        foreach (var game in games)
-        {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
-        }
+        var gameModels = automapper.Map<List<GameModelDto>>(games);
 
         return gameModels.AsEnumerable();
     }
