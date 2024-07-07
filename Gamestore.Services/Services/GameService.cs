@@ -37,9 +37,9 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         logger.LogInformation("Getting games by filter");
 
-        FilteredGamesDto filteredGameDtos = new();
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
+        FilteredGamesDto filteredGameDtos = new();
         await FilterGamesFromSQLServer(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
         await FilterProductsFromMongoDB(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
         SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);

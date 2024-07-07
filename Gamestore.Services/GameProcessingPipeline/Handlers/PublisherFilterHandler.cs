@@ -1,5 +1,4 @@
 ﻿using Gamestore.BLL.Filtering.Models;
-using Gamestore.BLL.Helpers;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Interfaces;
@@ -27,17 +26,5 @@ public class PublisherFilterHandler : GameProcessingPipelineHandlerBase
         var supplierIds = (await mongoUnitOfWork.SupplierRepository.GetAllAsync()).Select(x => x.SupplierID).ToList();
         var supplierGuids = ConvertIdsToGuids(supplierIds);
         filters.Publishers.AddRange(supplierGuids);
-    }
-
-    private static List<Guid> ConvertIdsToGuids(List<int> ids)
-    {
-        List<Guid> guids = [];
-
-        foreach (var id in ids)
-        {
-            guids.Add(GuidHelpers.IntToGuid(id));
-        }
-
-        return guids;
     }
 }
