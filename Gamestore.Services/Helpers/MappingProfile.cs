@@ -9,10 +9,6 @@ namespace Gamestore.BLL.Helpers;
 
 public class MappingProfile : Profile
 {
-    private const string CategoryGuidSubstring = "2222-6666-6666-6666-666666666666";
-    private const string ProductGuidSubstring = "1111-6666-6666-6666-666666666666";
-    private const string SupplierGuidSubstring = "3333-6666-6666-6666-666666666666";
-
     public MappingProfile()
     {
         CreateMap<GameGenre, Genre>()
@@ -58,39 +54,45 @@ public class MappingProfile : Profile
         CreateMap<Product, Game>()
            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.ProductName))
            .ForMember(dest => dest.Key, src => src.MapFrom(x => x.ProductName))
-           .ForMember(dest => dest.Id, src => src.MapFrom(x => new Guid($"{x.ProductId:D4}{ProductGuidSubstring}")))
+           .ForMember(dest => dest.Id, src => src.MapFrom(x => x.ProductIdGuid))
            .ForMember(dest => dest.Price, src => src.MapFrom(x => x.UnitPrice))
            .ForMember(dest => dest.UnitInStock, src => src.MapFrom(x => x.UnitsInStock))
            .ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued))
            .ForMember(dest => dest.Description, src => src.MapFrom(x => x.QuantityPerUnit))
-           .ForMember(dest => dest.PublisherId, src => src.MapFrom(x => new Guid($"{x.SupplierID:D4}{SupplierGuidSubstring}")))
-           .ForMember(dest => dest.GameGenres, src => src.MapFrom(x => new List<GameGenre>() { new() { GameId = new Guid($"{x.ProductId:D4}{ProductGuidSubstring}"), GenreId = new Guid($"{x.CategoryID:D4}{CategoryGuidSubstring}") } }));
+           .ForMember(dest => dest.Publisher, src => src.MapFrom(x => x.Supplier))
+           .ForMember(dest => dest.GameGenres, src => src.MapFrom(x => x.GameGenres))
+           .ForMember(dest => dest.GamePlatforms, src => src.MapFrom(x => x.GamePlatforms))
+           .ForMember(dest => dest.Comments, src => src.MapFrom(x => new List<Comment>()));
 
         CreateMap<Product, GameModelDto>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.ProductName))
             .ForMember(dest => dest.Key, src => src.MapFrom(x => x.ProductName))
-            .ForMember(dest => dest.Id, src => src.MapFrom(x => new Guid($"{x.ProductId:D4}{ProductGuidSubstring}")))
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.ProductIdGuid))
             .ForMember(dest => dest.Price, src => src.MapFrom(x => x.UnitPrice))
             .ForMember(dest => dest.UnitInStock, src => src.MapFrom(x => x.UnitsInStock))
             .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discontinued))
             .ForMember(dest => dest.Description, src => src.MapFrom(x => x.QuantityPerUnit))
-            .ForMember(dest => dest.Publisher, src => src.MapFrom(x => new Publisher() { Id = new Guid($"{x.SupplierID:D4}{SupplierGuidSubstring}") }))
-            .ForMember(dest => dest.Genres, src => src.MapFrom(x => new List<GameGenre>() { new() { GameId = new Guid($"{x.ProductId:D4}{ProductGuidSubstring}"), GenreId = new Guid($"{x.CategoryID:D4}{CategoryGuidSubstring}") } }));
+            .ForMember(dest => dest.Publisher, src => src.Ignore())
+            .ForMember(dest => dest.Genres, src => src.Ignore());
 
         CreateMap<Category, GenreModelDto>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.CategoryName))
-            .ForMember(dest => dest.Id, src => src.MapFrom(x => new Guid($"{x.CategoryId:D4}{CategoryGuidSubstring}")));
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.CategoryId)));
 
         CreateMap<Category, Genre>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.CategoryName))
-            .ForMember(dest => dest.Id, src => src.MapFrom(x => new Guid($"{x.CategoryId:D4}{CategoryGuidSubstring}")));
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.CategoryId)));
 
         CreateMap<Supplier, PublisherModelDto>()
             .ForMember(dest => dest.CompanyName, src => src.MapFrom(x => x.CompanyName))
-            .ForMember(dest => dest.Id, src => src.MapFrom(x => new Guid($"{x.SupplierID:D4}{SupplierGuidSubstring}")));
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.SupplierID)));
 
         CreateMap<Supplier, Publisher>()
             .ForMember(dest => dest.CompanyName, src => src.MapFrom(x => x.CompanyName))
-            .ForMember(dest => dest.Id, src => src.MapFrom(x => new Guid($"{x.SupplierID:D4}{SupplierGuidSubstring}")));
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.SupplierID)));
+
+        CreateMap<Publisher, MongoPublisher>().ReverseMap();
+        CreateMap<GameGenre, MongoGameGenre>().ReverseMap();
+        CreateMap<GamePlatform, MongoGamePlatform>().ReverseMap();
     }
 }

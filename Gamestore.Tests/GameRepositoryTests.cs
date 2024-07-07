@@ -43,10 +43,8 @@ public class GameRepositoryTests : IDisposable
         var expectedKey = "BG";
         var expectedDescription = "Rpg game";
 
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         List<GameGenre> gameGenres = [expectedGameGenre];
         List<GamePlatform> gamePlatforms = [expectedGamePlatform];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
         // Act
         await _gameRepository.AddAsync(new Game()

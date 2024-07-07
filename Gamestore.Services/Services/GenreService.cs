@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
@@ -109,9 +107,9 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         await unitOfWork.SaveAsync();
     }
 
-    private static int ConvertFirstFourCharactersOfGuidToId(Guid genreId)
+    private static int ConvertFirstEightCharactersOfGuidToId(Guid genreId)
     {
-        return int.Parse(genreId.ToString()[..4]);
+        return int.Parse(genreId.ToString()[..8]);
     }
 
     private static async Task<Genre?> GetGenreFromSQLServerById(IUnitOfWork unitOfWork, Guid genreId)
@@ -121,7 +119,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
     private static async Task<Genre?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
     {
-        int id = ConvertFirstFourCharactersOfGuidToId(genreId);
+        int id = ConvertFirstEightCharactersOfGuidToId(genreId);
         var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
         var genre = automapper.Map<Genre>(category);
 
@@ -143,7 +141,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     private static async Task<List<GameModelDto>> GetGamesByGenreIdFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
     {
         List<GameModelDto> games = [];
-        int id = ConvertFirstFourCharactersOfGuidToId(genreId);
+        int id = ConvertFirstEightCharactersOfGuidToId(genreId);
         var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
         var products = await mongoUnitOfWork.ProductRepository.GetProductsByCategoryIdAsync(category.CategoryId);
 

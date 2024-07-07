@@ -37,22 +37,13 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         logger.LogInformation("Getting games by filter");
 
+        FilteredGamesDto filteredGameDtos = new();
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
-        var games = unitOfWork.GameRepository.GetGamesAsQueryable();
-        var gamesFromSQLServer = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, games);
-
-        var productsFromMongoDB = await mongoUnitOfWork.ProductRepository.GetAllAsync();
-        var gamesFromProducts = automapper.Map<List<Game>>(productsFromMongoDB);
-
-        FilteredGamesDto filteredGameDtos = new()
-        {
-            Games = automapper.Map<List<GameModelDto>>(gamesFromSQLServer),
-        };
-
-        filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(gamesFromProducts));
-        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
-        filteredGameDtos.CurrentPage = gameFilters.Page;
+        await FilterGamesFromSQLServer(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        await FilterProductsFromMongoDB(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
+        CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
 
         return filteredGameDtos;
     }
@@ -543,5 +534,43 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
         await IncreaseGameViewCounter(unitOfWork, game);
         return automapper.Map<GameModelDto>(game);
+    }
+
+    private static void CheckIfCurrentPageDoesntExceedTotalNumberOfPages(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
+    {
+        if (gameFilters.Page <= gameFilters.NumberOfPagesAfterFiltration)
+        {
+            filteredGameDtos.CurrentPage = gameFilters.Page;
+        }
+        else
+        {
+            filteredGameDtos.CurrentPage = gameFilters.NumberOfPagesAfterFiltration;
+        }
+    }
+
+    private static async Task FilterGamesFromSQLServer(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
+    {
+        var games = unitOfWork.GameRepository.GetGamesAsQueryable();
+        var gamesFromSQLServer = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, games)).ToList();
+        if (gamesFromSQLServer.Count != 0)
+        {
+            filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(gamesFromSQLServer));
+        }
+    }
+
+    private static async Task FilterProductsFromMongoDB(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
+    {
+        var productsFromMongoDB = await mongoUnitOfWork.ProductRepository.GetAllAsync();
+        var prodctsAsGames = automapper.Map<List<Game>>(productsFromMongoDB);
+        var productsAsGamesFromMongoDB = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, prodctsAsGames.AsQueryable())).ToList();
+        if (productsAsGamesFromMongoDB.Count != 0)
+        {
+            filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(productsAsGamesFromMongoDB));
+        }
+    }
+
+    private static void SetTotalNumberOfPagesAfterFiltering(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
+    {
+        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
     }
 }

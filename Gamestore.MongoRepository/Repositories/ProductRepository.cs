@@ -13,6 +13,11 @@ public class ProductRepository(IMongoDatabase database) : IProductRepository
         return products;
     }
 
+    public IQueryable<Product> GetProductsAsQueryable()
+    {
+        return database.GetCollection<Product>("products").AsQueryable();
+    }
+
     public async Task<Product?> GetProductByNameAsync(string key)
     {
         var collection = database.GetCollection<Product>("products");
