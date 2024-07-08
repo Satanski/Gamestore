@@ -30,6 +30,15 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
         return order == null ? NotFound() : Ok(order);
     }
 
+    // GET: orders
+    [HttpGet("history")]
+    public async Task<IActionResult> GetOrdersHistoryAsync([FromQuery] string? start, [FromQuery] string? end)
+    {
+        var orders = await _orderService.GetOrdersHistoryAsync(start, end);
+
+        return Ok(orders);
+    }
+
     // GET: orders/GUID/details
     [HttpGet("{id}/details")]
     public async Task<IActionResult> GetOrderDetailsByOrderIdAsync(Guid id)

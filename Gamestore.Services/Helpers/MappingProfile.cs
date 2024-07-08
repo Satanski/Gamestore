@@ -94,5 +94,8 @@ public class MappingProfile : Profile
         CreateMap<Publisher, MongoPublisher>().ReverseMap();
         CreateMap<GameGenre, MongoGameGenre>().ReverseMap();
         CreateMap<GamePlatform, MongoGamePlatform>().ReverseMap();
+
+        CreateMap<Shipper, ShipperModelDto>().ReverseMap();
+        CreateMap<MongoOrder, MongoOrderDto>().ReverseMap();
     }
 }

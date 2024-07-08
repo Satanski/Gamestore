@@ -27,6 +27,8 @@ public static class MongoRepositoryServices
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
+        services.AddScoped<IShipperRepository, ShipperRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IMongoUnitOfWork, MongoUnitOfWork>();
     }
 }

@@ -21,6 +21,7 @@ public static class BllServices
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IShipperService, ShipperService>();
         services.AddScoped<PaymentServiceConfiguration>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IBanService, BanService>();

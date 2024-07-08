@@ -7,7 +7,6 @@ using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Interfaces;
-using Gamestore.MongoRepository.Repositories;
 using Gamestore.Services.Models;
 using Gamestore.Services.Services;
 using Gamestore.Tests.Helpers;

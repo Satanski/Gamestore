@@ -31,6 +31,11 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         return query.Where(x => x.Status == Enums.OrderStatus.Open && x.CustomerId == id).FirstOrDefaultAsync();
     }
 
+    public Task<List<Order>> GetOrdersByDateRangeAsync(DateTime startD, DateTime endD)
+    {
+        return _context.Orders.Where(x => x.Date >= startD && x.Date <= endD).ToListAsync();
+    }
+
     public Task<Order?> GetWithDetailsByIdAsync(Guid id)
     {
         var query = OrderIncludes();

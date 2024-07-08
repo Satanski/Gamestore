@@ -7,4 +7,8 @@ public interface IMongoUnitOfWork
     ICategoryRepository CategoryRepository { get; }
 
     ISupplierRepository SupplierRepository { get; }
+
+    IShipperRepository ShipperRepository { get; }
+
+    IOrderRepository OrderRepository { get; }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using Gamestore.BLL.Configurations;
@@ -10,9 +11,9 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
+using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
 using Gamestore.WebApi.Stubs;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
@@ -32,7 +33,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         return order == null ? throw new GamestoreException($"No order found with given id: {orderId}") : automapper.Map<OrderModelDto>(order);
     }
 
-    public async Task<IEnumerable<OrderModelDto>> GetAllOrdersAsync()
+    public async Task<List<OrderModelDto>> GetAllOrdersAsync()
     {
         logger.LogInformation("Getting all orders");
         var orders = await unitOfWork.OrderRepository.GetAllAsync();
@@ -40,7 +41,22 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         List<OrderModelDto> orderModels = [];
         AddOrderModelsToDtoList(automapper, orders, orderModels);
 
-        return orderModels.AsEnumerable();
+        return orderModels;
+    }
+
+    public async Task<List<OrderModelDto>> GetOrdersHistoryAsync(string? startDate, string? endDate)
+    {
+        logger.LogInformation("Getting orders history");
+
+        DateTime startD, endD;
+        ParseDateRangeToDateTimeFormat(ref startDate, ref endDate, out startD, out endD);
+
+        var orders = await unitOfWork.OrderRepository.GetOrdersByDateRangeAsync(startD, endD);
+
+        List<OrderModelDto> orderModels = [];
+        AddOrderModelsToDtoList(automapper, orders, orderModels);
+
+        return orderModels;
     }
 
     public async Task DeleteOrderByIdAsync(Guid orderId)
@@ -69,7 +85,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         return orederDetails;
     }
 
-    public async Task<IEnumerable<OrderDetailsDto>> GetCartByCustomerIdAsync(Guid customerId)
+    public async Task<List<OrderDetailsDto>> GetCartByCustomerIdAsync(Guid customerId)
     {
         logger.LogInformation("Getting cart");
         var order = await unitOfWork.OrderRepository.GetOrderByCustomerIdAsync(customerId);
@@ -77,7 +93,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         List<OrderDetailsDto> orederDetails = [];
         AddOrderDetailsToDtoList(automapper, order, orederDetails);
 
-        return orederDetails.AsEnumerable();
+        return orederDetails;
     }
 
     public async Task RemoveGameFromCartAsync(Guid customerId, string gameKey, int quantity)
@@ -137,7 +153,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
 
         string serviceUrl = paymentServiceConfiguration.Value.IboxServiceUrl;
         await MakePaymentServiceRequest(iboxPaymentModel, serviceUrl);
-        await CloseOrderByCustomer(unitOfWork, customer);
+        await ProcessOrderAfterPayment(unitOfWork, customer);
     }
 
     public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerStub customer)
@@ -149,7 +165,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         string serviceUrl = paymentServiceConfiguration.Value.VisaServiceUrl;
 
         await MakePaymentServiceRequest(visaPaymentModel, serviceUrl);
-        await CloseOrderByCustomer(unitOfWork, customer);
+        await ProcessOrderAfterPayment(unitOfWork, customer);
     }
 
     public PaymentMethodsDto GetPaymentMethods()
@@ -197,14 +213,33 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task CloseOrderByCustomer(IUnitOfWork unitOfWork, CustomerStub customer)
+    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerStub customer)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
         if (order != null)
         {
-            DeleteOrderGames(unitOfWork, order);
-            unitOfWork.OrderRepository.Delete(order);
+            await SetOrderStatusToPaidInSQLServer(unitOfWork, order);
+            await UpdateProductQuanityInSQLServer(unitOfWork, order);
             await unitOfWork.SaveAsync();
+        }
+    }
+
+    private static async Task SetOrderStatusToPaidInSQLServer(IUnitOfWork unitOfWork, Order? order)
+    {
+        order.Status = OrderStatus.Paid;
+        await unitOfWork.OrderRepository.UpdateAsync(order);
+    }
+
+    private static async Task UpdateProductQuanityInSQLServer(IUnitOfWork unitOfWork, Order? order)
+    {
+        var gameOrders = await unitOfWork.OrderGameRepository.GetByOrderIdAsync(order.Id);
+        foreach (var gameOrder in gameOrders)
+        {
+            var product = await unitOfWork.GameRepository.GetByIdAsync(gameOrder.ProductId);
+            if (product != null)
+            {
+                product.UnitInStock -= gameOrder.Quantity;
+            }
         }
     }
 
@@ -278,5 +313,30 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         var sum = await CalculateAmountToPay(unitOfWork, customer);
         iboxPaymentModel.TransactionAmount = (decimal?)sum;
         return iboxPaymentModel;
+    }
+
+    private static void ParseDateRangeToDateTimeFormat(ref string? startDate, ref string? endDate, out DateTime startD, out DateTime endD)
+    {
+        string format = "MMM dd yyyy";
+        startD = DateTime.Now.AddYears(-1000);
+        endD = DateTime.Now;
+        try
+        {
+            if (!string.IsNullOrEmpty(startDate))
+            {
+                startDate = startDate.Substring(4, 11);
+                startD = DateTime.ParseExact(startDate, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
+
+                if (!string.IsNullOrEmpty(endDate))
+                {
+                    endDate = endDate.Substring(4, 11);
+                    endD = DateTime.ParseExact(endDate, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
+                }
+            }
+        }
+        catch (FormatException)
+        {
+            throw new GamestoreException("Date range is in wrong format or corrupted");
+        }
     }
 }
