@@ -4,5 +4,5 @@ namespace Gamestore.MongoRepository.Interfaces;
 
 public interface IOrderRepository
 {
-    Task<List<MongoOrder>?> GetAllAsync();
+    Task<List<MongoOrder>> GetAllAsync();
 }

@@ -13,6 +13,8 @@ using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Entities;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,7 +23,7 @@ using QuestPDF.Infrastructure;
 
 namespace Gamestore.BLL.Services;
 
-public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<OrderService> logger, IOptions<PaymentServiceConfiguration> paymentServiceConfiguration) : IOrderService
+public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<OrderService> logger, IOptions<PaymentServiceConfiguration> paymentServiceConfiguration) : IOrderService
 {
     private readonly VisaPaymentValidator _visaPaymentValidator = new();
 
@@ -39,7 +41,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         var orders = await unitOfWork.OrderRepository.GetAllAsync();
 
         List<OrderModelDto> orderModels = [];
-        AddOrderModelsToDtoList(automapper, orders, orderModels);
+        AddOrdersToDtoList(automapper, orders, orderModels);
 
         return orderModels;
     }
@@ -47,14 +49,14 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
     public async Task<List<OrderModelDto>> GetOrdersHistoryAsync(string? startDate, string? endDate)
     {
         logger.LogInformation("Getting orders history");
-
-        DateTime startD, endD;
-        ParseDateRangeToDateTimeFormat(ref startDate, ref endDate, out startD, out endD);
-
-        var orders = await unitOfWork.OrderRepository.GetOrdersByDateRangeAsync(startD, endD);
-
         List<OrderModelDto> orderModels = [];
-        AddOrderModelsToDtoList(automapper, orders, orderModels);
+
+        ParseDateRangeToDateTimeFormat(ref startDate, ref endDate, out var startD, out var endD);
+        var orders = await unitOfWork.OrderRepository.GetOrdersByDateRangeAsync(startD, endD);
+        AddOrdersToDtoList(automapper, orders, orderModels);
+
+        var ordersFromMongo = await mongoUnitOfWork.OrderRepository.GetAllAsync();
+        AddMongoOrdersToDtoList(automapper, ordersFromMongo, orderModels);
 
         return orderModels;
     }
@@ -254,12 +256,14 @@ public class OrderService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Or
         }
     }
 
-    private static void AddOrderModelsToDtoList(IMapper automapper, List<Order> orders, List<OrderModelDto> orderModels)
+    private static void AddOrdersToDtoList(IMapper automapper, List<Order> orders, List<OrderModelDto> orderModels)
     {
-        foreach (var order in orders)
-        {
-            orderModels.Add(automapper.Map<OrderModelDto>(order));
-        }
+        orderModels.AddRange(automapper.Map<List<OrderModelDto>>(orders));
+    }
+
+    private static void AddMongoOrdersToDtoList(IMapper automapper, List<MongoOrder> orders, List<OrderModelDto> orderModels)
+    {
+        orderModels.AddRange(automapper.Map<List<OrderModelDto>>(orders));
     }
 
     private static async Task<double?> CalculateAmountToPay(IUnitOfWork unitOfWork, CustomerStub customer)

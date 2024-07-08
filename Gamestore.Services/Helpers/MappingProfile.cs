@@ -96,6 +96,10 @@ public class MappingProfile : Profile
         CreateMap<GamePlatform, MongoGamePlatform>().ReverseMap();
 
         CreateMap<Shipper, ShipperModelDto>().ReverseMap();
-        CreateMap<MongoOrder, MongoOrderDto>().ReverseMap();
+        CreateMap<MongoOrder, OrderModelDto>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.OrderId)))
+            .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => x.CustomerId))
+            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.OrderDate))
+            .ReverseMap();
     }
 }
