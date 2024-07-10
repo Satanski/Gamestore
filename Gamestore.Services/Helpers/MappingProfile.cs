@@ -33,6 +33,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discount))
             .ForMember(dest => dest.Platforms, src => src.MapFrom(x => x.GamePlatforms))
             .ForMember(dest => dest.Genres, src => src.MapFrom(x => x.GameGenres))
+            .ForMember(dest => dest.PublishDate, src => src.MapFrom(x => x.PublishDate))
             .ReverseMap();
 
         CreateMap<PaymentModelDto, VisaMicroservicePaymentModel>()

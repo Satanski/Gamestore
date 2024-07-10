@@ -29,6 +29,9 @@ internal static class TestGameHelpers
             Description = expectedDescription,
             GameGenres = gameGenres,
             GamePlatforms = gamePlatforms,
+            Publisher = new Publisher() { Id = Guid.NewGuid(), CompanyName = "Test company" },
+            Comments = [],
+            IsDeleted = false,
         };
 
         await context.Games.AddAsync(game);

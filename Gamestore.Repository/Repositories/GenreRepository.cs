@@ -11,10 +11,12 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
     public Task<List<Game>> GetGamesByGenreAsync(Guid id)
     {
         return _context.Games
-            .Include(x => x.Publisher)
             .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-            .Where(x => x.GameGenres.Contains(new GameGenre { GameId = x.Id, GenreId = id }))
+            .Include(x => x.Publisher)
+            .Include(x => x.Comments)
+            .Where(x => x.GameGenres.Any(gg => gg.GenreId == id && gg.GameId == x.Id) && !x.IsDeleted)
+            .AsSplitQuery()
             .ToListAsync();
     }
 

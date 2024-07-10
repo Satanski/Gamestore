@@ -39,6 +39,8 @@ public record GameModelDto
 
     public string Description { get; set; }
 
+    public DateOnly PublishDate { get; set; }
+
     public PublisherModelDto? Publisher { get; set; }
 
     public List<GenreModelDto>? Genres { get; set; }
