@@ -48,17 +48,24 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         return query.Where(x => !x.IsDeleted).AsSplitQuery().ToListAsync();
     }
 
+    public IQueryable<Game> GetGamesAsQueryable()
+    {
+        var includes = GameIncludes();
+        return includes.Where(x => !x.IsDeleted).AsSplitQuery();
+    }
+
     public async Task SoftDelete(Game game)
     {
         var g = await _context.Games.Where(x => x.Id == game.Id).FirstAsync();
         g.IsDeleted = true;
     }
 
-    private IIncludableQueryable<Game, Publisher> GameIncludes()
+    private IIncludableQueryable<Game, List<Comment>> GameIncludes()
     {
         return _context.Games
             .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
             .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-            .Include(x => x.Publisher);
+            .Include(x => x.Publisher)
+            .Include(x => x.Comments);
     }
 }

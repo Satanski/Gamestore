@@ -20,12 +20,12 @@ public class PublisherRepository(GamestoreContext context) : RepositoryBase<Publ
 
     public Task<List<Game>> GetGamesByPublisherIdAsync(Guid id)
     {
-        return context.Games.Where(x => x.PublisherId == id).ToListAsync();
+        return context.Games.Where(x => x.PublisherId == id && !x.IsDeleted).ToListAsync();
     }
 
     public Task<List<Game>> GetGamesByPublisherNameAsync(string name)
     {
-        return context.Games.Where(x => x.Name == name).ToListAsync();
+        return context.Games.Where(x => x.Name == name && !x.IsDeleted).ToListAsync();
     }
 
     public async Task UpdateAsync(Publisher entity)

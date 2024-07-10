@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Filtering;
+using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
@@ -9,11 +11,12 @@ using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger) : IGameService
+public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GameService> logger, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
 {
     private const string QuoteActionName = "Quote";
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
@@ -32,6 +35,26 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
 
         return gameModels.AsEnumerable();
+    }
+
+    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters)
+    {
+        logger.LogInformation("Getting games by filter");
+
+        var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
+        var gamesQueryable = unitOfWork.GameRepository.GetGamesAsQueryable();
+        var filteredGames = await (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, gamesQueryable)).ToListAsync();
+
+        FilteredGamesDto filteredGameDtos = new();
+        foreach (var game in filteredGames)
+        {
+            filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
+        }
+
+        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
+        filteredGameDtos.CurrentPage = gameFilters.Page;
+
+        return filteredGameDtos;
     }
 
     public async Task<IEnumerable<GenreModelDto>> GetGenresByGameKeyAsync(string gameKey)
@@ -85,9 +108,25 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
     public async Task<GameModelDto> GetGameByKeyAsync(string key)
     {
         logger.LogInformation("Getting game by Key: {key}", key);
-        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key) ?? throw new GamestoreException($"No game found with given key: {key}");
+        await IncreaseGameViewCounter(unitOfWork, game);
 
-        return game == null ? throw new GamestoreException($"No game found with given key: {key}") : automapper.Map<GameModelDto>(game);
+        return automapper.Map<GameModelDto>(game);
+    }
+
+    public List<string> GetPaginationOptions()
+    {
+        return PaginationOptionsDto.PaginationOptions;
+    }
+
+    public List<string> GetPublishDateOptions()
+    {
+        return PublishDateOptionsDto.PublishDateOptions;
+    }
+
+    public List<string> GetSortingOptions()
+    {
+        return SortingOptionsDto.SortingOptions;
     }
 
     public async Task AddGameAsync(GameDtoWrapper gameModel)
@@ -241,7 +280,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
             await AddMessageToRepository(unitOfWork, commenttoAdd);
         }
 
-        return "Comment added";
+        return string.Empty;
     }
 
     public async Task DeleteCommentAsync(string gameKey, Guid commentId)
@@ -430,5 +469,11 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
         }
 
         return false;
+    }
+
+    private static async Task IncreaseGameViewCounter(IUnitOfWork unitOfWork, Game? game)
+    {
+        game.NumberOfViews++;
+        await unitOfWork.SaveAsync();
     }
 }

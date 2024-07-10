@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
 using Gamestore.WebApi.Stubs;
@@ -14,11 +15,11 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // GET: games
     [HttpGet]
-    public async Task<IActionResult> GetGamesAsync()
+    public async Task<IActionResult> GetGamesAsync([FromQuery] GameFiltersDto filters)
     {
-        var games = await _gameService.GetAllGamesAsync();
+        var games = await _gameService.GetFilteredGamesAsync(filters);
 
-        return games.Any() ? Ok(games) : NotFound();
+        return Ok(games);
     }
 
     // GET: games/find/GUID
@@ -98,6 +99,33 @@ public class GamesController([FromServices] IGameService gameService) : Controll
         var comments = await _gameService.GetCommentsByGameKeyAsync(key);
 
         return Ok(comments);
+    }
+
+    // GET: games/pagination-options
+    [HttpGet("pagination-options")]
+    public IActionResult GetPaginationOptions()
+    {
+        var paginationOptions = _gameService.GetPaginationOptions();
+
+        return Ok(paginationOptions);
+    }
+
+    // GET: games/publish-date-options
+    [HttpGet("publish-date-options")]
+    public IActionResult GetPublishDateOptions()
+    {
+        var publishDateOptions = _gameService.GetPublishDateOptions();
+
+        return Ok(publishDateOptions);
+    }
+
+    // GET: games/sorting-options
+    [HttpGet("sorting-options")]
+    public IActionResult GetSortingOptions()
+    {
+        var sortingOptions = _gameService.GetSortingOptions();
+
+        return Ok(sortingOptions);
     }
 
     // POST: games

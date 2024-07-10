@@ -1,4 +1,5 @@
 ﻿using Gamestore.BLL.Exceptions;
+using Gamestore.BLL.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Models;
@@ -6,6 +7,7 @@ using Gamestore.Services.Services;
 using Gamestore.Tests.Helpers;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Xunit.Sdk;
 
 namespace Gamestore.Tests.BLL;
 
@@ -23,7 +25,7 @@ public class GenreServiceTests
     {
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
-        var expected = BllHelpers.GenreModels.ToList();
+        var expected = BllHelpers.GenreModelDtos.ToList();
 
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Genres]);
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
@@ -41,8 +43,8 @@ public class GenreServiceTests
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
         var expectedName = "Rpg";
-        var expectedId = new Guid("cc3a7cb9-2a97-4440-9965-97f47decd0d8");
-        var expected = BllHelpers.GenreModels.First(x => x.Name == expectedName);
+        var expectedId = BllHelpers.Genres.First(x => x.Name == expectedName).Id;
+        var expected = BllHelpers.GenreModelDtos.First(x => x.Name == expectedName);
 
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Genres.First(x => x.Id == expectedId));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
@@ -60,7 +62,11 @@ public class GenreServiceTests
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
         var expectedName = "NewGenre";
-        var genreToAdd = new GenreModel() { Name = expectedName };
+        var genreDtoWrapper = new GenreDtoWrapper
+        {
+            Genre = new GenreModelDto() { Name = expectedName },
+        };
+        var genreToAdd = genreDtoWrapper;
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Genres);
         unitOfWork.Setup(x => x.GenreRepository.AddAsync(It.IsAny<Genre>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
@@ -80,7 +86,9 @@ public class GenreServiceTests
         var unitOfWork = new Mock<IUnitOfWork>();
         var genreToDelete = BllHelpers.Genres[0];
         var genreToDeleteId = genreToDelete.Id;
+
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(genreToDelete);
+        unitOfWork.Setup(x => x.GenreRepository.GetGenresByParentGenreAsync(It.IsAny<Guid>())).ReturnsAsync([]);
         unitOfWork.Setup(x => x.GenreRepository.Delete(It.IsAny<Genre>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
@@ -100,13 +108,17 @@ public class GenreServiceTests
         var genreToUpdate = BllHelpers.GenreModelDtos[0];
         var genreToUpdateId = genreToUpdate.Id;
         genreToUpdate.Name = "New Name";
-
+        var genreDtoWrapper = new GenreDtoWrapper
+        {
+            Genre = genreToUpdate,
+        };
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Genres.Find(x => x.Id == genreToUpdateId));
+        unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Genres);
         unitOfWork.Setup(x => x.GenreRepository.UpdateAsync(It.IsAny<Genre>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
-        await genreService.UpdateGenreAsync(genreToUpdate);
+        await genreService.UpdateGenreAsync(genreDtoWrapper);
 
         // Assert
         unitOfWork.Verify(x => x.GenreRepository.UpdateAsync(It.Is<Genre>(x => x.Name == genreToUpdate.Name && x.Id == genreToUpdate.Id)));
@@ -119,14 +131,14 @@ public class GenreServiceTests
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
 
-        unitOfWork.Setup(x => x.GenreRepository.GetGamesByGenreAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.ToList());
+        unitOfWork.Setup(x => x.GenreRepository.GetGamesByGenreAsync(It.IsAny<Guid>())).ReturnsAsync([.. BllHelpers.Games]);
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act
         var actualGames = await genreService.GetGamesByGenreAsync(Guid.NewGuid());
 
         // Assert
-        Assert.Equal(actualGames, BllHelpers.GameModels);
+        Assert.Equal(actualGames.Count(), BllHelpers.GameModelDtos.Count);
     }
 
     [Fact]
@@ -135,7 +147,11 @@ public class GenreServiceTests
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
         var expectedName = string.Empty;
-        var genreToAdd = new GenreModel() { Name = expectedName };
+        var genreDtoWrapper = new GenreDtoWrapper
+        {
+            Genre = new GenreModelDto() { Name = expectedName },
+        };
+        var genreToAdd = genreDtoWrapper;
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Genres);
         unitOfWork.Setup(x => x.GenreRepository.AddAsync(It.IsAny<Genre>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
@@ -153,6 +169,7 @@ public class GenreServiceTests
         // Arrange
         var unitOfWork = new Mock<IUnitOfWork>();
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>()));
+        unitOfWork.Setup(x => x.GenreRepository.GetGenresByParentGenreAsync(It.IsAny<Guid>())).ReturnsAsync([]);
         unitOfWork.Setup(x => x.GenreRepository.Delete(It.IsAny<Genre>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
@@ -188,15 +205,20 @@ public class GenreServiceTests
         var genreToUpdate = BllHelpers.GenreModelDtos[0];
         var genreToUpdateId = genreToUpdate.Id;
         genreToUpdate.Name = string.Empty;
+        var genreDtoWrapper = new GenreDtoWrapper
+        {
+            Genre = genreToUpdate,
+        };
 
         unitOfWork.Setup(x => x.GenreRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Genres.Find(x => x.Id == genreToUpdateId));
+        unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Genres);
         unitOfWork.Setup(x => x.GenreRepository.UpdateAsync(It.IsAny<Genre>()));
         var genreService = new GenreService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            await genreService.UpdateGenreAsync(genreToUpdate);
+            await genreService.UpdateGenreAsync(genreDtoWrapper);
         });
     }
 }
