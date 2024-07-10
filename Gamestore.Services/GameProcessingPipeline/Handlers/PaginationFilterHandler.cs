@@ -1,6 +1,7 @@
 ﻿using Gamestore.BLL.Filtering.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
@@ -20,7 +21,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
                 query = await base.HandleAsync(unitOfWork, filters, query);
                 return query;
             default:
-                filters.NumberOfPagesAfterFiltration = CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query);
+                filters.NumberOfPagesAfterFiltration = await CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query);
                 CheckIfPageNumberDoesntExceedLastPage(filters);
 
                 var numberOfGamesPerPage = int.Parse(pageCount);
@@ -38,8 +39,9 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
         }
     }
 
-    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> filteredGames)
+    private static async Task<int> CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> filteredGames)
     {
-        return (int)Math.Ceiling((double)filteredGames.Count() / numberOfGamesPerPage);
+        var noOfGames = await filteredGames.CountAsync();
+        return (int)Math.Ceiling((double)noOfGames / numberOfGamesPerPage);
     }
 }

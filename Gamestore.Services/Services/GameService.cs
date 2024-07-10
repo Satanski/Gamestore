@@ -11,6 +11,7 @@ using Gamestore.DAL.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
@@ -42,7 +43,7 @@ public class GameService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Gam
 
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
         var gamesQueryable = unitOfWork.GameRepository.GetGamesAsQueryable();
-        var filteredGames = await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, gamesQueryable);
+        var filteredGames = await (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, gamesQueryable)).ToListAsync();
 
         FilteredGamesDto filteredGameDtos = new();
         foreach (var game in filteredGames)
