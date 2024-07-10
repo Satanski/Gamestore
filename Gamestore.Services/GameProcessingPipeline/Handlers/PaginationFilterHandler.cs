@@ -1,7 +1,7 @@
 ﻿using Gamestore.BLL.Filtering.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.MongoRepository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
@@ -50,8 +50,9 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
         return numberToSkip;
     }
 
-    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> query, int numberOfGamesFromPreviousSource)
+    private static async Task<int> CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> filteredGames)
     {
-        return (int)Math.Ceiling((double)(query.Count() + numberOfGamesFromPreviousSource) / numberOfGamesPerPage);
+        var noOfGames = await filteredGames.CountAsync();
+        return (int)Math.Ceiling((double)noOfGames / numberOfGamesPerPage);
     }
 }
