@@ -1,4 +1,5 @@
-﻿using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Filtering.Models;
+using Gamestore.BLL.Models;
 using Gamestore.Services.Models;
 
 namespace Gamestore.Services.Interfaces;
@@ -14,6 +15,8 @@ public interface IGameService
     Task DeleteGameByKeyAsync(string gameKey);
 
     Task<IEnumerable<GameModelDto>> GetAllGamesAsync();
+
+    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters);
 
     Task<GameModelDto> GetGameByIdAsync(Guid gameId);
 
@@ -36,4 +39,10 @@ public interface IGameService
     Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
 
     Task DeleteCommentAsync(string gameKey, Guid commentId);
+
+    List<string> GetPaginationOptions();
+
+    List<string> GetPublishDateOptions();
+
+    List<string> GetSortingOptions();
 }
