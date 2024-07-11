@@ -32,6 +32,13 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         logger.LogInformation("Getting order by id: {orderId}", orderId);
         var order = await unitOfWork.OrderRepository.GetByIdAsync(orderId);
 
+        if (order is null)
+        {
+            int id = GuidHelpers.GuidToInt(orderId);
+            var o = await mongoUnitOfWork.OrderRepository.GetByIdAsync(id);
+            order = automapper.Map<Order>(o);
+        }
+
         return order == null ? throw new GamestoreException($"No order found with given id: {orderId}") : automapper.Map<OrderModelDto>(order);
     }
 
@@ -41,7 +48,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         var orders = await unitOfWork.OrderRepository.GetAllAsync();
 
         List<OrderModelDto> orderModels = [];
-        AddOrdersToDtoList(automapper, orders, orderModels);
+        AddSQLServerOrdersToDtoList(automapper, orders, orderModels);
 
         return orderModels;
     }
@@ -52,11 +59,12 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         List<OrderModelDto> orderModels = [];
 
         ParseDateRangeToDateTimeFormat(ref startDate, ref endDate, out var startD, out var endD);
+
         var orders = await unitOfWork.OrderRepository.GetOrdersByDateRangeAsync(startD, endD);
-        AddOrdersToDtoList(automapper, orders, orderModels);
+        AddSQLServerOrdersToDtoList(automapper, orders, orderModels);
 
         var ordersFromMongo = await mongoUnitOfWork.OrderRepository.GetAllAsync();
-        AddMongoOrdersToDtoList(automapper, ordersFromMongo, orderModels);
+        AddMongoOrdersToDtoList(automapper, ordersFromMongo, startD, endD, orderModels);
 
         return orderModels;
     }
@@ -79,10 +87,22 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     public async Task<List<OrderDetailsDto>> GetOrderDetailsByOrderIdAsync(Guid orderId)
     {
         logger.LogInformation("Getting order details by id: {orderId}", orderId);
-        var order = await unitOfWork.OrderRepository.GetWithDetailsByIdAsync(orderId);
-
         List<OrderDetailsDto> orederDetails = [];
-        AddOrderDetailsToDtoList(automapper, order, orederDetails);
+
+        var order = await unitOfWork.OrderRepository.GetWithDetailsByIdAsync(orderId);
+        if (order is not null)
+        {
+            AddSQLServerOrderDetailsToDtoList(automapper, order, orederDetails);
+            return orederDetails;
+        }
+
+        int id = GuidHelpers.GuidToInt(orderId);
+        order = automapper.Map<Order>(await mongoUnitOfWork.OrderRepository.GetByIdAsync(id));
+        if (order is not null)
+        {
+            await AddMongoDBOrderDetailsToDtoList(mongoUnitOfWork, automapper, order, orederDetails);
+            return orederDetails;
+        }
 
         return orederDetails;
     }
@@ -93,7 +113,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         var order = await unitOfWork.OrderRepository.GetOrderByCustomerIdAsync(customerId);
 
         List<OrderDetailsDto> orederDetails = [];
-        AddOrderDetailsToDtoList(automapper, order, orederDetails);
+        AddSQLServerOrderDetailsToDtoList(automapper, order, orederDetails);
 
         return orederDetails;
     }
@@ -245,25 +265,40 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         }
     }
 
-    private static void AddOrderDetailsToDtoList(IMapper automapper, Order? order, List<OrderDetailsDto> orederDetails)
+    private static void AddSQLServerOrderDetailsToDtoList(IMapper automapper, Order? order, List<OrderDetailsDto> orderDetails)
     {
-        if (order != null && order.OrderGames.Count > 0)
+        if (order.OrderGames.Count > 0)
         {
-            foreach (var orderGame in order.OrderGames)
-            {
-                orederDetails.Add(automapper.Map<OrderDetailsDto>(orderGame));
-            }
+            orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderGames));
         }
     }
 
-    private static void AddOrdersToDtoList(IMapper automapper, List<Order> orders, List<OrderModelDto> orderModels)
+    private static async Task AddMongoDBOrderDetailsToDtoList(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Order order, List<OrderDetailsDto> orderDetails)
+    {
+        int id = GuidHelpers.GuidToInt(order.Id);
+        var mongoOrderDetails = await mongoUnitOfWork.OrderDetailRepository.GetByOrderIdAsync(id);
+
+        order.OrderGames = [];
+        foreach (var od in mongoOrderDetails)
+        {
+            order.OrderGames.Add(new OrderGame() { OrderId = order.Id, ProductId = GuidHelpers.IntToGuid(od.ProductId), Price = od.UnitPrice, Quantity = od.Quantity, Discount = od.Discount });
+        }
+
+        orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderGames));
+    }
+
+    private static void AddSQLServerOrdersToDtoList(IMapper automapper, List<Order> orders, List<OrderModelDto> orderModels)
     {
         orderModels.AddRange(automapper.Map<List<OrderModelDto>>(orders));
     }
 
-    private static void AddMongoOrdersToDtoList(IMapper automapper, List<MongoOrder> orders, List<OrderModelDto> orderModels)
+    private static void AddMongoOrdersToDtoList(IMapper automapper, List<MongoOrder> ordersFromMongo, DateTime startD, DateTime endD, List<OrderModelDto> orderModels)
     {
-        orderModels.AddRange(automapper.Map<List<OrderModelDto>>(orders));
+        var mongoOrdersWitheDateTime = automapper.Map<List<MongoOrderModel>>(ordersFromMongo);
+        var mongoOrdersByDateRange = mongoOrdersWitheDateTime.Where(x => x.Date >= startD && x.Date <= endD);
+        var filteredMOngoOrders = automapper.Map<List<OrderModelDto>>(mongoOrdersByDateRange);
+
+        orderModels.AddRange(filteredMOngoOrders);
     }
 
     private static async Task<double?> CalculateAmountToPay(IUnitOfWork unitOfWork, CustomerStub customer)

@@ -345,7 +345,7 @@ public class GameServiceTests
         var expected = BllHelpers.Games.First(x => x.Id == expectedId);
 
         _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
-        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetProductByNameAsync(It.IsAny<string>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
 
         // Act
@@ -644,7 +644,7 @@ public class GameServiceTests
         var expectedKey = "BG";
 
         _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>()));
-        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetProductByNameAsync(It.IsAny<string>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
 
         // Assert
@@ -674,7 +674,7 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Genres]);
         unitOfWork.Setup(x => x.PlatformRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Platforms]);
         unitOfWork.Setup(x => x.PublisherRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Publishers]);
-        mongoUnitOfWork.Setup(x => x.ProductRepository.GetProductByNameAsync(It.IsAny<string>()));
+        mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
         mongoUnitOfWork.Setup(x => x.CategoryRepository.GetAllAsync()).Returns(Task.FromResult(new List<Category>()));
         mongoUnitOfWork.Setup(x => x.SupplierRepository.GetAllAsync()).Returns(Task.FromResult(new List<Supplier>()));
     }

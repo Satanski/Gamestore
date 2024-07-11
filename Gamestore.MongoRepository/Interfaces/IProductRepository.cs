@@ -8,9 +8,11 @@ public interface IProductRepository
 
     IQueryable<Product> GetProductsAsQueryable();
 
-    Task<Product?> GetProductByNameAsync(string key);
+    Task<Product> GetByNameAsync(string key);
 
-    Task<List<Product>> GetProductBySupplierIdAsync(int supplierID);
+    Task<List<Product>> GetBySupplierIdAsync(int supplierID);
 
-    Task<List<Product>> GetProductsByCategoryIdAsync(int categoryId);
+    Task<List<Product>> GetByCategoryIdAsync(int categoryId);
+
+    Task<Product> GetByIdAsync(int id);
 }

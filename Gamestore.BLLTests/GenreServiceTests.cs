@@ -31,7 +31,7 @@ public class GenreServiceTests
         var expected = BllHelpers.GenreModelDtos.ToList();
 
         _unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Genres]);
-        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetProductByNameAsync(It.IsAny<string>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
         _mongoUnitOfWork.Setup(x => x.CategoryRepository.GetAllAsync()).Returns(Task.FromResult(new List<Category>()));
         var genreService = new GenreService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 

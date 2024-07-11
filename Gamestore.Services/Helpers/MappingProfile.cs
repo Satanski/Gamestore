@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
 using Gamestore.DAL.Entities;
@@ -96,10 +97,29 @@ public class MappingProfile : Profile
         CreateMap<GamePlatform, MongoGamePlatform>().ReverseMap();
 
         CreateMap<Shipper, ShipperModelDto>().ReverseMap();
+
+        CreateMap<MongoOrder, Order>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.OrderId)))
+            .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => Guid.Empty))
+            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.OrderDate))
+            .ForMember(dest => dest.OrderGames, src => src.Ignore())
+            .ReverseMap();
+
         CreateMap<MongoOrder, OrderModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.OrderId)))
             .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => x.CustomerId))
             .ForMember(dest => dest.Date, src => src.MapFrom(x => x.OrderDate))
+            .ReverseMap();
+
+        CreateMap<MongoOrderModel, OrderModelDto>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
+            .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => x.CustomerId))
+            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.Date.ToString("yyyy-MM-dd")));
+
+        CreateMap<MongoOrder, MongoOrderModel>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.OrderId)))
+            .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => x.CustomerId))
+            .ForMember(dest => dest.Date, src => src.MapFrom(x => DateTime.ParseExact(x.OrderDate, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)))
             .ReverseMap();
     }
 }

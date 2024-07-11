@@ -12,7 +12,6 @@ using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -94,6 +93,13 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         logger.LogInformation("Getting game by Id: {gameId}", gameId);
         var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+
+        if (game is null)
+        {
+            int id = GuidHelpers.GuidToInt(gameId);
+            var product = await mongoUnitOfWork.ProductRepository.GetByIdAsync(id);
+            game = automapper.Map<Game>(product);
+        }
 
         return game == null ? throw new GamestoreException($"No game found with given id: {gameId}") : automapper.Map<GameModelDto>(game);
     }
@@ -476,7 +482,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
 
     private static async Task<List<GenreModelDto>> GetGenresFromMongoDBByGameKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string gameKey)
     {
-        var product = await mongoUnitOfWork.ProductRepository.GetProductByNameAsync(gameKey);
+        var product = await mongoUnitOfWork.ProductRepository.GetByNameAsync(gameKey);
         var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(product.CategoryID);
 
         return [automapper.Map<GenreModelDto>(category)];
@@ -504,7 +510,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
 
     private static async Task<PublisherModelDto> GetPublisherFromMongoDBByGameKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string gameKey)
     {
-        var product = await mongoUnitOfWork.ProductRepository.GetProductByNameAsync(gameKey);
+        var product = await mongoUnitOfWork.ProductRepository.GetByNameAsync(gameKey);
         var supplier = await mongoUnitOfWork.SupplierRepository.GetSupplierByIdAsync(product.SupplierID);
 
         return automapper.Map<PublisherModelDto>(supplier);
@@ -525,7 +531,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
 
     private static async Task<GameModelDto> GetGameFromMongoDBByKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string key)
     {
-        var product = await mongoUnitOfWork.ProductRepository.GetProductByNameAsync(key);
+        var product = await mongoUnitOfWork.ProductRepository.GetByNameAsync(key);
         var gameFromProduct = automapper.Map<Game>(product);
         return automapper.Map<GameModelDto>(gameFromProduct);
     }

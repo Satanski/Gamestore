@@ -11,4 +11,6 @@ public interface IMongoUnitOfWork
     IShipperRepository ShipperRepository { get; }
 
     IOrderRepository OrderRepository { get; }
+
+    IOrderDetailRepository OrderDetailRepository { get; }
 }

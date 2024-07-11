@@ -129,7 +129,7 @@ public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnit
     private static async Task<List<GameModelDto>> GetGamesByPublisherNameFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string publisherName)
     {
         var supplier = await mongoUnitOfWork.SupplierRepository.GetSupplierByNameAsync(publisherName);
-        var games = await mongoUnitOfWork.ProductRepository.GetProductBySupplierIdAsync(supplier.SupplierID);
+        var games = await mongoUnitOfWork.ProductRepository.GetBySupplierIdAsync(supplier.SupplierID);
         var gameModels = automapper.Map<List<GameModelDto>>(games);
 
         return gameModels;

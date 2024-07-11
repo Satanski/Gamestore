@@ -8,4 +8,10 @@ internal static class GuidHelpers
         BitConverter.GetBytes(value).CopyTo(guidBytes, 0);
         return new Guid(guidBytes);
     }
+
+    public static int GuidToInt(Guid value)
+    {
+        byte[] guidBytes = value.ToByteArray();
+        return BitConverter.ToInt32(guidBytes, 0);
+    }
 }

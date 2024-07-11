@@ -143,7 +143,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         List<GameModelDto> games = [];
         int id = ConvertFirstEightCharactersOfGuidToId(genreId);
         var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
-        var products = await mongoUnitOfWork.ProductRepository.GetProductsByCategoryIdAsync(category.CategoryId);
+        var products = await mongoUnitOfWork.ProductRepository.GetByCategoryIdAsync(category.CategoryId);
 
         if (products is not null)
         {
