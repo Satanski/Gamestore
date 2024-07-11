@@ -92,14 +92,9 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     public async Task<GameModelDto> GetGameByIdAsync(Guid gameId)
     {
         logger.LogInformation("Getting game by Id: {gameId}", gameId);
-        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        var game = await GetGameFromSQLServerById(unitOfWork, gameId);
 
-        if (game is null)
-        {
-            int id = GuidHelpers.GuidToInt(gameId);
-            var product = await mongoUnitOfWork.ProductRepository.GetByIdAsync(id);
-            game = automapper.Map<Game>(product);
-        }
+        game ??= await GetGameFromMongoDBById(mongoUnitOfWork, automapper, gameId);
 
         return game == null ? throw new GamestoreException($"No game found with given id: {gameId}") : automapper.Map<GameModelDto>(game);
     }
@@ -541,6 +536,19 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
         await IncreaseGameViewCounter(unitOfWork, game);
         return automapper.Map<GameModelDto>(game);
+    }
+
+    private static async Task<Game?> GetGameFromMongoDBById(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid gameId)
+    {
+        int id = GuidHelpers.GuidToInt(gameId);
+        var product = await mongoUnitOfWork.ProductRepository.GetByIdAsync(id);
+        var game = automapper.Map<Game>(product);
+        return game;
+    }
+
+    private static async Task<Game?> GetGameFromSQLServerById(IUnitOfWork unitOfWork, Guid gameId)
+    {
+        return await unitOfWork.GameRepository.GetByIdAsync(gameId);
     }
 
     private static void CheckIfCurrentPageDoesntExceedTotalNumberOfPages(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)

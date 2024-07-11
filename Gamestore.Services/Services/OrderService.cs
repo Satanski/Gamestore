@@ -30,14 +30,9 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     public async Task<OrderModelDto> GetOrderByIdAsync(Guid orderId)
     {
         logger.LogInformation("Getting order by id: {orderId}", orderId);
-        var order = await unitOfWork.OrderRepository.GetByIdAsync(orderId);
+        var order = await GetOrderFromSQLServerById(unitOfWork, orderId);
 
-        if (order is null)
-        {
-            int id = GuidHelpers.GuidToInt(orderId);
-            var o = await mongoUnitOfWork.OrderRepository.GetByIdAsync(id);
-            order = automapper.Map<Order>(o);
-        }
+        order ??= await GetOrderFromMongDBById(mongoUnitOfWork, automapper, orderId);
 
         return order == null ? throw new GamestoreException($"No order found with given id: {orderId}") : automapper.Map<OrderModelDto>(order);
     }
@@ -377,5 +372,18 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         {
             throw new GamestoreException("Date range is in wrong format or corrupted");
         }
+    }
+
+    private static async Task<Order?> GetOrderFromMongDBById(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid orderId)
+    {
+        int id = GuidHelpers.GuidToInt(orderId);
+        var o = await mongoUnitOfWork.OrderRepository.GetByIdAsync(id);
+        var order = automapper.Map<Order>(o);
+        return order;
+    }
+
+    private static async Task<Order?> GetOrderFromSQLServerById(IUnitOfWork unitOfWork, Guid orderId)
+    {
+        return await unitOfWork.OrderRepository.GetByIdAsync(orderId);
     }
 }
