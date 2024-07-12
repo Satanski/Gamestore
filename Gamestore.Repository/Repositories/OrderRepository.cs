@@ -17,7 +17,7 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
     public Task<Order?> GetByCustomerIdAsync(Guid id)
     {
         var query = OrderIncludes();
-        return query.Where(x => x.CustomerId == id).FirstOrDefaultAsync();
+        return query.Where(x => x.Status == Enums.OrderStatus.Open && x.CustomerId == id).FirstOrDefaultAsync();
     }
 
     public Task<Order?> GetByIdAsync(Guid id)
@@ -25,15 +25,9 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         return _context.Orders.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    public Task<Order?> GetOrderByCustomerIdAsync(Guid id)
-    {
-        var query = OrderIncludes();
-        return query.Where(x => x.Status == Enums.OrderStatus.Open && x.CustomerId == id).FirstOrDefaultAsync();
-    }
-
     public Task<List<Order>> GetOrdersByDateRangeAsync(DateTime startD, DateTime endD)
     {
-        return _context.Orders.Where(x => x.Date >= startD && x.Date <= endD).ToListAsync();
+        return _context.Orders.Where(x => x.Date >= startD && x.Date <= endD).OrderByDescending(x => x.Date).ToListAsync();
     }
 
     public Task<Order?> GetWithDetailsByIdAsync(Guid id)

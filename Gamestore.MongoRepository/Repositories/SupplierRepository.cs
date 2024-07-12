@@ -13,14 +13,14 @@ public class SupplierRepository(IMongoDatabase database) : ISupplierRepository
         return supplier;
     }
 
-    public async Task<Supplier> GetSupplierByIdAsync(int id)
+    public async Task<Supplier> GetByIdAsync(int id)
     {
         var collection = database.GetCollection<Supplier>("suppliers");
         var supplier = await collection.Find(x => x.SupplierID == id).FirstOrDefaultAsync();
         return supplier;
     }
 
-    public async Task<Supplier> GetSupplierByNameAsync(string companyName)
+    public async Task<Supplier> GetByNameAsync(string companyName)
     {
         var collection = database.GetCollection<Supplier>("suppliers");
         var supplier = await collection.Find(x => x.CompanyName == companyName).FirstOrDefaultAsync();

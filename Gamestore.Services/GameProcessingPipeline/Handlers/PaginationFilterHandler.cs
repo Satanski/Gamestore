@@ -25,7 +25,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
             default:
                 var numberOfGamesPerPage = int.Parse(pageCount);
                 int numberToSkip = CalculateNumberOfEntriesToSkip(filters, numberOfGamesPerPage);
-                filters.NumberOfPagesAfterFiltration = await CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query);
+                filters.NumberOfPagesAfterFiltration = CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query, filters);
                 filters.NumberOfGamesFromPreviousSource = query.Count();
                 int numberToTake = numberOfGamesPerPage - filters.NumberOfDisplayedGamesFromPreviousSource;
 
@@ -51,9 +51,9 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
         return numberToSkip;
     }
 
-    private static async Task<int> CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> query)
+    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> query, GameFiltersDto filters)
     {
-        var noOfGames = await query.CountAsync();
+        var noOfGames = query.Count() + filters.NumberOfGamesFromPreviousSource;
         return (int)Math.Ceiling((double)noOfGames / numberOfGamesPerPage);
     }
 }

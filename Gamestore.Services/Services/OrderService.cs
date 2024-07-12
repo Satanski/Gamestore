@@ -105,10 +105,13 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     public async Task<List<OrderDetailsDto>> GetCartByCustomerIdAsync(Guid customerId)
     {
         logger.LogInformation("Getting cart");
-        var order = await unitOfWork.OrderRepository.GetOrderByCustomerIdAsync(customerId);
+        var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customerId);
 
         List<OrderDetailsDto> orederDetails = [];
-        AddSQLServerOrderDetailsToDtoList(automapper, order, orederDetails);
+        if (order is not null)
+        {
+            AddSQLServerOrderDetailsToDtoList(automapper, order, orederDetails);
+        }
 
         return orederDetails;
     }

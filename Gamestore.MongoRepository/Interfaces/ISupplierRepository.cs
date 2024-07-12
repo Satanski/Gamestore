@@ -6,7 +6,7 @@ public interface ISupplierRepository
 {
     Task<List<Supplier>> GetAllAsync();
 
-    Task<Supplier> GetSupplierByIdAsync(int id);
+    Task<Supplier> GetByIdAsync(int id);
 
-    Task<Supplier> GetSupplierByNameAsync(string companyName);
+    Task<Supplier> GetByNameAsync(string companyName);
 }
