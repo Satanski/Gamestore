@@ -31,9 +31,11 @@ public class MappingProfile : Profile
         CreateMap<Platform, PlatformModelDto>().ReverseMap();
         CreateMap<Genre, GenreModelDto>().ReverseMap();
         CreateMap<Publisher, PublisherModelDto>().ReverseMap();
-        CreateMap<Order, OrderModelDto>().ReverseMap();
-        CreateMap<OrderGame, OrderGameModelDto>().ReverseMap();
+        CreateMap<Order, OrderModelDto>()
+            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.Date.ToString("yyyy-MM-dd")))
+            .ReverseMap();
 
+        CreateMap<OrderGame, OrderGameModelDto>().ReverseMap();
         CreateMap<OrderGame, OrderDetailsDto>();
 
         CreateMap<Game, GameModelDto>()

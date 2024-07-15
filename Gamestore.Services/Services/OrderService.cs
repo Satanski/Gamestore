@@ -274,15 +274,22 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     private static async Task AddMongoDBOrderDetailsToDtoList(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Order order, List<OrderDetailsDto> orderDetails)
     {
         int id = GuidHelpers.GuidToInt(order.Id);
-        var mongoOrderDetails = await mongoUnitOfWork.OrderDetailRepository.GetByOrderIdAsync(id);
 
-        order.OrderGames = [];
-        foreach (var od in mongoOrderDetails)
+        try
         {
-            order.OrderGames.Add(new OrderGame() { OrderId = order.Id, ProductId = GuidHelpers.IntToGuid(od.ProductId), Price = od.UnitPrice, Quantity = od.Quantity, Discount = od.Discount });
-        }
+            var mongoOrderDetails = await mongoUnitOfWork.OrderDetailRepository.GetByOrderIdAsync(id);
+            order.OrderGames = [];
+            foreach (var od in mongoOrderDetails)
+            {
+                order.OrderGames.Add(new OrderGame() { OrderId = order.Id, ProductId = GuidHelpers.IntToGuid(od.ProductId), Price = od.UnitPrice, Quantity = od.Quantity, Discount = od.Discount });
+            }
 
-        orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderGames));
+            orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderGames));
+        }
+        catch (Exception)
+        {
+            throw new GamestoreException("Data in MongoDB corrupted. No product associated with order in DB.");
+        }
     }
 
     private static void AddSQLServerOrdersToDtoList(IMapper automapper, List<Order> orders, List<OrderModelDto> orderModels)

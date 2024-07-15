@@ -5,14 +5,16 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
+public class PlatformService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
 {
+    private const string PhysicalProductGUID = "11111111-1111-1111-1111-111111111111";
     private readonly PlatformDtoWrapperValidator _platformDtoWrapperValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModelDto>> GetGamesByPlatformIdAsync(Guid platformId)
@@ -20,6 +22,12 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
         logger.LogInformation("Getting games by platform id: {platformId}", platformId);
         var games = await unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId);
         List<GameModelDto> gameModels = automapper.Map<List<GameModelDto>>(games);
+
+        if (platformId.ToString() == PhysicalProductGUID)
+        {
+            var gamesFromMongoDB = automapper.Map<List<GameModelDto>>(await mongoUnitOfWork.ProductRepository.GetAllAsync()).Except(gameModels);
+            gameModels.AddRange(gamesFromMongoDB);
+        }
 
         return gameModels.AsEnumerable();
     }

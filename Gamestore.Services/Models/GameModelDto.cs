@@ -1,6 +1,5 @@
 ﻿using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
-using Gamestore.MongoRepository.Entities;
 
 namespace Gamestore.Services.Models;
 
@@ -44,7 +43,7 @@ public record GameModelDto
 
     public PublisherModelDto? Publisher { get; set; }
 
-    public List<GenreModelDto> Genres { get; set; }
+    public List<GenreModelDto>? Genres { get; set; }
 
     public List<PlatformModelDto>? Platforms { get; set; }
 

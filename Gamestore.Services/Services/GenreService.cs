@@ -44,7 +44,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         logger.LogInformation("Getting all genres");
 
         var genreModels = await GetGenresFromSQLServer(unitOfWork, automapper);
-        genreModels.AddRange(await GetCategoriesFromMongoDB(mongoUnitOfWork, automapper));
+        genreModels.AddRange((await GetCategoriesFromMongoDB(mongoUnitOfWork, automapper)).Except(genreModels));
 
         return genreModels.AsEnumerable();
     }
@@ -54,10 +54,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         logger.LogInformation("Getting games by genre: {genreId}", genreId);
 
         var games = await GetGamesByGenreIdFromSQLServer(unitOfWork, automapper, genreId);
-        if (games.Count == 0)
-        {
-            games = await GetGamesByGenreIdFromMongoDB(mongoUnitOfWork, automapper, genreId);
-        }
+        games.AddRange(await GetGamesByGenreIdFromMongoDB(mongoUnitOfWork, automapper, genreId, games));
 
         return games;
     }
@@ -138,7 +135,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return gameModels;
     }
 
-    private static async Task<List<GameModelDto>> GetGamesByGenreIdFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
+    private static async Task<List<GameModelDto>> GetGamesByGenreIdFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId, List<GameModelDto> gamesFromPreviousSource)
     {
         List<GameModelDto> games = [];
         int id = ConvertFirstEightCharactersOfGuidToId(genreId);
@@ -147,10 +144,10 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
         if (products is not null)
         {
-            games = automapper.Map<List<GameModelDto>>(games);
+            games = automapper.Map<List<GameModelDto>>(products);
         }
 
-        return games;
+        return games.Except(gamesFromPreviousSource).ToList();
     }
 
     private static async Task<List<GenreModelDto>> GetGenresFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper)
