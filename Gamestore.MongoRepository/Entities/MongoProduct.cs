@@ -58,6 +58,12 @@ public class MongoProduct
     [BsonElement("UnitsInStock")]
     public int UnitsInStock { get; set; }
 
+    [BsonElement("UnitsOnOrder")]
+    public int UnitsOnOrder { get; set; }
+
+    [BsonElement("ReorderLevel")]
+    public int ReorderLevel { get; set; }
+
     [BsonElement("Discontinued")]
     public int Discontinued { get; set; }
 
