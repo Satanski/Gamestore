@@ -5,6 +5,7 @@ test:
   image: mcr.microsoft.com/dotnet/sdk:8.0
   stage: test
   script:
+      mkdir -p artifacts/test_results
     - 'cd $PROJECT_NAME'
     - 'dotnet test --collect:"XPlat Code Coverage" --results-directory artifacts/test_results/ /p:CollectCoverage=true /p:Threshold=50 /p:ThresholdStat=total /p:ExcludeByFile="**/Migrations/*"' 
   coverage: '/Total\s*\|\s*(\d+(?:\.\d+)?)/'

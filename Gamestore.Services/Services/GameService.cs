@@ -13,6 +13,7 @@ using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -45,6 +46,26 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         await FilterProductsFromMongoDB(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
         SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
         CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
+
+        return filteredGameDtos;
+    }
+
+    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters)
+    {
+        logger.LogInformation("Getting games by filter");
+
+        var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
+        var gamesQueryable = unitOfWork.GameRepository.GetGamesAsQueryable();
+        var filteredGames = await (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, gameFilters, gamesQueryable)).ToListAsync();
+
+        FilteredGamesDto filteredGameDtos = new();
+        foreach (var game in filteredGames)
+        {
+            filteredGameDtos.Games.Add(automapper.Map<GameModelDto>(game));
+        }
+
+        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
+        filteredGameDtos.CurrentPage = gameFilters.Page;
 
         return filteredGameDtos;
     }

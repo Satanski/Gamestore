@@ -23,6 +23,9 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
                 query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
                 return query;
             default:
+                filters.NumberOfPagesAfterFiltration = await CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query);
+                CheckIfPageNumberDoesntExceedLastPage(filters);
+
                 var numberOfGamesPerPage = int.Parse(pageCount);
                 int numberToSkip = CalculateNumberOfEntriesToSkip(filters, numberOfGamesPerPage);
                 filters.NumberOfPagesAfterFiltration = CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query, filters);
@@ -40,7 +43,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
     {
         int numberToSkip;
         if (filters.NumberOfGamesFromPreviousSource == 0)
-        {
+    {
             numberToSkip = numberOfGamesPerPage * (filters.Page - 1);
         }
         else

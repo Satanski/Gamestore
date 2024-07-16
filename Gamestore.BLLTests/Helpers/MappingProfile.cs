@@ -37,7 +37,7 @@ public class MappingProfile : Profile
         CreateMap<Platform, PlatformModelDto>().ReverseMap();
         CreateMap<Supplier, PublisherModelDto>().ReverseMap();
 
-        CreateMap<Product, Product>()
+        CreateMap<MongoProduct, Product>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.ProductId))
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.ProductName))
             .ForMember(dest => dest.Price, src => src.MapFrom(x => x.UnitPrice))
