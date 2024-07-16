@@ -8,7 +8,8 @@ public class MongoUnitOfWork(
     ISupplierRepository supplierRepository,
     IShipperRepository shipperRepository,
     IOrderRepository orderRepository,
-    IOrderDetailRepository orderDetailRepository) : IMongoUnitOfWork
+    IOrderDetailRepository orderDetailRepository,
+    ILogRepository logRepository) : IMongoUnitOfWork
 {
     public IProductRepository ProductRepository => productRepository;
 
@@ -21,4 +22,6 @@ public class MongoUnitOfWork(
     public IOrderRepository OrderRepository => orderRepository;
 
     public IOrderDetailRepository OrderDetailRepository => orderDetailRepository;
+
+    public ILogRepository LogRepository => logRepository;
 }

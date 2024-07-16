@@ -4,6 +4,7 @@ using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
+using Gamestore.BLL.MongoLogging;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
@@ -17,7 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Gamestore.Services.Services;
 
-public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GameService> logger, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
+public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GameService> logger, MongoLoggingService mongoLoggingService, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
 {
     private const string QuoteActionName = "Quote";
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
@@ -137,28 +138,38 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         var platforms = gameModel.Platforms;
         await AddGameGenresTorepository(unitOfWork, addedGame, genres);
         await AddGamePlatformsToRepository(unitOfWork, addedGame, platforms);
+
+        await mongoLoggingService.LogGameAdd(gameModel);
     }
 
     public async Task UpdateGameAsync(GameDtoWrapper gameModel)
     {
         logger.LogInformation("Updating game {@gameModel}", gameModel);
-
         await _gameDtoWrapperValidator.ValidateGame(gameModel);
 
+        GameModelDto oldObjectState;
+        GameDtoWrapper newObjectState = gameModel;
+
         var existingGameInSQLServer = await unitOfWork.GameRepository.GetByIdAsync((Guid)gameModel.Game.Id!);
-        if (existingGameInSQLServer == null)
+        if (existingGameInSQLServer != null)
+        {
+            oldObjectState = automapper.Map<GameModelDto>(existingGameInSQLServer);
+        }
+        else
         {
             var id = GuidHelpers.GuidToInt((Guid)gameModel.Game.Id);
             var gameFromMongoDB = await GetGameWithDetailsFromMongoDBById(mongoUnitOfWork, automapper, id);
             await CopyGameFromMongoDBToSQLServerIfDoesntExistThere(unitOfWork, automapper, gameFromMongoDB, existingGameInSQLServer);
+            oldObjectState = gameFromMongoDB;
         }
 
         await DeleteGameGenresFromRepository(unitOfWork, gameModel.Game.Id);
         await DeleteGamePlatformsFromRepository(unitOfWork, gameModel.Game.Id);
 
         var game = automapper.Map<Game>(gameModel.Game);
-
         await UpdateGameInrepository(unitOfWork, gameModel, game);
+
+        await mongoLoggingService.LogGameUpdate(oldObjectState, newObjectState);
     }
 
     public async Task DeleteGameByIdAsync(Guid gameId)
@@ -187,6 +198,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         if (game != null)
         {
             await SoftDeleteGameFromRepository(unitOfWork, game);
+            await mongoLoggingService.LogGameDelete(gameId);
         }
         else
         {

@@ -13,4 +13,6 @@ public interface IMongoUnitOfWork
     IOrderRepository OrderRepository { get; }
 
     IOrderDetailRepository OrderDetailRepository { get; }
+
+    ILogRepository LogRepository { get; }
 }

@@ -31,5 +31,6 @@ public static class MongoRepositoryServices
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
         services.AddScoped<IMongoUnitOfWork, MongoUnitOfWork>();
+        services.AddScoped<ILogRepository, LogRepository>();
     }
 }
