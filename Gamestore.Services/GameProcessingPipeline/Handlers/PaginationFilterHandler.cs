@@ -2,7 +2,6 @@
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
@@ -23,8 +22,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
                 query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
                 return query;
             default:
-                filters.NumberOfPagesAfterFiltration = await CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query);
-                CheckIfPageNumberDoesntExceedLastPage(filters);
+                filters.NumberOfPagesAfterFiltration = CountNumberOfPagesAfterFiltration(int.Parse(pageCount), query, filters);
 
                 var numberOfGamesPerPage = int.Parse(pageCount);
                 int numberToSkip = CalculateNumberOfEntriesToSkip(filters, numberOfGamesPerPage);
@@ -43,7 +41,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
     {
         int numberToSkip;
         if (filters.NumberOfGamesFromPreviousSource == 0)
-    {
+        {
             numberToSkip = numberOfGamesPerPage * (filters.Page - 1);
         }
         else
