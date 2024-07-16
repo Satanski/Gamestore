@@ -6,17 +6,18 @@ namespace Gamestore.MongoRepository.Repositories;
 
 public class ProductRepository(IMongoDatabase database) : IProductRepository
 {
+    private const string CollectionName = "products";
+    private readonly IMongoCollection<MongoProduct> _collection = database.GetCollection<MongoProduct>(CollectionName);
+
     public Task<List<MongoProduct>> GetAllAsync()
     {
-        var collection = database.GetCollection<MongoProduct>("products");
-        var products = collection.Find(_ => true).ToListAsync();
+        var products = _collection.Find(_ => true).ToListAsync();
         return products;
     }
 
     public Task<MongoProduct> GetByIdAsync(int id)
     {
-        var collection = database.GetCollection<MongoProduct>("products");
-        var product = collection.Find(x => x.ProductId == id).FirstOrDefaultAsync();
+        var product = _collection.Find(x => x.ProductId == id).FirstOrDefaultAsync();
         return product;
     }
 
@@ -27,22 +28,36 @@ public class ProductRepository(IMongoDatabase database) : IProductRepository
 
     public Task<MongoProduct> GetByNameAsync(string key)
     {
-        var collection = database.GetCollection<MongoProduct>("products");
-        var products = collection.Find(x => x.ProductName == key).FirstOrDefaultAsync();
+        var products = _collection.Find(x => x.ProductName == key).FirstOrDefaultAsync();
         return products;
     }
 
     public Task<List<MongoProduct>> GetBySupplierIdAsync(int supplierID)
     {
-        var collection = database.GetCollection<MongoProduct>("products");
-        var products = collection.Find(x => x.SupplierID == supplierID).ToListAsync();
+        var products = _collection.Find(x => x.SupplierID == supplierID).ToListAsync();
         return products;
     }
 
     public Task<List<MongoProduct>> GetByCategoryIdAsync(int categoryId)
     {
-        var collection = database.GetCollection<MongoProduct>("products");
-        var products = collection.Find(x => x.CategoryID == categoryId).ToListAsync();
+        var products = _collection.Find(x => x.CategoryID == categoryId).ToListAsync();
         return products;
+    }
+
+    public async Task UpdateAsync(MongoProduct entity)
+    {
+        var filter = Builders<MongoProduct>.Filter.Eq("_id", entity.ObjectId);
+        await _collection.ReplaceOneAsync(filter, entity);
+    }
+
+    public async Task AddAsync(MongoProduct entity)
+    {
+        await _collection.InsertOneAsync(entity);
+    }
+
+    public async Task DeleteAsync(MongoProduct entity)
+    {
+        var filter = Builders<MongoProduct>.Filter.Eq("_id", entity.ObjectId);
+        await _collection.DeleteOneAsync(filter);
     }
 }

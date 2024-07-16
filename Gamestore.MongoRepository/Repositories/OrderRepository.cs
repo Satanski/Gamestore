@@ -7,22 +7,35 @@ namespace Gamestore.MongoRepository.Repositories;
 
 public class OrderRepository(IMongoDatabase database) : IOrderRepository
 {
+    private const string CollectionName = "orders";
+    private readonly IMongoCollection<MongoOrder> _collection = database.GetCollection<MongoOrder>(CollectionName);
+
     public Task<List<MongoOrder>> GetAllAsync()
     {
-        var collection = database.GetCollection<MongoOrder>("orders");
-        var orders = collection.Find(_ => true).ToListAsync();
+        var orders = _collection.Find(_ => true).ToListAsync();
         return orders;
     }
 
     public Task<MongoOrder> GetByIdAsync(int id)
     {
-        var collection = database.GetCollection<MongoOrder>("orders");
-        var order = collection.Find(x => x.OrderId == id).FirstOrDefaultAsync();
+        var order = _collection.Find(x => x.OrderId == id).FirstOrDefaultAsync();
         return order;
     }
 
-    public MongoOrder GetWithDetailsByIdAsync(int id)
+    public async Task UpdateAsync(MongoOrder entity)
     {
-        throw new NotImplementedException();
+        var filter = Builders<MongoOrder>.Filter.Eq("_id", entity.ObjectId);
+        await _collection.ReplaceOneAsync(filter, entity);
+    }
+
+    public async Task AddAsync(MongoOrder entity)
+    {
+        await _collection.InsertOneAsync(entity);
+    }
+
+    public async Task DeleteAsync(MongoOrder entity)
+    {
+        var filter = Builders<MongoOrder>.Filter.Eq("_id", entity.ObjectId);
+        await _collection.DeleteOneAsync(filter);
     }
 }
