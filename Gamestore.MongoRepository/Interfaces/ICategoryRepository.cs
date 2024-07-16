@@ -6,7 +6,7 @@ public interface ICategoryRepository
 {
     Task<List<MongoCategory>> GetAllAsync();
 
-    Task<MongoCategory> GetCategoryById(int id);
+    Task<MongoCategory> GetById(int id);
 
     Task UpdateAsync(MongoCategory entity);
 

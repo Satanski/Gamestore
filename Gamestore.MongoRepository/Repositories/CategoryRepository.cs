@@ -15,7 +15,7 @@ public class CategoryRepository(IMongoDatabase database) : ICategoryRepository
         return category;
     }
 
-    public Task<MongoCategory> GetCategoryById(int id)
+    public Task<MongoCategory> GetById(int id)
     {
         var category = _collection.Find(x => x.CategoryId == id).FirstOrDefaultAsync();
         return category;

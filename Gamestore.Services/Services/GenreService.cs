@@ -117,7 +117,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     private static async Task<Category?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
     {
         int id = ConvertFirstEightCharactersOfGuidToId(genreId);
-        var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
+        var category = await mongoUnitOfWork.CategoryRepository.GetById(id);
         var genre = automapper.Map<Category>(category);
 
         return genre;
@@ -139,7 +139,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     {
         List<GameModelDto> games = [];
         int id = GuidHelpers.GuidToInt(genreId);
-        var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(id);
+        var category = await mongoUnitOfWork.CategoryRepository.GetById(id);
         if (category is not null)
         {
             var products = await mongoUnitOfWork.ProductRepository.GetByCategoryIdAsync(category.CategoryId);

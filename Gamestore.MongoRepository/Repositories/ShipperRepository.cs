@@ -15,6 +15,12 @@ public class ShipperRepository(IMongoDatabase database) : IShipperRepository
         return shippers;
     }
 
+    public async Task<MongoShipper> GetByIdAsync(int id)
+    {
+        var shipper = await _collection.Find(x => x.ShipperID == id).FirstOrDefaultAsync();
+        return shipper;
+    }
+
     public async Task UpdateAsync(MongoShipper entity)
     {
         var filter = Builders<MongoShipper>.Filter.Eq("_id", entity.ObjectId);

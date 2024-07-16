@@ -631,7 +631,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     private static async Task<List<GenreModelDto>> GetGenresFromMongoDBByGameKey(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string gameKey)
     {
         var product = await mongoUnitOfWork.ProductRepository.GetByNameAsync(gameKey);
-        var category = await mongoUnitOfWork.CategoryRepository.GetCategoryById(product.CategoryID);
+        var category = await mongoUnitOfWork.CategoryRepository.GetById(product.CategoryID);
 
         return [automapper.Map<GenreModelDto>(category)];
     }
@@ -705,7 +705,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         if (gameFromProduct.Genres[0] is not null)
         {
 #pragma warning disable CS8629 // Nullable value type may be null.
-            gameFromProduct.Genres[0].Name = (await mongoUnitOfWork.CategoryRepository.GetCategoryById(GuidHelpers.GuidToInt((Guid)gameFromProduct.Genres[0].Id))).CategoryName;
+            gameFromProduct.Genres[0].Name = (await mongoUnitOfWork.CategoryRepository.GetById(GuidHelpers.GuidToInt((Guid)gameFromProduct.Genres[0].Id))).CategoryName;
 #pragma warning restore CS8629 // Nullable value type may be null.
         }
 
