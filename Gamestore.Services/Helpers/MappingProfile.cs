@@ -81,8 +81,8 @@ public class MappingProfile : Profile
            .ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued))
            .ForMember(dest => dest.Description, src => src.MapFrom(x => x.QuantityPerUnit))
            .ForMember(dest => dest.Publisher, src => src.MapFrom(x => x.Supplier))
-           .ForMember(dest => dest.ProductCategories, src => src.MapFrom(x => x.GameGenres))
-           .ForMember(dest => dest.ProductPlatforms, src => src.MapFrom(x => x.GamePlatforms))
+           .ForMember(dest => dest.ProductCategories, src => src.MapFrom(x => x.ProductGenres))
+           .ForMember(dest => dest.ProductPlatforms, src => src.MapFrom(x => x.ProductPlatforms))
            .ForMember(dest => dest.Comments, src => src.MapFrom(x => new List<Comment>()));
 
         CreateMap<MongoProduct, GameModelDto>()
@@ -94,8 +94,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discontinued))
             .ForMember(dest => dest.Description, src => src.MapFrom(x => x.QuantityPerUnit))
             .ForMember<PublisherModelDto>(dest => dest.Publisher, src => src.MapFrom(x => x.Supplier))
-            .ForMember<List<GenreModelDto>>(dest => dest.Genres, src => src.MapFrom(x => new List<GenreModelDto>() { new() { Id = x.GameGenres[0].CategoryId } }))
-            .ForMember<List<PlatformModelDto>>(dest => dest.Platforms, src => src.MapFrom(x => new List<PlatformModelDto>() { new() { Id = x.GamePlatforms[0].PlatformId } }));
+            .ForMember<List<GenreModelDto>>(dest => dest.Genres, src => src.MapFrom(x => new List<GenreModelDto>() { new() { Id = x.ProductGenres[0].CategoryId } }))
+            .ForMember<List<PlatformModelDto>>(dest => dest.Platforms, src => src.MapFrom(x => new List<PlatformModelDto>() { new() { Id = x.ProductPlatforms[0].PlatformId } }));
 
         CreateMap<MongoCategory, GenreModelDto>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.CategoryName))

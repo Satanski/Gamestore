@@ -65,7 +65,7 @@ public class MongoProduct
     public string QuantityPerUnit { get; set; }
 
     [BsonIgnore]
-    public List<MongoProductCategory> GameGenres
+    public List<MongoProductCategory> ProductGenres
     {
         get
         {
@@ -76,7 +76,7 @@ public class MongoProduct
     }
 
     [BsonIgnore]
-    public List<MongoProductPlatform> GamePlatforms
+    public List<MongoProductPlatform> ProductPlatforms
     {
         get
         {
