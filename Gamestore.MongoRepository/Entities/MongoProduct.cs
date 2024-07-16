@@ -5,7 +5,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Gamestore.MongoRepository.Entities;
 
 [BsonIgnoreExtraElements]
-public class Product
+public class MongoProduct
 {
     private const string PhysicalProductGuid = "11111111-1111-1111-1111-111111111111";
 
@@ -65,23 +65,23 @@ public class Product
     public string QuantityPerUnit { get; set; }
 
     [BsonIgnore]
-    public List<MongoGameGenre> GameGenres
+    public List<MongoProductCategory> GameGenres
     {
         get
         {
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-            return [new() { GameId = GuidHelpers.IntToGuid(ProductId), GenreId = GuidHelpers.IntToGuid(CategoryID) }];
+            return [new() { ProductId = GuidHelpers.IntToGuid(ProductId), CategoryId = GuidHelpers.IntToGuid(CategoryID) }];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         }
     }
 
     [BsonIgnore]
-    public List<MongoGamePlatform> GamePlatforms
+    public List<MongoProductPlatform> GamePlatforms
     {
         get
         {
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-            return [new() { GameId = GuidHelpers.IntToGuid(ProductId), PlatformId = new Guid(PhysicalProductGuid) }];
+            return [new() { ProductId = GuidHelpers.IntToGuid(ProductId), PlatformId = new Guid(PhysicalProductGuid) }];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         }
     }

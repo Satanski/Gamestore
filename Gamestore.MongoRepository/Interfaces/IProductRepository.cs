@@ -4,15 +4,15 @@ namespace Gamestore.MongoRepository.Interfaces;
 
 public interface IProductRepository
 {
-    Task<List<Product>> GetAllAsync();
+    Task<List<MongoProduct>> GetAllAsync();
 
-    IQueryable<Product> GetProductsAsQueryable();
+    IQueryable<MongoProduct> GetProductsAsQueryable();
 
-    Task<Product> GetByNameAsync(string key);
+    Task<MongoProduct> GetByNameAsync(string key);
 
-    Task<List<Product>> GetBySupplierIdAsync(int supplierID);
+    Task<List<MongoProduct>> GetBySupplierIdAsync(int supplierID);
 
-    Task<List<Product>> GetByCategoryIdAsync(int categoryId);
+    Task<List<MongoProduct>> GetByCategoryIdAsync(int categoryId);
 
-    Task<Product> GetByIdAsync(int id);
+    Task<MongoProduct> GetByIdAsync(int id);
 }

@@ -38,7 +38,7 @@ internal class GenreDtoWrapperAddValidator : AbstractValidator<GenreModelDto>
         RuleFor(x => new { x.Id, x.ParentGenreId }).MustAsync(async (data, cancellation) =>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
-            List<Genre> forbiddenList = [];
+            List<Category> forbiddenList = [];
 
             if (data.Id != null)
             {

@@ -4,7 +4,7 @@ namespace Gamestore.MongoRepository.Interfaces;
 
 public interface ICategoryRepository
 {
-    Task<List<Category>> GetAllAsync();
+    Task<List<MongoCategory>> GetAllAsync();
 
-    Task<Category> GetCategoryById(int id);
+    Task<MongoCategory> GetCategoryById(int id);
 }

@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace Gamestore.MongoRepository.Entities;
 
 [BsonIgnoreExtraElements]
-public class Category
+public class MongoCategory
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

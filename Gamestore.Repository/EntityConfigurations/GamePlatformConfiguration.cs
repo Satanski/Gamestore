@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Gamestore.DAL.EntityConfigurations;
 
-internal class GamePlatformConfiguration : IEntityTypeConfiguration<GamePlatform>
+internal class GamePlatformConfiguration : IEntityTypeConfiguration<ProductPlatform>
 {
-    public void Configure(EntityTypeBuilder<GamePlatform> builder)
+    public void Configure(EntityTypeBuilder<ProductPlatform> builder)
     {
-        builder.HasOne(x => x.Game).WithMany(x => x.GamePlatforms).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Product).WithMany(x => x.ProductPlatforms).OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -14,7 +14,7 @@ public class SortingHandler : GameProcessingPipelineHandlerBase
     private readonly string _priceDesc = SortingOptionsDto.SortingOptions[3];
     private readonly string _new = SortingOptionsDto.SortingOptions[4];
 
-    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public override async Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
     {
         string sortOption = filters.Sort;
 

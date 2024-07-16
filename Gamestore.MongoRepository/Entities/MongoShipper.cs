@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Gamestore.MongoRepository.Entities;
 
-public class Shipper
+public class MongoShipper
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]

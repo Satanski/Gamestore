@@ -27,7 +27,7 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
 
     public Task<List<Order>> GetOrdersByDateRangeAsync(DateTime startD, DateTime endD)
     {
-        return _context.Orders.Where(x => x.Date >= startD && x.Date <= endD).OrderByDescending(x => x.Date).ToListAsync();
+        return _context.Orders.Where(x => x.OrderDate >= startD && x.OrderDate <= endD).OrderByDescending(x => x.OrderDate).ToListAsync();
     }
 
     public Task<Order?> GetWithDetailsByIdAsync(Guid id)
@@ -42,10 +42,10 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         _context.Entry(g).CurrentValues.SetValues(entity);
     }
 
-    private IIncludableQueryable<Order, Game> OrderIncludes()
+    private IIncludableQueryable<Order, Product> OrderIncludes()
     {
         return _context.Orders
-            .Include(x => x.OrderGames)
+            .Include(x => x.OrderProducts)
             .ThenInclude(x => x.Product);
     }
 }

@@ -6,5 +6,5 @@ public interface IPlatformRepository : IRepository<Platform>, IRepositoryBase<Pl
 {
     Task<Platform?> GetByTypeAsync(string type);
 
-    Task<List<Game>> GetGamesByPlatformAsync(Guid id);
+    Task<List<Product>> GetGamesByPlatformAsync(Guid id);
 }

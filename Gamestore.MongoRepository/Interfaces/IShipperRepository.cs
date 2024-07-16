@@ -4,5 +4,5 @@ namespace Gamestore.MongoRepository.Interfaces;
 
 public interface IShipperRepository
 {
-    Task<List<Shipper>> GetAllAsync();
+    Task<List<MongoShipper>> GetAllAsync();
 }

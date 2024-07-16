@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Gamestore.DAL.Entities;
 
-[Table("Games")]
+[Table("Products")]
 [Index(nameof(Key), IsUnique = true)]
-public class Game
+public class Product
 {
     [Key]
     public Guid Id { get; set; }
@@ -37,21 +37,27 @@ public class Game
 
     public int NumberOfViews { get; set; }
 
+    public int? ReorderLevel { get; set; }
+
+    public string? QuantityPerUnit { get; set; }
+
+    public int? UnitsOnOrder { get; set; }
+
     public bool IsDeleted { get; set; }
 
-    public Publisher Publisher { get; set; }
+    public Supplier Publisher { get; set; }
 
-    public List<GameGenre> GameGenres { get; set; }
+    public List<ProductCategory> ProductCategories { get; set; }
 
-    public List<GamePlatform> GamePlatforms { get; set; }
+    public List<ProductPlatform> ProductPlatforms { get; set; }
 
-    public List<OrderGame> OrderGames { get; set; }
+    public List<OrderProduct> OrderProducts { get; set; }
 
     public List<Comment> Comments { get; set; }
 
     public override bool Equals(object? obj)
     {
-        if (obj is Game other)
+        if (obj is Product other)
         {
             return Id.Equals(other.Id) && Key.Equals(other.Key, StringComparison.OrdinalIgnoreCase);
         }

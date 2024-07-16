@@ -16,7 +16,7 @@ public class GameProcessingPipelineHandlerBase : IGameProcessingPipelineHandler
         _nextHandler = nextHandler;
     }
 
-    public virtual async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public virtual async Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
     {
         if (_nextHandler != null)
         {

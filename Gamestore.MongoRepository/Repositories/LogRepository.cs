@@ -8,14 +8,6 @@ public class LogRepository(IMongoDatabase database) : ILogRepository
 {
     private const string LogsCollectionName = "Logs";
 
-    public async Task Add(LogEntry entry)
-    {
-        await EnsureLogsCollectionExists(database);
-
-        var collection = database.GetCollection<LogEntry>(LogsCollectionName);
-        await collection.InsertOneAsync(entry);
-    }
-
     public async Task LogGame(GameUpdateLogEntry entry)
     {
         await EnsureLogsCollectionExists(database);

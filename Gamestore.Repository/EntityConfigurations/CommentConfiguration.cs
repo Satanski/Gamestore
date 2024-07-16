@@ -8,6 +8,6 @@ internal class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> builder)
     {
-        builder.HasOne(x => x.Game).WithMany(x => x.Comments).OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Product).WithMany(x => x.Comments).OnDelete(DeleteBehavior.Cascade);
     }
 }

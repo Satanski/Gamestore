@@ -12,51 +12,51 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<GameGenre, Genre>()
-         .ForMember(dst => dst.Name, src => src.MapFrom(x => x.Genre.Name))
-         .ForMember(dst => dst.Id, src => src.MapFrom(x => x.GenreId));
-        CreateMap<GameGenre, GenreModelDto>()
-           .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Genre.Id))
-           .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Genre.Name))
+        CreateMap<ProductCategory, Category>()
+         .ForMember(dst => dst.Name, src => src.MapFrom(x => x.Category.Name))
+         .ForMember(dst => dst.Id, src => src.MapFrom(x => x.CategoryId));
+        CreateMap<ProductCategory, GenreModelDto>()
+           .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Category.Id))
+           .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Category.Name))
            .ReverseMap();
 
-        CreateMap<GamePlatform, Platform>()
+        CreateMap<ProductPlatform, Platform>()
             .ForMember(dst => dst.Id, src => src.MapFrom(x => x.Platform.Id))
             .ForMember(dst => dst.Type, src => src.MapFrom(x => x.Platform.Type));
-        CreateMap<GamePlatform, PlatformModelDto>()
+        CreateMap<ProductPlatform, PlatformModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Platform.Id))
             .ForMember(dest => dest.Type, src => src.MapFrom(x => x.Platform.Type))
             .ReverseMap();
 
         CreateMap<Platform, PlatformModelDto>().ReverseMap();
-        CreateMap<Genre, GenreModelDto>().ReverseMap();
-        CreateMap<Publisher, PublisherModelDto>().ReverseMap();
+        CreateMap<Category, GenreModelDto>().ReverseMap();
+        CreateMap<Supplier, PublisherModelDto>().ReverseMap();
         CreateMap<Order, OrderModelDto>()
-            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.Date.ToString("yyyy-MM-dd")))
+            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.OrderDate.ToString("yyyy-MM-dd")))
             .ReverseMap();
 
-        CreateMap<OrderGame, OrderGameModelDto>().ReverseMap();
-        CreateMap<OrderGame, OrderDetailsDto>();
+        CreateMap<OrderProduct, OrderGameModelDto>().ReverseMap();
+        CreateMap<OrderProduct, OrderDetailsDto>();
 
-        CreateMap<Game, GameModelDto>()
+        CreateMap<Product, GameModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
-            .ForMember(dest => dest.Description, src => src.MapFrom(x => x.Description))
+            .ForMember(dest => dest.Description, src => src.MapFrom<string>(x => x.Description))
             .ForMember(dest => dest.Price, src => src.MapFrom(x => x.Price))
             .ForMember(dest => dest.PublishDate, src => src.MapFrom(x => x.PublishDate))
-            .ForMember(dest => dest.Publisher, src => src.MapFrom(x => x.Publisher))
+            .ForMember<PublisherModelDto>(dest => dest.Publisher, src => src.MapFrom(x => x.Publisher))
             .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discount))
-            .ForMember(dest => dest.Platforms, src => src.MapFrom(x => x.GamePlatforms))
-            .ForMember(dest => dest.Genres, src => src.MapFrom(x => x.GameGenres));
+            .ForMember<List<PlatformModelDto>>(dest => dest.Platforms, src => src.MapFrom(x => x.ProductPlatforms))
+            .ForMember<List<GenreModelDto>>(dest => dest.Genres, src => src.MapFrom(x => x.ProductCategories));
 
-        CreateMap<GameModelDto, Game>()
+        CreateMap<GameModelDto, Product>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
-            .ForMember(dest => dest.Description, src => src.MapFrom(x => x.Description))
+            .ForMember<string>(dest => dest.Description, src => src.MapFrom(x => x.Description))
             .ForMember(dest => dest.Price, src => src.MapFrom(x => x.Price))
             .ForMember(dest => dest.PublishDate, src => src.MapFrom(x => x.PublishDate))
-            .ForMember(dest => dest.Publisher, src => src.MapFrom(x => x.Publisher))
+            .ForMember(dest => dest.Publisher, src => src.MapFrom<PublisherModelDto>(x => x.Publisher))
             .ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued))
-            .ForMember(dest => dest.GamePlatforms, src => src.Ignore())
-            .ForMember(dest => dest.GameGenres, src => src.Ignore());
+            .ForMember(dest => dest.ProductPlatforms, src => src.Ignore())
+            .ForMember(dest => dest.ProductCategories, src => src.Ignore());
 
         CreateMap<PaymentModelDto, VisaMicroservicePaymentModel>()
             .ForMember(dest => dest.CardHolderName, src => src.MapFrom(x => x.Model.Holder))
@@ -72,7 +72,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Name))
             .ForMember(dest => dest.Body, src => src.MapFrom(x => x.Body));
 
-        CreateMap<Product, Game>()
+        CreateMap<MongoProduct, Product>()
            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.ProductName))
            .ForMember(dest => dest.Key, src => src.MapFrom(x => x.ProductName))
            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.ProductIdGuid))
@@ -81,54 +81,54 @@ public class MappingProfile : Profile
            .ForMember(dest => dest.Discount, src => src.MapFrom(x => x.Discontinued))
            .ForMember(dest => dest.Description, src => src.MapFrom(x => x.QuantityPerUnit))
            .ForMember(dest => dest.Publisher, src => src.MapFrom(x => x.Supplier))
-           .ForMember(dest => dest.GameGenres, src => src.MapFrom(x => x.GameGenres))
-           .ForMember(dest => dest.GamePlatforms, src => src.MapFrom(x => x.GamePlatforms))
+           .ForMember(dest => dest.ProductCategories, src => src.MapFrom(x => x.GameGenres))
+           .ForMember(dest => dest.ProductPlatforms, src => src.MapFrom(x => x.GamePlatforms))
            .ForMember(dest => dest.Comments, src => src.MapFrom(x => new List<Comment>()));
 
-        CreateMap<Product, GameModelDto>()
+        CreateMap<MongoProduct, GameModelDto>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.ProductName))
-            .ForMember(dest => dest.Key, src => src.MapFrom(x => x.ProductName))
+            .ForMember<string>(dest => dest.Key, src => src.MapFrom(x => x.ProductName))
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.ProductIdGuid))
             .ForMember(dest => dest.Price, src => src.MapFrom(x => x.UnitPrice))
             .ForMember(dest => dest.UnitInStock, src => src.MapFrom(x => x.UnitsInStock))
             .ForMember(dest => dest.Discontinued, src => src.MapFrom(x => x.Discontinued))
             .ForMember(dest => dest.Description, src => src.MapFrom(x => x.QuantityPerUnit))
-            .ForMember(dest => dest.Publisher, src => src.MapFrom(x => x.Supplier))
-            .ForMember(dest => dest.Genres, src => src.MapFrom(x => new List<GenreModelDto>() { new() { Id = x.GameGenres[0].GenreId } }))
-            .ForMember(dest => dest.Platforms, src => src.MapFrom(x => new List<PlatformModelDto>() { new() { Id = x.GamePlatforms[0].PlatformId } }));
+            .ForMember<PublisherModelDto>(dest => dest.Publisher, src => src.MapFrom(x => x.Supplier))
+            .ForMember<List<GenreModelDto>>(dest => dest.Genres, src => src.MapFrom(x => new List<GenreModelDto>() { new() { Id = x.GameGenres[0].CategoryId } }))
+            .ForMember<List<PlatformModelDto>>(dest => dest.Platforms, src => src.MapFrom(x => new List<PlatformModelDto>() { new() { Id = x.GamePlatforms[0].PlatformId } }));
 
-        CreateMap<Category, GenreModelDto>()
+        CreateMap<MongoCategory, GenreModelDto>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.CategoryName))
             .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.CategoryId)));
 
-        CreateMap<Category, Genre>()
+        CreateMap<MongoCategory, Category>()
             .ForMember(dest => dest.Name, src => src.MapFrom(x => x.CategoryName))
             .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.CategoryId)));
 
-        CreateMap<Supplier, PublisherModelDto>()
+        CreateMap<MongoSupplier, PublisherModelDto>()
             .ForMember(dest => dest.CompanyName, src => src.MapFrom(x => x.CompanyName))
             .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.SupplierID)));
 
-        CreateMap<Supplier, Publisher>()
+        CreateMap<MongoSupplier, Supplier>()
             .ForMember(dest => dest.CompanyName, src => src.MapFrom(x => x.CompanyName))
             .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.SupplierID)));
 
-        CreateMap<MongoPublisher, Publisher>().ReverseMap();
+        CreateMap<MongoPublisher, Supplier>().ReverseMap();
         CreateMap<MongoPublisher, PublisherModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
             .ForMember(dest => dest.CompanyName, src => src.MapFrom(x => x.CompanyName));
-        CreateMap<MongoGameGenre, GameGenre>().ReverseMap();
-        CreateMap<MongoGameGenre, GenreModelDto>().ReverseMap();
-        CreateMap<MongoGamePlatform, GamePlatform>().ReverseMap();
-        CreateMap<MongoGamePlatform, PlatformModelDto>().ReverseMap();
+        CreateMap<MongoProductCategory, ProductCategory>().ReverseMap();
+        CreateMap<MongoProductCategory, GenreModelDto>().ReverseMap();
+        CreateMap<MongoProductPlatform, ProductPlatform>().ReverseMap();
+        CreateMap<MongoProductPlatform, PlatformModelDto>().ReverseMap();
 
-        CreateMap<Shipper, ShipperModelDto>().ReverseMap();
+        CreateMap<MongoShipper, ShipperModelDto>().ReverseMap();
 
         CreateMap<MongoOrder, Order>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => GuidHelpers.IntToGuid(x.OrderId)))
             .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => Guid.Empty))
-            .ForMember(dest => dest.Date, src => src.MapFrom(x => x.OrderDate))
-            .ForMember(dest => dest.OrderGames, src => src.Ignore())
+            .ForMember(dest => dest.OrderDate, src => src.MapFrom(x => x.OrderDate))
+            .ForMember(dest => dest.OrderProducts, src => src.Ignore())
             .ReverseMap();
 
         CreateMap<MongoOrder, OrderModelDto>()

@@ -9,7 +9,7 @@ public class Invoice(Order order, double amountToPay) : IDocument
 {
     public void Compose(IDocumentContainer container)
     {
-        var validTill = order.Date.AddDays(14);
+        var validTill = order.OrderDate.AddDays(14);
 
         container
              .Page(page =>
@@ -30,7 +30,7 @@ public class Invoice(Order order, double amountToPay) : IDocument
                      {
                          column.Item().Text($"Customer: {order.CustomerId}");
                          column.Item().Text($"Order id: {order.Id}");
-                         column.Item().Text($"Creation date: {order.Date}");
+                         column.Item().Text($"Creation date: {order.OrderDate}");
                          column.Item().Text($"Valid till: {validTill:dd-MM-yyyy}");
                          column.Item().Text($"Amount to pay: {amountToPay}");
                      });

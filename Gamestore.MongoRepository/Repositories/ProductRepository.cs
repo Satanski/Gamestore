@@ -6,42 +6,42 @@ namespace Gamestore.MongoRepository.Repositories;
 
 public class ProductRepository(IMongoDatabase database) : IProductRepository
 {
-    public Task<List<Product>> GetAllAsync()
+    public Task<List<MongoProduct>> GetAllAsync()
     {
-        var collection = database.GetCollection<Product>("products");
+        var collection = database.GetCollection<MongoProduct>("products");
         var products = collection.Find(_ => true).ToListAsync();
         return products;
     }
 
-    public Task<Product> GetByIdAsync(int id)
+    public Task<MongoProduct> GetByIdAsync(int id)
     {
-        var collection = database.GetCollection<Product>("products");
+        var collection = database.GetCollection<MongoProduct>("products");
         var product = collection.Find(x => x.ProductId == id).FirstOrDefaultAsync();
         return product;
     }
 
-    public IQueryable<Product> GetProductsAsQueryable()
+    public IQueryable<MongoProduct> GetProductsAsQueryable()
     {
-        return database.GetCollection<Product>("products").AsQueryable();
+        return database.GetCollection<MongoProduct>("products").AsQueryable();
     }
 
-    public Task<Product> GetByNameAsync(string key)
+    public Task<MongoProduct> GetByNameAsync(string key)
     {
-        var collection = database.GetCollection<Product>("products");
+        var collection = database.GetCollection<MongoProduct>("products");
         var products = collection.Find(x => x.ProductName == key).FirstOrDefaultAsync();
         return products;
     }
 
-    public Task<List<Product>> GetBySupplierIdAsync(int supplierID)
+    public Task<List<MongoProduct>> GetBySupplierIdAsync(int supplierID)
     {
-        var collection = database.GetCollection<Product>("products");
+        var collection = database.GetCollection<MongoProduct>("products");
         var products = collection.Find(x => x.SupplierID == supplierID).ToListAsync();
         return products;
     }
 
-    public Task<List<Product>> GetByCategoryIdAsync(int categoryId)
+    public Task<List<MongoProduct>> GetByCategoryIdAsync(int categoryId)
     {
-        var collection = database.GetCollection<Product>("products");
+        var collection = database.GetCollection<MongoProduct>("products");
         var products = collection.Find(x => x.CategoryID == categoryId).ToListAsync();
         return products;
     }

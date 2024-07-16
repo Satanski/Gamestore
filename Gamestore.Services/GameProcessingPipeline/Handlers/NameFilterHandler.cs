@@ -8,7 +8,7 @@ namespace Gamestore.BLL.Filtering.Handlers;
 
 public class NameFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public override async Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
     {
         if (filters.Name is not null)
         {

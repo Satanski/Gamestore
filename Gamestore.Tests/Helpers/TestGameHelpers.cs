@@ -4,37 +4,35 @@ namespace Gamestore.Tests.Helpers;
 
 internal static class TestGameHelpers
 {
-    internal static async Task<Game> AddTestGameAsync(GamestoreContext context, Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Genre expectedGenre = null, Platform expectedPlatform = null)
+    internal static async Task<Product> AddTestGameAsync(GamestoreContext context, Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Category expectedGenre = null, Platform expectedPlatform = null)
     {
         expectedGenre ??= context.Genres.First();
         expectedPlatform ??= context.Platforms.First();
 
         var expectedGenreId = expectedGenre.Id;
 
-        var expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
+        var expectedGameGenre = new ProductCategory() { ProductId = expectedGameId, CategoryId = expectedGenreId };
 
         var expectedPlatformId = expectedPlatform.Id;
-        var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
+        var expectedGamePlatform = new ProductPlatform() { ProductId = expectedGameId, PlatformId = expectedPlatformId };
 
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-        List<GameGenre> gameGenres = [expectedGameGenre];
-        List<GamePlatform> gamePlatforms = [expectedGamePlatform];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
+        List<ProductCategory> gameGenres = [expectedGameGenre];
+        List<ProductPlatform> gamePlatforms = [expectedGamePlatform];
 
-        var game = new Game()
+        var game = new Product()
         {
             Id = expectedGameId,
             Name = expectedName,
             Key = expectedKey,
             Description = expectedDescription,
-            GameGenres = gameGenres,
-            GamePlatforms = gamePlatforms,
-            Publisher = new Publisher() { Id = Guid.NewGuid(), CompanyName = "Test company" },
+            ProductCategories = gameGenres,
+            ProductPlatforms = gamePlatforms,
+            Publisher = new Supplier() { Id = Guid.NewGuid(), CompanyName = "Test company" },
             Comments = [],
             IsDeleted = false,
         };
 
-        await context.Games.AddAsync(game);
+        await context.Products.AddAsync(game);
         await context.SaveChangesAsync();
         return game;
     }

@@ -121,7 +121,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         logger.LogInformation("Removing game from cart: {@gameKey}", gameKey);
 
         var exisitngOrder = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customerId) ?? throw new GamestoreException($"No order found with given customerId: {customerId}");
-        var orderGame = exisitngOrder.OrderGames.Find(x => x.Product.Key == gameKey);
+        var orderGame = exisitngOrder.OrderProducts.Find(x => x.Product.Key == gameKey);
 
         if (orderGame != null)
         {
@@ -138,7 +138,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
             await unitOfWork.SaveAsync();
 
-            if (exisitngOrder.OrderGames.Count == 0)
+            if (exisitngOrder.OrderProducts.Count == 0)
             {
                 unitOfWork.OrderRepository.Delete(exisitngOrder);
                 await unitOfWork.SaveAsync();
@@ -220,7 +220,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
     private static void DeleteOrderGames(IUnitOfWork unitOfWork, Order? order)
     {
-        foreach (var item in order.OrderGames)
+        foreach (var item in order.OrderProducts)
         {
             unitOfWork.OrderGameRepository.Delete(item);
         }
@@ -265,9 +265,9 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
     private static void AddSQLServerOrderDetailsToDtoList(IMapper automapper, Order? order, List<OrderDetailsDto> orderDetails)
     {
-        if (order.OrderGames.Count > 0)
+        if (order.OrderProducts.Count > 0)
         {
-            orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderGames));
+            orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderProducts));
         }
     }
 
@@ -278,13 +278,13 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         try
         {
             var mongoOrderDetails = await mongoUnitOfWork.OrderDetailRepository.GetByOrderIdAsync(id);
-            order.OrderGames = [];
+            order.OrderProducts = [];
             foreach (var od in mongoOrderDetails)
             {
-                order.OrderGames.Add(new OrderGame() { OrderId = order.Id, ProductId = GuidHelpers.IntToGuid(od.ProductId), Price = od.UnitPrice, Quantity = od.Quantity, Discount = od.Discount });
+                order.OrderProducts.Add(new OrderProduct() { OrderId = order.Id, ProductId = GuidHelpers.IntToGuid(od.ProductId), Price = od.UnitPrice, Quantity = od.Quantity, Discount = od.Discount });
             }
 
-            orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderGames));
+            orderDetails.AddRange(automapper.Map<List<OrderDetailsDto>>(order.OrderProducts));
         }
         catch (Exception)
         {

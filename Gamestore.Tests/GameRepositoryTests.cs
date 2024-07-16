@@ -33,41 +33,41 @@ public class GameRepositoryTests : IDisposable
         var expectedGameId = Guid.NewGuid();
         var genre = _context.Genres.First();
         var expectedGenreId = genre.Id;
-        var expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
+        var expectedGameGenre = new ProductCategory() { ProductId = expectedGameId, CategoryId = expectedGenreId };
 
         var platform = _context.Platforms.First();
         var expectedPlatformId = platform.Id;
-        var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
+        var expectedGamePlatform = new ProductPlatform() { ProductId = expectedGameId, PlatformId = expectedPlatformId };
 
         var expectedName = "Baldurs Gate";
         var expectedKey = "BG";
         var expectedDescription = "Rpg game";
 
-        List<GameGenre> gameGenres = [expectedGameGenre];
-        List<GamePlatform> gamePlatforms = [expectedGamePlatform];
+        List<ProductCategory> gameGenres = [expectedGameGenre];
+        List<ProductPlatform> gamePlatforms = [expectedGamePlatform];
 
         // Act
-        await _gameRepository.AddAsync(new Game()
+        await _gameRepository.AddAsync(new Product()
         {
             Id = expectedGameId,
             Name = expectedName,
             Key = expectedKey,
             Description = expectedDescription,
-            GameGenres = gameGenres,
-            GamePlatforms = gamePlatforms,
+            ProductCategories = gameGenres,
+            ProductPlatforms = gamePlatforms,
         });
         await _context.SaveChangesAsync();
 
         // Assert
-        var gamesInDatabase = _context.Games;
-        var resultGame = _context.Games.Find(expectedGameId);
+        var gamesInDatabase = _context.Products;
+        var resultGame = _context.Products.Find(expectedGameId);
 
         Assert.Equal(1, gamesInDatabase.Count());
         Assert.Equal(expectedName, resultGame.Name);
         Assert.Equal(expectedKey, resultGame.Key);
         Assert.Equal(expectedDescription, resultGame.Description);
-        Assert.Contains(expectedGameGenre, resultGame.GameGenres);
-        Assert.Contains(expectedGamePlatform, resultGame.GamePlatforms);
+        Assert.Contains(expectedGameGenre, resultGame.ProductCategories);
+        Assert.Contains(expectedGamePlatform, resultGame.ProductPlatforms);
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class GameRepositoryTests : IDisposable
         // Arrange
         var expectedGameId = Guid.NewGuid();
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", "BG", "Rpg game");
-        var gameToUpdate = _context.Games.First();
+        var gameToUpdate = _context.Products.First();
 
         var expectedName = "Digital Combat Simulator";
         var expectedKey = "DCS";

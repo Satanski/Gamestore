@@ -131,7 +131,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
 
         await _gameDtoWrapperValidator.ValidateGame(gameModel);
 
-        var game = automapper.Map<Game>(gameModel.Game);
+        var game = automapper.Map<Product>(gameModel.Game);
         var addedGame = await AddGameToRepository(unitOfWork, gameModel, game);
 
         var genres = gameModel.Genres;
@@ -166,7 +166,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         await DeleteGameGenresFromRepository(unitOfWork, gameModel.Game.Id);
         await DeleteGamePlatformsFromRepository(unitOfWork, gameModel.Game.Id);
 
-        var game = automapper.Map<Game>(gameModel.Game);
+        var game = automapper.Map<Product>(gameModel.Game);
         await UpdateGameInrepository(unitOfWork, gameModel, game);
 
         await mongoLoggingService.LogGameUpdate(oldObjectState, newObjectState);
@@ -322,7 +322,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         if (game.Id is not null)
         {
-            OrderGame existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, (Guid)game.Id);
+            OrderProduct existingOrderGame = await unitOfWork.OrderGameRepository.GetByOrderIdAndProductIdAsync(exisitngOrder.Id, (Guid)game.Id);
 
             if (existingOrderGame != null)
             {
@@ -347,7 +347,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
                 await CopyGameFromMongoDBToSQLServerIfDoesntExistThere(unitOfWork, automapper, game, gameInSQLServer);
             }
 
-            OrderGame newOrderGame = new OrderGame()
+            OrderProduct newOrderGame = new OrderProduct()
             {
                 OrderId = exisitngOrder.Id,
                 ProductId = game.Id ?? Guid.Empty,
@@ -361,11 +361,11 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         }
     }
 
-    private static async Task CopyGameFromMongoDBToSQLServerIfDoesntExistThere(IUnitOfWork unitOfWork, IMapper automapper, GameModelDto game, Game? gameInSQLServer)
+    private static async Task CopyGameFromMongoDBToSQLServerIfDoesntExistThere(IUnitOfWork unitOfWork, IMapper automapper, GameModelDto game, Product? gameInSQLServer)
     {
         if (gameInSQLServer is null)
         {
-            var gameToAdd = automapper.Map<Game>(game);
+            var gameToAdd = automapper.Map<Product>(game);
 
             await CreateGenreInSQLServerIfDoesntExist(unitOfWork, game, gameToAdd);
             await CreatePlatformInSQLServerIfDoesntExist(unitOfWork, game, gameToAdd);
@@ -376,7 +376,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         }
     }
 
-    private static async Task CreatePublisherInSQLServerIfDoesntExist(IUnitOfWork unitOfWork, GameModelDto game, Game? gameInSQLServer)
+    private static async Task CreatePublisherInSQLServerIfDoesntExist(IUnitOfWork unitOfWork, GameModelDto game, Product? gameInSQLServer)
     {
         if (game.Publisher is not null && game.Publisher.Id is not null)
         {
@@ -384,7 +384,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
 
             if (publisherInSQLServer is null)
             {
-                await unitOfWork.PublisherRepository.AddAsync(new Publisher { Id = (Guid)game.Publisher.Id, CompanyName = game.Publisher.CompanyName });
+                await unitOfWork.PublisherRepository.AddAsync(new Supplier { Id = (Guid)game.Publisher.Id, CompanyName = game.Publisher.CompanyName });
                 await unitOfWork.SaveAsync();
                 await AttachPublisherFromSQLServer(unitOfWork, game, gameInSQLServer);
             }
@@ -403,7 +403,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         }
     }
 
-    private static async Task AttachPublisherFromSQLServer(IUnitOfWork unitOfWork, GameModelDto game, Game? gameInSQLServer)
+    private static async Task AttachPublisherFromSQLServer(IUnitOfWork unitOfWork, GameModelDto game, Product? gameInSQLServer)
     {
         var publisherId = game.Publisher.Id;
         if (publisherId is not null)
@@ -416,7 +416,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         }
     }
 
-    private static async Task CreatePlatformInSQLServerIfDoesntExist(IUnitOfWork unitOfWork, GameModelDto game, Game gameToAdd)
+    private static async Task CreatePlatformInSQLServerIfDoesntExist(IUnitOfWork unitOfWork, GameModelDto game, Product gameToAdd)
     {
         var firstPlatform = game.Platforms[0];
         if (firstPlatform != null && firstPlatform.Id != null && game.Id != null)
@@ -427,14 +427,14 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
                 await unitOfWork.GenreRepository.AddAsync(new() { Id = (Guid)firstPlatform.Id, Name = firstPlatform.Type });
             }
 
-            gameToAdd.GamePlatforms =
+            gameToAdd.ProductPlatforms =
             [
-                 new GamePlatform { GameId = game.Id.Value, PlatformId = (Guid)firstPlatform.Id }
+                 new ProductPlatform { ProductId = game.Id.Value, PlatformId = (Guid)firstPlatform.Id }
             ];
         }
     }
 
-    private static async Task CreateGenreInSQLServerIfDoesntExist(IUnitOfWork unitOfWork, GameModelDto game, Game gameToAdd)
+    private static async Task CreateGenreInSQLServerIfDoesntExist(IUnitOfWork unitOfWork, GameModelDto game, Product gameToAdd)
     {
         var firstGenre = game.Genres[0];
         if (firstGenre != null && firstGenre.Id != null && game.Id != null)
@@ -445,14 +445,14 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
                 await unitOfWork.GenreRepository.AddAsync(new() { Id = (Guid)firstGenre.Id, Name = firstGenre.Name });
             }
 
-            gameToAdd.GameGenres =
+            gameToAdd.ProductCategories =
             [
-                 new GameGenre { GameId = game.Id.Value, GenreId = (Guid)firstGenre.Id }
+                 new ProductCategory { ProductId = game.Id.Value, CategoryId = (Guid)firstGenre.Id }
             ];
         }
     }
 
-    private static async Task UpdateExistingOrderGame(IUnitOfWork unitOfWork, int quantity, int unitInStock, OrderGame existingOrderGame)
+    private static async Task UpdateExistingOrderGame(IUnitOfWork unitOfWork, int quantity, int unitInStock, OrderProduct existingOrderGame)
     {
         var expectedTotalQuantity = quantity + existingOrderGame.Quantity;
         expectedTotalQuantity = expectedTotalQuantity < unitInStock ? expectedTotalQuantity : unitInStock;
@@ -477,8 +477,8 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
             }
 
             var newOrderId = Guid.NewGuid();
-            List<OrderGame> orderGames = [new() { OrderId = newOrderId, ProductId = (Guid)game.Id, Price = game.Price, Discount = game.Discontinued, Quantity = quantity }];
-            Order order = new() { Id = newOrderId, CustomerId = customerId, Date = DateTime.Now, OrderGames = orderGames, Status = OrderStatus.Open };
+            List<OrderProduct> orderGames = [new() { OrderId = newOrderId, ProductId = (Guid)game.Id, Price = game.Price, Discount = game.Discontinued, Quantity = quantity }];
+            Order order = new() { Id = newOrderId, CustomerId = customerId, OrderDate = DateTime.Now, OrderProducts = orderGames, Status = OrderStatus.Open };
             await unitOfWork.OrderRepository.AddAsync(order);
             await unitOfWork.OrderGameRepository.AddAsync(orderGames[0]);
             await unitOfWork.SaveAsync();
@@ -487,7 +487,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         return quantity;
     }
 
-    private static async Task<Game> AddGameToRepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)
+    private static async Task<Product> AddGameToRepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Product game)
     {
         game.PublisherId = gameModel.Publisher;
 
@@ -496,41 +496,41 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         return addedGame;
     }
 
-    private static async Task AddGamePlatformsToRepository(IUnitOfWork unitOfWork, Game addedGame, List<Guid> platforms)
+    private static async Task AddGamePlatformsToRepository(IUnitOfWork unitOfWork, Product addedGame, List<Guid> platforms)
     {
         foreach (var platformId in platforms)
         {
-            await unitOfWork.GamePlatformRepository.AddAsync(new GamePlatform() { GameId = addedGame.Id, PlatformId = platformId });
+            await unitOfWork.GamePlatformRepository.AddAsync(new ProductPlatform() { ProductId = addedGame.Id, PlatformId = platformId });
         }
 
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task AddGameGenresTorepository(IUnitOfWork unitOfWork, Game addedGame, List<Guid> genres)
+    private static async Task AddGameGenresTorepository(IUnitOfWork unitOfWork, Product addedGame, List<Guid> genres)
     {
         foreach (var genreId in genres)
         {
-            await unitOfWork.GameGenreRepository.AddAsync(new GameGenre() { GameId = addedGame.Id, GenreId = genreId });
+            await unitOfWork.GameGenreRepository.AddAsync(new ProductCategory() { ProductId = addedGame.Id, CategoryId = genreId });
         }
 
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task UpdateGameInrepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)
+    private static async Task UpdateGameInrepository(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Product game)
     {
         game.PublisherId = gameModel.Publisher;
 
-        game.GameGenres = [];
-        game.GamePlatforms = [];
+        game.ProductCategories = [];
+        game.ProductPlatforms = [];
 
         foreach (var genre in gameModel.Genres)
         {
-            game.GameGenres.Add(new() { GameId = (Guid)gameModel.Game.Id!, GenreId = genre });
+            game.ProductCategories.Add(new() { ProductId = (Guid)gameModel.Game.Id!, CategoryId = genre });
         }
 
         foreach (var platform in gameModel.Platforms)
         {
-            game.GamePlatforms.Add(new() { GameId = (Guid)gameModel.Game.Id!, PlatformId = platform });
+            game.ProductPlatforms.Add(new() { ProductId = (Guid)gameModel.Game.Id!, PlatformId = platform });
         }
 
         await unitOfWork.GameRepository.UpdateAsync(game);
@@ -565,7 +565,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         }
     }
 
-    private static async Task DeleteOrderGamesFromRepository(IUnitOfWork unitOfWork, Game? game)
+    private static async Task DeleteOrderGamesFromRepository(IUnitOfWork unitOfWork, Product? game)
     {
         var orderGames = await unitOfWork.OrderGameRepository.GetAllAsync();
         var orderGamesToRemove = orderGames.Where(x => x.ProductId == game.Id);
@@ -575,13 +575,13 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         }
     }
 
-    private static async Task SoftDeleteGameFromRepository(IUnitOfWork unitOfWork, Game game)
+    private static async Task SoftDeleteGameFromRepository(IUnitOfWork unitOfWork, Product game)
     {
         await unitOfWork.GameRepository.SoftDelete(game);
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task DeleteGameFromRepository(IUnitOfWork unitOfWork, Game game)
+    private static async Task DeleteGameFromRepository(IUnitOfWork unitOfWork, Product game)
     {
         unitOfWork.GameRepository.Delete(game);
         await unitOfWork.SaveAsync();
@@ -591,7 +591,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     {
         return new Comment()
         {
-            GameId = gameId,
+            ProductId = gameId,
             ParentCommentId = comment.ParentId,
             Body = comment.Comment.Body,
             Name = comment.Comment.Name,
@@ -619,7 +619,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         return false;
     }
 
-    private static async Task IncreaseGameViewCounter(IUnitOfWork unitOfWork, Game? game)
+    private static async Task IncreaseGameViewCounter(IUnitOfWork unitOfWork, Product? game)
     {
         if (game is not null)
         {
@@ -722,15 +722,15 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         return automapper.Map<GameModelDto>(game);
     }
 
-    private static async Task<Game?> GetGameFromMongoDBById(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid gameId)
+    private static async Task<Product?> GetGameFromMongoDBById(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid gameId)
     {
         int id = GuidHelpers.GuidToInt(gameId);
         var product = await mongoUnitOfWork.ProductRepository.GetByIdAsync(id);
-        var game = automapper.Map<Game>(product);
+        var game = automapper.Map<Product>(product);
         return game;
     }
 
-    private static async Task<Game?> GetGameFromSQLServerById(IUnitOfWork unitOfWork, Guid gameId)
+    private static async Task<Product?> GetGameFromSQLServerById(IUnitOfWork unitOfWork, Guid gameId)
     {
         return await unitOfWork.GameRepository.GetByIdAsync(gameId);
     }
@@ -760,7 +760,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     private static async Task FilterProductsFromMongoDB(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
     {
         var productsFromMongoDB = await mongoUnitOfWork.ProductRepository.GetAllAsync();
-        var prodctsAsGames = automapper.Map<List<Game>>(productsFromMongoDB);
+        var prodctsAsGames = automapper.Map<List<Product>>(productsFromMongoDB);
         prodctsAsGames = prodctsAsGames.Except(await unitOfWork.GameRepository.GetAllAsync()).ToList();
         var productsAsGamesFromMongoDB = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, prodctsAsGames.AsQueryable())).ToList();
         if (productsAsGamesFromMongoDB.Count != 0)

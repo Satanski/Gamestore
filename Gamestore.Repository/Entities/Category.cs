@@ -5,19 +5,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Gamestore.DAL.Entities;
 
-[Table("Publishers")]
-[Index(nameof(CompanyName), IsUnique = true)]
-public class Publisher
+[Table("Categories")]
+[Index(nameof(Name), IsUnique = true)]
+public class Category
 {
     [Key]
     public Guid Id { get; set; }
 
     [Required]
-    public string CompanyName { get; set; }
+    public string Name { get; set; }
 
-    public string? HomePage { get; set; }
+    public Guid? ParentCategoryId { get; set; } = null!;
 
-    public string? Description { get; set; }
-
-    public ICollection<Game> Games { get; set; }
+    public ICollection<ProductCategory> ProductGenres { get; set; }
 }

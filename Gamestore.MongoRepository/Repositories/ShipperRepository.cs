@@ -6,9 +6,9 @@ namespace Gamestore.MongoRepository.Repositories;
 
 public class ShipperRepository(IMongoDatabase database) : IShipperRepository
 {
-    public async Task<List<Shipper>> GetAllAsync()
+    public async Task<List<MongoShipper>> GetAllAsync()
     {
-        var collection = database.GetCollection<Shipper>("shippers");
+        var collection = database.GetCollection<MongoShipper>("shippers");
         var shippers = await collection.Find(_ => true).ToListAsync();
         return shippers;
     }

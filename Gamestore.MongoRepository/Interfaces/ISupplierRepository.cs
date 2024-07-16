@@ -4,9 +4,9 @@ namespace Gamestore.MongoRepository.Interfaces;
 
 public interface ISupplierRepository
 {
-    Task<List<Supplier>> GetAllAsync();
+    Task<List<MongoSupplier>> GetAllAsync();
 
-    Task<Supplier> GetByIdAsync(int id);
+    Task<MongoSupplier> GetByIdAsync(int id);
 
-    Task<Supplier> GetByNameAsync(string companyName);
+    Task<MongoSupplier> GetByNameAsync(string companyName);
 }

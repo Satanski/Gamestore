@@ -1,8 +1,8 @@
 ﻿namespace Gamestore.MongoRepository.Entities;
 
-public class MongoGamePlatform
+public class MongoProductPlatform
 {
-    public Guid GameId { get; set; }
+    public Guid ProductId { get; set; }
 
     public Guid PlatformId { get; set; }
 }

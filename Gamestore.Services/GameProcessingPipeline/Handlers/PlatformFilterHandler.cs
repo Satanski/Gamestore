@@ -7,14 +7,14 @@ namespace Gamestore.BLL.Filtering.Handlers;
 
 public class PlatformFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public override async Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
     {
         if (filters.Platforms.Count == 0)
         {
             await SelectAllPLatforms(unitOfWork, filters);
         }
 
-        query = query.Where(game => game.GamePlatforms.Any(gp => filters.Platforms.Contains(gp.PlatformId)));
+        query = query.Where(game => game.ProductPlatforms.Any(gp => filters.Platforms.Contains(gp.PlatformId)));
         query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
 
         return query;
