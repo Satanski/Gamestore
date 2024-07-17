@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Gamestore.DAL.Entities;
+namespace Gamestore.WebApi.Identity;
 
 public class AppUser : IdentityUser
 {
