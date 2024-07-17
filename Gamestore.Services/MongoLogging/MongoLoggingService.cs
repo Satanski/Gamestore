@@ -1,13 +1,13 @@
 ﻿using Gamestore.BLL.Models;
-using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Interfaces;
+using Gamestore.MongoRepository.LoggingModels;
 using Gamestore.Services.Models;
 
 namespace Gamestore.BLL.MongoLogging;
 
-public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork)
+public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork) : IMongoLoggingService
 {
     private readonly string _gameEntityType = "Game";
 
@@ -17,7 +17,7 @@ public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoU
 
     private readonly string _deleteAction = "Delete";
 
-    public async Task LogGameUpdate(GameModelDto oldValue, GameDtoWrapper newValue)
+    public async Task LogGameUpdateAsync(GameModelDto oldValue, GameDtoWrapper newValue)
     {
         List<MongoGenre> oldGenres = [];
         List<MongoGenre> newGenres = [];
@@ -50,7 +50,7 @@ public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoU
         await mongoUnitOfWork.LogRepository.LogGame(mongoLogEntry);
     }
 
-    public async Task LogGameAdd(GameDtoWrapper value)
+    public async Task LogGameAddAsync(GameDtoWrapper value)
     {
         List<MongoGenre> genres = [];
         List<MongoPlatform> platforms = [];
@@ -74,7 +74,7 @@ public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoU
         await mongoUnitOfWork.LogRepository.LogGame(mongoLogEntry);
     }
 
-    public async Task LogGameDelete(Guid gameId)
+    public async Task LogGameDeleteAsync(Guid gameId)
     {
         var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
 

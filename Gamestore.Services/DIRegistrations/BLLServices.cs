@@ -36,7 +36,7 @@ public static class BllServices
         services.AddScoped<SortingHandler>();
         services.AddScoped<IGameProcessingPipelineBuilder, GameProcessingPipelineBuilder>();
         services.AddScoped<IGameProcessingPipelineDirector, GameProcessingPipelineDirector>();
-        services.AddScoped<MongoLoggingService>();
+        services.AddScoped<IMongoLoggingService, MongoLoggingService>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
         var autoMapper = autoMapperConfiguration.CreateMapper();
