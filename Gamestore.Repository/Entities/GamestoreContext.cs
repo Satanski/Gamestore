@@ -23,6 +23,8 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
 
     public DbSet<Comment> Comments { get; set; }
 
+    public DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

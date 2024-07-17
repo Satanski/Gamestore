@@ -26,7 +26,8 @@ public static class Program
             .ReadFrom.Services(services));
 
         var connectionString = builder.Configuration.GetConnectionString("GamestoreDatabase");
-        if (connectionString == null)
+        var identityConnectionString = builder.Configuration.GetConnectionString("IdentityDatabase");
+        if (connectionString == null || identityConnectionString == null)
         {
 #pragma warning disable S112 // General or reserved exceptions should never be thrown
             throw new NullReferenceException(nameof(connectionString));
@@ -35,7 +36,7 @@ public static class Program
 
         builder.Services.AddMemoryCache();
 
-        DAlServices.Configure(builder.Services, connectionString);
+        DAlServices.Configure(builder.Services, connectionString, identityConnectionString);
         MongoRepositoryServices.Configure(builder.Services, builder.Configuration.GetSection("MongoDB"));
         BllServices.Congigure(builder.Services);
 
