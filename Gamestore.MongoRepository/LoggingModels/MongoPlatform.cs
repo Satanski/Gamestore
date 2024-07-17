@@ -1,4 +1,4 @@
-﻿namespace Gamestore.MongoRepository.Entities;
+﻿namespace Gamestore.MongoRepository.LoggingModels;
 
 public class MongoPlatform
 {

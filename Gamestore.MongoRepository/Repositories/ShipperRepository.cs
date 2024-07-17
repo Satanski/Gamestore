@@ -20,21 +20,4 @@ public class ShipperRepository(IMongoDatabase database) : IShipperRepository
         var shipper = await _collection.Find(x => x.ShipperID == id).FirstOrDefaultAsync();
         return shipper;
     }
-
-    public async Task UpdateAsync(MongoShipper entity)
-    {
-        var filter = Builders<MongoShipper>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.ReplaceOneAsync(filter, entity);
-    }
-
-    public async Task AddAsync(MongoShipper entity)
-    {
-        await _collection.InsertOneAsync(entity);
-    }
-
-    public async Task DeleteAsync(MongoShipper entity)
-    {
-        var filter = Builders<MongoShipper>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.DeleteOneAsync(filter);
-    }
 }

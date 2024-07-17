@@ -14,6 +14,7 @@ using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Entities;
+using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;

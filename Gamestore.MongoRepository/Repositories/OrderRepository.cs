@@ -21,21 +21,4 @@ public class OrderRepository(IMongoDatabase database) : IOrderRepository
         var order = _collection.Find(x => x.OrderId == id).FirstOrDefaultAsync();
         return order;
     }
-
-    public async Task UpdateAsync(MongoOrder entity)
-    {
-        var filter = Builders<MongoOrder>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.ReplaceOneAsync(filter, entity);
-    }
-
-    public async Task AddAsync(MongoOrder entity)
-    {
-        await _collection.InsertOneAsync(entity);
-    }
-
-    public async Task DeleteAsync(MongoOrder entity)
-    {
-        var filter = Builders<MongoOrder>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.DeleteOneAsync(filter);
-    }
 }

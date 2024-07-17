@@ -2,12 +2,80 @@
 using AutoMapper;
 using Gamestore.BLL.Models;
 using Gamestore.DAL.Entities;
+using Gamestore.MongoRepository.Entities;
 using Gamestore.Services.Models;
 
 namespace Gamestore.Tests.Helpers;
 
 internal static class BllHelpers
 {
+    internal static List<MongoSupplier> MongoSuppliers =>
+        [
+            new()
+            {
+                SupplierID = 1,
+                CompanyName = "Supplier1",
+            },
+            new()
+            {
+                SupplierID = 2,
+                CompanyName = "Supplier2",
+            },
+            new()
+            {
+                SupplierID = 3,
+                CompanyName = "Supplier3",
+            },
+        ];
+
+    internal static List<MongoCategory> MongoCategories =>
+        [
+            new()
+            {
+                CategoryId = 1,
+                CategoryName = "Category1",
+            },
+            new()
+            {
+                CategoryId = 2,
+                CategoryName = "Category2",
+            },
+            new()
+            {
+                CategoryId = 3,
+                CategoryName = "Category3",
+            }
+
+        ];
+
+    internal static List<MongoProduct> MongoProducts =>
+        [
+            new()
+            {
+                ProductId = 1,
+                ProductName = "Product1",
+                UnitPrice = 100,
+                CategoryID = 1,
+                SupplierID = 1,
+            },
+            new()
+            {
+                ProductId = 2,
+                ProductName = "Product2",
+                UnitPrice = 200,
+                CategoryID = 2,
+                SupplierID = 2,
+            },
+            new()
+            {
+                ProductId = 3,
+                ProductName = "Product3",
+                UnitPrice = 300,
+                CategoryID = 3,
+                SupplierID = 3,
+            },
+        ];
+
     internal static List<Product> Games =>
         [
             new()
@@ -66,9 +134,9 @@ internal static class BllHelpers
 
     internal static List<ProductPlatform> GamePlatforms =>
         [
-            new() { GameId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Desktop").Id },
-            new() { GameId = new Guid("382f980c-11fd-48f8-8c12-916ad4390622"), PlatformId = Platforms.Find(x => x.Type == "Mobile").Id },
-            new() { GameId = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Console").Id },
+            new() { ProductId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Desktop").Id },
+            new() { ProductId = new Guid("382f980c-11fd-48f8-8c12-916ad4390622"), PlatformId = Platforms.Find(x => x.Type == "Mobile").Id },
+            new() { ProductId = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Console").Id },
         ];
 
 #pragma warning disable CS8601 // Possible null reference assignment.
@@ -91,7 +159,7 @@ internal static class BllHelpers
         [
             new() { Id = new Guid("4885AB50-BF64-48D2-80CC-28C94D184841"), Name = "Rpg" },
             new() { Id = new Guid("4885AB50-1111-48D2-80CC-28C94D184841"), Name = "Racing" },
-            new() { Id = new Guid("4885AB50-8361-48D2-80CC-28C94D184841"), Name = "Simulator" }
+            new() { Id = new Guid("4885AB50-8361-48D2-80CC-28C94D184841"), Name = "Simulator" },
         ];
 
     internal static List<GenreModelDto> GenreModelDtos
@@ -113,6 +181,7 @@ internal static class BllHelpers
             new() { Id = new Guid("32A5CCEE-D5E1-4449-AF51-2CB10B025935"), Type = "Desktop" },
             new() { Id = new Guid("32A5CCEE-D5E1-1111-AF51-2CB10B025935"), Type = "Mobile" },
             new() { Id = new Guid("32A5CCEE-D5E1-2222-AF51-2CB10B025935"), Type = "Console" },
+            new() { Id = new Guid("11111111-1111-1111-1111-111111111111"), Type = "Physical Product" },
         ];
 
     internal static List<PlatformModelDto> PlatformModelDtos
@@ -188,7 +257,7 @@ internal static class BllHelpers
 
     internal static List<Platform> GetPlatformsByGameAsync(Guid id)
     {
-        var gamePlatforms = GamePlatforms.Where(x => x.GameId == id).ToList();
+        var gamePlatforms = GamePlatforms.Where(x => x.ProductId == id).ToList();
         var platforms = new List<Platform>();
 
         foreach (var gamePlatform in gamePlatforms)
@@ -197,5 +266,15 @@ internal static class BllHelpers
         }
 
         return platforms;
+    }
+
+    internal static MongoSupplier GetMongoSupplierById(int id)
+    {
+        return MongoSuppliers.First(x => x.SupplierID == id);
+    }
+
+    internal static MongoCategory GetMongoCategoryById(int id)
+    {
+        return MongoCategories.First(x => x.CategoryId == id);
     }
 }

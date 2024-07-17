@@ -1,8 +1,8 @@
 ﻿using Gamestore.BLL.BanHandler;
 using Gamestore.BLL.Filtering.Models;
-using Gamestore.BLL.Helpers;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
 
 namespace Gamestore.BLL.Filtering;

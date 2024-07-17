@@ -17,11 +17,7 @@ public class NameFilterHandler : GameProcessingPipelineHandlerBase
                 throw new GamestoreException("Name should be at least 3 characters long");
             }
 
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-#pragma warning disable CA1311 // Specify a culture or use an invariant version
-            query = query.Where(x => x.Name.ToLower().Contains(filters.Name.ToLower()));
-#pragma warning restore CA1311 // Specify a culture or use an invariant version
-#pragma warning restore CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+            query = query.Where(x => x.Name.Contains(filters.Name));
         }
 
         query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);

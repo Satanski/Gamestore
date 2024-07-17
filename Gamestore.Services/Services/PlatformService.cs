@@ -14,7 +14,7 @@ namespace Gamestore.Services.Services;
 
 public class PlatformService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
 {
-    private const string PhysicalProductGUID = "11111111-1111-1111-1111-111111111111";
+    private const string PhysicalProductType = "Physical Product";
     private readonly PlatformDtoWrapperValidator _platformDtoWrapperValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModelDto>> GetGamesByPlatformIdAsync(Guid platformId)
@@ -23,7 +23,7 @@ public class PlatformService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitO
         var games = await unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId);
         List<GameModelDto> gameModels = automapper.Map<List<GameModelDto>>(games);
 
-        if (platformId.ToString() == PhysicalProductGUID)
+        if (platformId == (await unitOfWork.PlatformRepository.GetByTypeAsync(PhysicalProductType)).Id)
         {
             var gamesFromMongoDB = automapper.Map<List<GameModelDto>>(await mongoUnitOfWork.ProductRepository.GetAllAsync()).Except(gameModels);
             gameModels.AddRange(gamesFromMongoDB);

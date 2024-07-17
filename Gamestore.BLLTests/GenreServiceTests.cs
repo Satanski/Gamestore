@@ -2,6 +2,7 @@
 using Gamestore.BLL.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Models;
@@ -131,6 +132,8 @@ public class GenreServiceTests
     {
         // Arrange
         _unitOfWork.Setup(x => x.GenreRepository.GetGamesByGenreAsync(It.IsAny<Guid>())).ReturnsAsync([.. BllHelpers.Games]);
+        _mongoUnitOfWork.Setup(x => x.CategoryRepository.GetById(It.IsAny<int>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByCategoryIdAsync(It.IsAny<int>()));
         var genreService = new GenreService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object);
 
         // Act

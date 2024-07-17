@@ -7,6 +7,8 @@ namespace Gamestore.MongoRepository.Repositories;
 public class CategoryRepository(IMongoDatabase database) : ICategoryRepository
 {
     private const string CollectionName = "categories";
+    private const string IdField = "_id";
+
     private readonly IMongoCollection<MongoCategory> _collection = database.GetCollection<MongoCategory>(CollectionName);
 
     public Task<List<MongoCategory>> GetAllAsync()
@@ -23,7 +25,7 @@ public class CategoryRepository(IMongoDatabase database) : ICategoryRepository
 
     public async Task UpdateAsync(MongoCategory entity)
     {
-        var filter = Builders<MongoCategory>.Filter.Eq("_id", entity.ObjectId);
+        var filter = Builders<MongoCategory>.Filter.Eq(IdField, entity.ObjectId);
         await _collection.ReplaceOneAsync(filter, entity);
     }
 
@@ -34,7 +36,7 @@ public class CategoryRepository(IMongoDatabase database) : ICategoryRepository
 
     public async Task DeleteAsync(MongoCategory entity)
     {
-        var filter = Builders<MongoCategory>.Filter.Eq("_id", entity.ObjectId);
+        var filter = Builders<MongoCategory>.Filter.Eq(IdField, entity.ObjectId);
         await _collection.DeleteOneAsync(filter);
     }
 }
