@@ -2,7 +2,7 @@
 
 namespace Gamestore.DAL.Interfaces;
 
-public interface IGameGenreRepository : IRepositoryBase<GameGenre>
+public interface IGameGenreRepository : IRepositoryBase<GameGenres>
 {
-    Task<List<GameGenre>> GetByGameIdAsync(Guid id);
+    Task<List<GameGenres>> GetByGameIdAsync(Guid id);
 }

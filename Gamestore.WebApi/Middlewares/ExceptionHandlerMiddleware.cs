@@ -31,7 +31,7 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionH
         }
         else if (exception is GamestoreException or InvalidOperationException)
         {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         }
 
         return context.Response.WriteAsync(CreateResponseMessage(context, exception));
