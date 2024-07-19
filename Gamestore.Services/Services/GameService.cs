@@ -5,6 +5,7 @@ using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.MongoLogging;
+using Gamestore.BLL.Services;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
@@ -19,7 +20,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Gamestore.Services.Services;
 
-public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GameService> logger, IMongoLoggingService mongoLoggingService, IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
+public class GameService(
+    IUnitOfWork unitOfWork,
+    IMongoUnitOfWork mongoUnitOfWork,
+    IMapper automapper,
+    ILogger<GameService> logger,
+    IMongoLoggingService mongoLoggingService,
+    IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
 {
     private const string QuoteActionName = "Quote";
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
@@ -42,10 +49,10 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
         FilteredGamesDto filteredGameDtos = new();
-        await FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
-        await FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
-        SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
-        CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
+        await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        await MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        MongoDbHelperService.SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
+        MongoDbHelperService.CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
 
         return filteredGameDtos;
     }
@@ -369,9 +376,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
             var gameToAdd = automapper.Map<Product>(game);
 
             await CreateGenreInSQLServerIfDoesntExistAsync(unitOfWork, game, gameToAdd);
-            await CreatePlatformInSQLServerIfDoesntExistAsync(unitOfWork, game, gameToAdd);
             await CreatePublisherInSQLServerIfDoesntExistAsync(unitOfWork, game, gameToAdd);
-
             await unitOfWork.GameRepository.AddAsync(gameToAdd);
             await unitOfWork.SaveAsync();
         }
@@ -414,24 +419,6 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
             {
                 gameInSQLServer.Publisher = pub;
             }
-        }
-    }
-
-    private static async Task CreatePlatformInSQLServerIfDoesntExistAsync(IUnitOfWork unitOfWork, GameModelDto game, Product gameToAdd)
-    {
-        var firstPlatform = game.Platforms[0];
-        if (firstPlatform != null && firstPlatform.Id != null && game.Id != null)
-        {
-            var existingPlatform = await unitOfWork.PlatformRepository.GetByIdAsync((Guid)firstPlatform.Id);
-            if (existingPlatform is null)
-            {
-                await unitOfWork.GenreRepository.AddAsync(new() { Id = (Guid)firstPlatform.Id, Name = firstPlatform.Type });
-            }
-
-            gameToAdd.ProductPlatforms =
-            [
-                 new ProductPlatform { ProductId = game.Id.Value, PlatformId = (Guid)firstPlatform.Id }
-            ];
         }
     }
 
@@ -707,11 +694,6 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         {
             gameFromProduct.Genres[0].Name = (await mongoUnitOfWork.CategoryRepository.GetById(GuidHelpers.GuidToInt((Guid)gameFromProduct.Genres[0].Id!))).CategoryName;
         }
-
-        if (gameFromProduct is not null && gameFromProduct.Platforms[0] is not null && gameFromProduct.Platforms[0].Id != Guid.Empty)
-        {
-            gameFromProduct.Platforms[0].Type = "Physical Product";
-        }
     }
 
     private static async Task<GameModelDto> GetGameFromSQLServerByKeyAsync(IUnitOfWork unitOfWork, IMapper automapper, string key)
@@ -732,49 +714,5 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
     private static async Task<Product?> GetGameFromSQLServerByIdAsync(IUnitOfWork unitOfWork, Guid gameId)
     {
         return await unitOfWork.GameRepository.GetByIdAsync(gameId);
-    }
-
-    private static void CheckIfCurrentPageDoesntExceedTotalNumberOfPages(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
-    {
-        if (gameFilters.Page <= gameFilters.NumberOfPagesAfterFiltration)
-        {
-            filteredGameDtos.CurrentPage = gameFilters.Page;
-        }
-        else
-        {
-            filteredGameDtos.CurrentPage = gameFilters.NumberOfPagesAfterFiltration;
-        }
-    }
-
-    private static async Task FilterGamesFromSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
-    {
-        var games = unitOfWork.GameRepository.GetGamesAsQueryable();
-        var gamesFromSQLServer = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, games)).ToList();
-        if (gamesFromSQLServer.Count != 0)
-        {
-            filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(gamesFromSQLServer));
-        }
-    }
-
-    private static async Task FilterProductsFromMongoDBAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
-    {
-        var products = await GetProductsFromMongoDBThatDoesntExistInSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper);
-
-        var filterdProducts = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, products.AsQueryable())).ToList();
-        if (filterdProducts.Count != 0)
-        {
-            filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(filterdProducts));
-        }
-    }
-
-    private static async Task<List<Product>> GetProductsFromMongoDBThatDoesntExistInSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper)
-    {
-        var productsFromMongoDB = automapper.Map<List<Product>>(await mongoUnitOfWork.ProductRepository.GetAllAsync());
-        return productsFromMongoDB.Except(await unitOfWork.GameRepository.GetAllAsync()).ToList();
-    }
-
-    private static void SetTotalNumberOfPagesAfterFiltering(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
-    {
-        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
     }
 }

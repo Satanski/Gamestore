@@ -15,10 +15,4 @@ public interface IProductRepository
     Task<List<MongoProduct>> GetByCategoryIdAsync(int categoryId);
 
     Task<MongoProduct> GetByIdAsync(int id);
-
-    Task UpdateAsync(MongoProduct entity);
-
-    Task AddAsync(MongoProduct entity);
-
-    Task DeleteAsync(MongoProduct entity);
 }

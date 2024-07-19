@@ -9,10 +9,4 @@ public interface ISupplierRepository
     Task<MongoSupplier> GetByIdAsync(int id);
 
     Task<MongoSupplier> GetByNameAsync(string companyName);
-
-    Task UpdateAsync(MongoSupplier entity);
-
-    Task AddAsync(MongoSupplier entity);
-
-    Task DeleteAsync(MongoSupplier entity);
 }

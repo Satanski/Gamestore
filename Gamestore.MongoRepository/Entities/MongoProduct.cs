@@ -7,8 +7,6 @@ namespace Gamestore.MongoRepository.Entities;
 [BsonIgnoreExtraElements]
 public class MongoProduct
 {
-    private const string PhysicalProductGuid = "11111111-1111-1111-1111-111111111111";
-
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
     public string ObjectId { get; set; }
@@ -87,7 +85,7 @@ public class MongoProduct
         get
         {
 #pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-            return [new() { ProductId = GuidHelpers.IntToGuid(ProductId), PlatformId = new Guid(PhysicalProductGuid) }];
+            return [new() { ProductId = GuidHelpers.IntToGuid(ProductId), PlatformId = Guid.Empty }];
 #pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         }
     }
