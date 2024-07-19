@@ -23,23 +23,6 @@ internal static class MongoDbHelperService
         }
     }
 
-    internal static void SetTotalNumberOfPagesAfterFiltering(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
-    {
-        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
-    }
-
-    internal static void CheckIfCurrentPageDoesntExceedTotalNumberOfPages(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
-    {
-        if (gameFilters.Page <= gameFilters.NumberOfPagesAfterFiltration)
-        {
-            filteredGameDtos.CurrentPage = gameFilters.Page;
-        }
-        else
-        {
-            filteredGameDtos.CurrentPage = gameFilters.NumberOfPagesAfterFiltration;
-        }
-    }
-
     internal static async Task<List<GenreModelDto>> GetGenresFromMongoDBByGameKeyAsync(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string gameKey)
     {
         var product = await mongoUnitOfWork.ProductRepository.GetByNameAsync(gameKey);

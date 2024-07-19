@@ -51,8 +51,8 @@ public class GameService(
         FilteredGamesDto filteredGameDtos = new();
         await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
         await MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
-        MongoDbHelperService.SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
-        MongoDbHelperService.CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
+        SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
+        CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
 
         return filteredGameDtos;
     }
@@ -482,5 +482,22 @@ public class GameService(
         }
 
         return false;
+    }
+
+    private static void SetTotalNumberOfPagesAfterFiltering(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
+    {
+        filteredGameDtos.TotalPages = gameFilters.NumberOfPagesAfterFiltration;
+    }
+
+    private static void CheckIfCurrentPageDoesntExceedTotalNumberOfPages(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
+    {
+        if (gameFilters.Page <= gameFilters.NumberOfPagesAfterFiltration)
+        {
+            filteredGameDtos.CurrentPage = gameFilters.Page;
+        }
+        else
+        {
+            filteredGameDtos.CurrentPage = gameFilters.NumberOfPagesAfterFiltration;
+        }
     }
 }
