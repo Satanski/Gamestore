@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Filtering.Models;
+using Gamestore.BLL.Identity.Extensions;
 using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
-using Gamestore.WebApi.Stubs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -125,6 +126,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
@@ -134,10 +136,11 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games/STRING/buy
     [HttpPost("{key}/buy")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> AddGameToCartAsync(string key)
     {
-        var customerStub = new CustomerStub();
-        await _gameService.AddGameToCartAsync(customerStub.Id, key, 1);
+        var userId = new Guid(User.GetJwtSubjectId());
+        await _gameService.AddGameToCartAsync(userId, key, 1);
 
         return Ok();
     }
@@ -146,13 +149,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpPost("{key}/comments")]
     public async Task<IActionResult> AddCommentToGameAsync([FromBody] CommentModelDto comment, string key)
     {
-        var result = await _gameService.AddCommentToGameAsync(key, comment);
+        var userName = User.GetJwtSubject();
+        var result = await _gameService.AddCommentToGameAsync(userName, key, comment);
 
         return Ok(result);
     }
 
     // PUT: games
     [HttpPut]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
@@ -162,6 +167,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // DELETE: games
     [HttpDelete("{key}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
         await _gameService.SoftDeleteGameByKeyAsync(key);
@@ -171,9 +177,11 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // DELETE: games
     [HttpDelete("{key}/comments/{id}")]
+    [Authorize(Policy = "DeleteComment")]
     public async Task<IActionResult> DeleteCommentAsync(string key, Guid id)
     {
-        await _gameService.DeleteCommentAsync(key, id);
+        var userName = User.GetJwtSubject();
+        await _gameService.DeleteCommentAsync(userName, key, id);
 
         return Ok();
     }

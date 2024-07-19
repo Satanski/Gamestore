@@ -13,7 +13,7 @@ public class GameRepositoryTests : IDisposable
 
     public GameRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("GameRepoTest").Options;
+        var options = new DbContextOptionsBuilder<GamestoreContext>().UseInMemoryDatabase("GameRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _gameRepository = new(_context);

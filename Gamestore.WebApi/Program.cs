@@ -1,12 +1,18 @@
-﻿using Gamestore.BLL.DiRegistrations;
+﻿using System.Text;
+using Gamestore.BLL.DiRegistrations;
+using Gamestore.BLL.Identity;
 using Gamestore.DAL.DIRegistrations;
+using Gamestore.IdentityRepository.DIRegistrations;
+using Gamestore.IdentityRepository.Entities;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.MongoRepository.DIRegistrations;
 using Gamestore.WebApi.Identity;
 using Gamestore.WebApi.Interfaces;
 using Gamestore.WebApi.Middlewares;
 using Gamestore.WebApi.Strategies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Events;
 
@@ -28,10 +34,9 @@ public static class Program
             .ReadFrom.Configuration(builder.Configuration)
             .ReadFrom.Services(services));
 
-        builder.Services.AddDbContext<IdentityDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityDatabase")));
         builder.Services.AddIdentity<AppUser, AppRole>()
-        .AddEntityFrameworkStores<IdentityDbContext>()
-        .AddDefaultTokenProviders();
+            .AddEntityFrameworkStores<IdentityDbContext>()
+            .AddDefaultTokenProviders();
 
         builder.Services.Configure<IdentityOptions>(options =>
         {
@@ -42,24 +47,49 @@ public static class Program
             options.Password.RequiredLength = 1;
             options.Password.RequiredUniqueChars = 1;
 
-            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(50);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
 
             options.User.RequireUniqueEmail = true;
         });
 
-        var connectionString = builder.Configuration.GetConnectionString("GamestoreDatabase");
-        if (connectionString == null)
+        builder.Services.AddAuthentication(options =>
         {
-#pragma warning disable S112 // General or reserved exceptions should never be thrown
-            throw new NullReferenceException(nameof(connectionString));
-#pragma warning restore S112 // General or reserved exceptions should never be thrown
-        }
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                };
+            });
+
+        builder.Services.AddAuthorizationBuilder()
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.add.comment")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.add.comment")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.delete.comment")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.delete.comment")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.buy.game")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.buy.game")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.users")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.manage.users")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.roles")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.manage.roles")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.entities")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.manage.entities")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.edit.orders")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.edit.orders")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.order.history")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.order.history")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.order.status")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.order.status")!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.ban.users")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.ban.users")!));
 
         builder.Services.AddMemoryCache();
 
-        DAlServices.Configure(builder.Services, connectionString);
+        DAlServices.Configure(builder.Services, builder.Configuration.GetConnectionString("GamestoreDatabase")!);
+        IdentityRepositoryServices.Configure(builder.Services, builder.Configuration.GetConnectionString("IdentityDatabase")!);
         MongoRepositoryServices.Configure(builder.Services, builder.Configuration.GetSection("MongoDB"));
         BllServices.Congigure(builder.Services);
 
@@ -74,6 +104,14 @@ public static class Program
         builder.Services.AddScoped<PaymentContext>();
 
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            var userManager = services.GetRequiredService<UserManager<AppUser>>();
+            var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
+            IdentityInitializer.Initialize(userManager, roleManager).Wait();
+        }
 
         // Configure the HTTP request pipeline.
         app.UseSerilogRequestLogging();
@@ -92,11 +130,11 @@ public static class Program
         app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.UseMiddleware<GameCounterMiddleware>();
 
-        app.UseHttpsRedirection();
-        app.MapControllers();
-
         app.UseAuthentication();
         app.UseAuthorization();
+
+        app.UseHttpsRedirection();
+        app.MapControllers();
 
         app.Run();
     }

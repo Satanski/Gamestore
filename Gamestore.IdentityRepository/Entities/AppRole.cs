@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Gamestore.WebApi.Identity;
+namespace Gamestore.IdentityRepository.Identity;
 
 #pragma warning disable S2094 // Classes should not be empty
 public class AppRole : IdentityRole

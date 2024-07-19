@@ -1,21 +1,33 @@
-﻿using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.Models;
+using Gamestore.IdentityRepository.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class UsersController(IUserService userService, UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration) : ControllerBase
 {
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModelDto login)
+    [HttpGet]
+    public IActionResult GetUsers()
     {
-        if (login == null)
+        var customers = userService.GetAllUsers(userManager);
+
+        return Ok(customers);
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginModelDto login)
+    {
+        var token = await userService.LoginAsync(userManager, roleManager, configuration, login);
+        if (token == null)
         {
-            return BadRequest();
+            return Unauthorized();
         }
 
-        return Ok(new TokenModelDto() { Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" });
+        return Ok(new { Token = token });
     }
 
     [HttpPost("access")]

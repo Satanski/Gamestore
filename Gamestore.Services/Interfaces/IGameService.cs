@@ -34,11 +34,11 @@ public interface IGameService
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 
-    Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment);
+    Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment);
 
     Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
 
-    Task DeleteCommentAsync(string gameKey, Guid commentId);
+    Task DeleteCommentAsync(string userName, string gameKey, Guid commentId);
 
     List<string> GetPaginationOptions();
 

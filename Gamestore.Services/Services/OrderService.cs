@@ -16,7 +16,6 @@ using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
-using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
@@ -151,7 +150,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         }
     }
 
-    public async Task<byte[]> CreateInvoicePdf(PaymentModelDto payment, CustomerStub customer)
+    public async Task<byte[]> CreateInvoicePdf(PaymentModelDto payment, CustomerDto customer)
     {
         logger.LogInformation("Creating invoice {@payment}", payment);
 
@@ -165,7 +164,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return pdfBytes;
     }
 
-    public async Task PayWithIboxAsync(PaymentModelDto payment, CustomerStub customer)
+    public async Task PayWithIboxAsync(PaymentModelDto payment, CustomerDto customer)
     {
         logger.LogInformation("Executing payment by IBox {@payment}", payment);
 
@@ -177,7 +176,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         await ProcessOrderAfterPayment(unitOfWork, customer);
     }
 
-    public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerStub customer)
+    public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerDto customer)
     {
         logger.LogInformation("Executing payment by Visa {@payment.Model}", payment.Model);
         await _visaPaymentValidator.ValidateVisaPayment(payment);
@@ -234,7 +233,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerStub customer)
+    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerDto customer)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
         if (order != null)
@@ -307,7 +306,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         orderModels.AddRange(filteredMOngoOrders);
     }
 
-    private static async Task<double?> CalculateAmountToPay(IUnitOfWork unitOfWork, CustomerStub customer)
+    private static async Task<double?> CalculateAmountToPay(IUnitOfWork unitOfWork, CustomerDto customer)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
         var orderGames = await unitOfWork.OrderGameRepository.GetByOrderIdAsync(order.Id);
@@ -338,7 +337,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         response.EnsureSuccessStatusCode();
     }
 
-    private static async Task<VisaMicroservicePaymentModel> CreateVisaPaymentModel(IUnitOfWork unitOfWork, IMapper automapper, PaymentModelDto payment, CustomerStub customer)
+    private static async Task<VisaMicroservicePaymentModel> CreateVisaPaymentModel(IUnitOfWork unitOfWork, IMapper automapper, PaymentModelDto payment, CustomerDto customer)
     {
         var visaPaymentModel = automapper.Map<VisaMicroservicePaymentModel>(payment);
 
@@ -347,7 +346,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return visaPaymentModel;
     }
 
-    private static async Task<IboxPaymentModel> CreateIboxPaymentModel(IUnitOfWork unitOfWork, CustomerStub customer, Order order)
+    private static async Task<IboxPaymentModel> CreateIboxPaymentModel(IUnitOfWork unitOfWork, CustomerDto customer, Order order)
     {
         var iboxPaymentModel = new IboxPaymentModel()
         {

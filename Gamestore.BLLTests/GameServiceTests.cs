@@ -7,7 +7,6 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.MongoLogging;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
-using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Models;

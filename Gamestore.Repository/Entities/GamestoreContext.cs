@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Entities;
 
-public class GamestoreContext(DbContextOptions options) : DbContext(options)
+public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbContext(options)
 {
     public DbSet<Product> Products { get; set; }
 
@@ -22,8 +22,6 @@ public class GamestoreContext(DbContextOptions options) : DbContext(options)
     public DbSet<ProductPlatform> ProductPlatforms { get; set; }
 
     public DbSet<Comment> Comments { get; set; }
-
-    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

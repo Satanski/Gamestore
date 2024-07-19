@@ -273,7 +273,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         return commentList.AsEnumerable();
     }
 
-    public async Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment)
+    public async Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment)
     {
         logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
         await _commentModelDtoValidator.ValidateComment(comment);
@@ -291,6 +291,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
                 await CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, gameModelDto, game);
             }
 
+            comment.Comment.Name = userName;
             game = await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey);
             var commenttoAdd = ConvertCommentModelDtoToComment(comment, game.Id);
 
@@ -305,17 +306,21 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
         return string.Empty;
     }
 
-    public async Task DeleteCommentAsync(string gameKey, Guid commentId)
+    public async Task DeleteCommentAsync(string userName, string gameKey, Guid commentId)
     {
         logger.LogInformation("Deleting comment: {@commentId}", commentId);
 
         var comment = await unitOfWork.CommentRepository.GetByIdAsync(commentId);
 
-        if (comment != null)
+        if (comment != null && comment.Name == userName)
         {
             comment.Body = DeletedMessageTemplate;
             await unitOfWork.CommentRepository.UpdateAsync(comment);
             await unitOfWork.SaveAsync();
+        }
+        else
+        {
+            throw new GamestoreException("Action forbidden");
         }
     }
 
@@ -595,7 +600,7 @@ public class GameService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWor
             ProductId = gameId,
             ParentCommentId = comment.ParentId,
             Body = comment.Comment.Body,
-            Name = comment.Comment.Name,
+            Name = comment.Comment.Name!,
         };
     }
 

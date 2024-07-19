@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -19,6 +20,7 @@ public class CommentsController([FromServices] ICommentService commentService) :
 
     // POST: comments/ban
     [HttpPost("ban")]
+    [Authorize(Roles = "Moderator")]
     public IActionResult BanCustomer([FromBody] BanDto ban)
     {
         commentService.BanCustomerFromCommenting(ban);
