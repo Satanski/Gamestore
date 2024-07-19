@@ -8,9 +8,9 @@ public interface IOrderService
 {
     Task DeleteOrderByIdAsync(Guid orderId);
 
-    Task<IEnumerable<OrderModelDto>> GetAllOrdersAsync();
+    Task<List<OrderModelDto>> GetAllOrdersAsync();
 
-    Task<IEnumerable<OrderDetailsDto>> GetCartByCustomerIdAsync(Guid customerId);
+    Task<List<OrderDetailsDto>> GetCartByCustomerIdAsync(Guid customerId);
 
     Task<OrderModelDto> GetOrderByIdAsync(Guid orderId);
 
@@ -25,4 +25,6 @@ public interface IOrderService
     Task RemoveGameFromCartAsync(Guid customerId, string gameKey, int quantity);
 
     PaymentMethodsDto GetPaymentMethods();
+
+    Task<List<OrderModelDto>> GetOrdersHistoryAsync(string? startDate, string? endDate);
 }

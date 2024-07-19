@@ -5,13 +5,13 @@ namespace Gamestore.DAL.Entities;
 
 [Table("GameGenres")]
 [PrimaryKey(nameof(GameId), nameof(GenreId))]
-public class GameGenre
+public class GameGenres
 {
     public Guid GameId { get; set; }
 
     public Guid GenreId { get; set; }
 
-    public Game Game { get; set; }
+    public Game Product { get; set; }
 
-    public Genre Genre { get; set; }
+    public Genre Category { get; set; }
 }

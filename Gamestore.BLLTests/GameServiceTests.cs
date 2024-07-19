@@ -1,10 +1,15 @@
-﻿using Gamestore.BLL.Exceptions;
+﻿using AutoMapper;
+using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Filtering.Handlers;
 using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Models;
+using Gamestore.BLL.MongoLogging;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Entities;
+using Gamestore.MongoRepository.Helpers;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.Services.Services;
 using Gamestore.Tests.Helpers;
@@ -17,9 +22,16 @@ public class GameServiceTests
 {
     private readonly Mock<ILogger<GameService>> _logger;
     private readonly GameProcessingPipelineDirector _gameProcessingPipelineDirector;
+    private readonly Mock<IMongoLoggingService> _mongoLoggingService = new();
+    private readonly Mock<IMongoUnitOfWork> _mongoUnitOfWork = new();
+    private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly IMapper _autoMapper;
 
     public GameServiceTests()
     {
+        var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
+        _autoMapper = autoMapperConfiguration.CreateMapper();
+
         _logger = new Mock<ILogger<GameService>>();
 
         var genreFilterHandler = new GenreFilterHandler();
@@ -50,7 +62,6 @@ public class GameServiceTests
     [InlineData("Simulator", "Console", "BioWare")]
     public async Task GetFilteredGamesAsyncShouldreturnOneGameForGenrePlatformPublisherCombination(string genreName, string platformType, string publisherCompanyName)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             Genres = [BllHelpers.Genres.Find(x => x.Name == genreName).Id],
@@ -58,9 +69,9 @@ public class GameServiceTests
             Publishers = [BllHelpers.Publishers.Find(x => x.CompanyName == publisherCompanyName).Id],
         };
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
         Assert.Single(result.Games);
@@ -72,7 +83,6 @@ public class GameServiceTests
     [InlineData("Simulator", "Mobile", "Blizzard")]
     public async Task GetFilteredGamesAsyncShouldreturnNoGamesForGenrePlatformPublisherCombination(string genreName, string platformType, string publisherCompanyName)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             Genres = [BllHelpers.Genres.Find(x => x.Name == genreName).Id],
@@ -80,9 +90,9 @@ public class GameServiceTests
             Publishers = [BllHelpers.Publishers.Find(x => x.CompanyName == publisherCompanyName).Id],
         };
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
         Assert.Empty(result.Games);
@@ -92,74 +102,72 @@ public class GameServiceTests
     [InlineData(0, 100)]
     [InlineData(101, 200)]
     [InlineData(201, 300)]
-    public async Task GetFilteredGamesAsyncShouldreturnOneGameForPriceRange(int minPriace, int maxPrice)
+    public async Task GetFilteredGamesAsyncShouldreturnTwoGamesForPriceRange(int minPriace, int maxPrice)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             MinPrice = minPriace,
             MaxPrice = maxPrice,
         };
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
-        Assert.Single(result.Games);
+        Assert.Equal(2, result.Games.Count);
     }
 
     [Theory]
     [InlineData(300)]
-    public async Task GetFilteredGamesAsyncShouldreturnThreeGamesWithoutMinimalPrice(int maxPrice)
+    public async Task GetFilteredGamesAsyncShouldreturnSixGamesWithoutMinimalPrice(int maxPrice)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             MaxPrice = maxPrice,
         };
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
-        Assert.Equal(3, result.Games.Count);
+        Assert.Equal(6, result.Games.Count);
     }
 
     [Theory]
     [InlineData(300)]
     public async Task GetFilteredGamesAsyncShouldreturnOneGameWithoutMaximalPrice(int minPrice)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             MinPrice = minPrice,
         };
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
-        Assert.Single(result.Games);
+        Assert.Equal(2, result.Games.Count);
     }
 
     [Theory]
     [InlineData("Baldurs")]
     [InlineData("Drive")]
     [InlineData("mba")]
+    [InlineData("Product1")]
+    [InlineData("uct3")]
     public async Task GetFilteredGamesAsyncShouldreturnOneGameForNameFilter(string name)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             Name = name,
         };
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
         Assert.Single(result.Games);
@@ -173,7 +181,6 @@ public class GameServiceTests
     [InlineData("3 years")]
     public async Task GetFilteredGamesAsyncShouldreturnCorrectGamesForPublishDate(string publishDate)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             DatePublishing = publishDate,
@@ -201,9 +208,9 @@ public class GameServiceTests
                 break;
         }
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
         Assert.Equal(expectedNumberOfGames, result.Games.Count);
@@ -217,37 +224,41 @@ public class GameServiceTests
     [InlineData("New")]
     public async Task GetFilteredGamesAsyncShouldreturnGamesInCorrectOrderForsortingOption(string sortingOption)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             Sort = sortingOption,
         };
 
-        List<Game> expectedGames = [];
+        List<Product> expectedGames = [];
         switch (sortingOption)
         {
             case "Most popular":
                 expectedGames = [.. BllHelpers.Games.OrderByDescending(x => x.NumberOfViews)];
+                expectedGames.AddRange(_autoMapper.Map<List<Product>>(BllHelpers.MongoProducts));
                 break;
             case "Most commented":
                 expectedGames = [.. BllHelpers.Games.OrderByDescending(x => x.Comments.Count)];
+                expectedGames.AddRange(_autoMapper.Map<List<Product>>(BllHelpers.MongoProducts));
                 break;
             case "Price ASC":
                 expectedGames = [.. BllHelpers.Games.OrderBy(x => x.Price)];
+                expectedGames.AddRange(_autoMapper.Map<List<Product>>(BllHelpers.MongoProducts.OrderBy(x => x.UnitPrice)));
                 break;
             case "Price DESC":
                 expectedGames = [.. BllHelpers.Games.OrderByDescending(x => x.Price)];
+                expectedGames.AddRange(_autoMapper.Map<List<Product>>(BllHelpers.MongoProducts.OrderByDescending(x => x.UnitPrice)));
                 break;
             case "New":
                 expectedGames = [.. BllHelpers.Games.OrderByDescending(x => x.PublishDate)];
+                expectedGames.AddRange(_autoMapper.Map<List<Product>>(BllHelpers.MongoProducts));
                 break;
             default:
                 break;
         }
 
-        SetupUnitOfWorkForFilterTests(unitOfWork);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
         for (var i = 0; i < result.Games.Count; i++)
@@ -264,25 +275,26 @@ public class GameServiceTests
     [InlineData("all")]
     public async Task GetFilteredGamesAsyncShouldReturnCorrectNumberOfPages(string noOfGamesPerPage)
     {
-        var unitOfWork = new Mock<IUnitOfWork>();
         GameFiltersDto filters = new GameFiltersDto
         {
             PageCount = noOfGamesPerPage,
         };
 
-        List<Game> games = [];
+        var numberOfProductsInMongo = BllHelpers.MongoProducts.Count;
+
+        List<Product> games = [];
         for (int i = 0; i < 100; i++)
         {
-            games.Add(new Game()
+            games.Add(new Product()
             {
                 Id = Guid.NewGuid(),
                 Name = i.ToString(),
                 Key = i.ToString(),
                 IsDeleted = false,
                 Comments = [],
-                GameGenres = [BllHelpers.GameGenres[0]],
-                GamePlatforms = [BllHelpers.GamePlatforms[0]],
-                OrderGames = [],
+                ProductCategories = [BllHelpers.GameGenres[0]],
+                ProductPlatforms = [BllHelpers.GamePlatforms[0]],
+                OrderProducts = [],
                 Publisher = BllHelpers.Publishers[0],
                 PublishDate = DateOnly.FromDateTime(DateTime.Now),
                 NumberOfViews = i,
@@ -294,32 +306,33 @@ public class GameServiceTests
         switch (noOfGamesPerPage)
         {
             case "10":
-                expectedNumberOfPages = 10;
+                expectedNumberOfPages = 11;
                 expectedNumberOfGamesPerPage = 10;
                 break;
             case "20":
-                expectedNumberOfPages = 5;
+                expectedNumberOfPages = 6;
                 expectedNumberOfGamesPerPage = 20;
                 break;
             case "50":
-                expectedNumberOfPages = 2;
+                expectedNumberOfPages = 3;
                 expectedNumberOfGamesPerPage = 50;
                 break;
             case "100":
-                expectedNumberOfPages = 1;
+                expectedNumberOfPages = 2;
                 expectedNumberOfGamesPerPage = 100;
                 break;
             case "all":
                 expectedNumberOfPages = 1;
-                expectedNumberOfGamesPerPage = 100;
+                expectedNumberOfGamesPerPage = games.Count + numberOfProductsInMongo;
                 break;
             default:
                 break;
         }
 
-        SetupUnitOfWorkForFilterTests(unitOfWork, games);
+        SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, games);
+        _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync(games);
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
         var result = await gameService.GetFilteredGamesAsync(filters);
 
         Assert.Equal(expectedNumberOfPages, filters.NumberOfPagesAfterFiltration);
@@ -330,11 +343,10 @@ public class GameServiceTests
     public async Task GetAllGamesAsyncShouldReturnAllGames()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var expected = BllHelpers.Games.ToList();
 
-        unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Games]);
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Games]);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         var actual = await gameService.GetAllGamesAsync();
@@ -347,12 +359,12 @@ public class GameServiceTests
     public async Task GetGameByIdAsyncShouldReturnCorrectGame()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var expectedId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63");
         var expected = BllHelpers.Games.First(x => x.Id == expectedId);
 
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         var actual = await gameService.GetGameByIdAsync(expectedId);
@@ -365,15 +377,34 @@ public class GameServiceTests
     }
 
     [Fact]
+    public async Task GetGameByIdAsyncShouldReturnCorrectProductFromMongo()
+    {
+        // Arrange
+        var expectedId = 1;
+        var id = GuidHelpers.IntToGuid(expectedId);
+        var expected = BllHelpers.MongoProducts.First(x => x.ProductId == expectedId);
+
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(BllHelpers.MongoProducts.First(x => x.ProductId == expectedId));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+
+        // Act
+        var actual = await gameService.GetGameByIdAsync(id);
+
+        // Assert
+        Assert.Equal(GuidHelpers.IntToGuid(expected.ProductId), actual.Id);
+        Assert.Equal(expected.ProductName, actual.Name);
+    }
+
+    [Fact]
     public async Task GetGameByKeyAsyncShouldReturnCorrectGame()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var expectedKey = "BG";
         var expected = BllHelpers.Games.First(x => x.Key == expectedKey);
 
-        unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(BllHelpers.Games.First(x => x.Key == expectedKey));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(BllHelpers.Games.First(x => x.Key == expectedKey));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         var actual = await gameService.GetGameByKeyAsync(expectedKey);
@@ -386,10 +417,30 @@ public class GameServiceTests
     }
 
     [Fact]
+    public async Task GetGameByKeyAsyncShouldReturnCorrectProductFromMongo()
+    {
+        // Arrange
+        var expectedKey = BllHelpers.MongoProducts[0].ProductName;
+        var expected = BllHelpers.MongoProducts.First(x => x.ProductName == expectedKey);
+
+        _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(BllHelpers.MongoProducts.First(x => x.ProductName == expectedKey));
+        _mongoUnitOfWork.Setup(x => x.SupplierRepository.GetByIdAsync(It.IsAny<int>())).Returns((int id) => Task.FromResult(BllHelpers.GetMongoSupplierById(id)));
+        _mongoUnitOfWork.Setup(x => x.CategoryRepository.GetById(It.IsAny<int>())).Returns((int id) => Task.FromResult(BllHelpers.GetMongoCategoryById(id)));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+
+        // Act
+        var actual = await gameService.GetGameByKeyAsync(expectedKey);
+
+        // Assert
+        Assert.Equal(GuidHelpers.IntToGuid(expected.ProductId), actual.Id);
+        Assert.Equal(expected.ProductName, actual.Name);
+    }
+
+    [Fact]
     public async Task AddGameAsyncShouldAddGame()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameId = Guid.NewGuid();
         var publisher = new PublisherModelDto() { Id = Guid.NewGuid(), CompanyName = "Test name" };
         var gameToAdd = new GameModelDto()
@@ -407,54 +458,52 @@ public class GameServiceTests
         };
         var gameToAddWrapper = new GameDtoWrapper() { Game = gameToAdd, Publisher = (Guid)publisher.Id, Platforms = [Guid.NewGuid()], Genres = [Guid.NewGuid()] };
 
-        unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>())).ReturnsAsync(new Game());
-        unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Games]);
-        unitOfWork.Setup(x => x.GameGenreRepository.AddAsync(It.IsAny<GameGenre>()));
-        unitOfWork.Setup(x => x.GamePlatformRepository.AddAsync(It.IsAny<GamePlatform>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Product>())).ReturnsAsync(new Product());
+        _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Games]);
+        _unitOfWork.Setup(x => x.GameGenreRepository.AddAsync(It.IsAny<ProductCategory>()));
+        _unitOfWork.Setup(x => x.GamePlatformRepository.AddAsync(It.IsAny<ProductPlatform>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         await gameService.AddGameAsync(gameToAddWrapper);
 
         // Assert
-        unitOfWork.Verify(x => x.GameRepository.AddAsync(It.Is<Game>(x => x.Id == gameToAdd.Id && x.Name == gameToAdd.Name
+        _unitOfWork.Verify(x => x.GameRepository.AddAsync(It.Is<Product>(x => x.Id == gameToAdd.Id && x.Name == gameToAdd.Name
         && x.Key == gameToAdd.Key && x.Description == gameToAdd.Description && x.PublisherId == gameToAdd.Publisher.Id
         && x.Price == gameToAdd.Price && x.UnitInStock == gameToAdd.UnitInStock && x.Discount == gameToAdd.Discontinued)));
-        unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(3));
+        _unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(3));
     }
 
     [Fact]
     public async Task DeleteGameAsyncShouldDeleteGame()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameToDelete = BllHelpers.Games[0];
-        unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>()));
-        unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
-        unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == gameToDelete.Id));
-        unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync([]);
-        unitOfWork.Setup(x => x.GameGenreRepository.Delete(It.IsAny<GameGenre>()));
-        unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync([]);
-        unitOfWork.Setup(x => x.GamePlatformRepository.Delete(It.IsAny<GamePlatform>()));
-        unitOfWork.Setup(x => x.OrderGameRepository.GetAllAsync()).ReturnsAsync([]);
-        unitOfWork.Setup(x => x.OrderGameRepository.Delete(It.IsAny<OrderGame>()));
+        _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Product>()));
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == gameToDelete.Id));
+        _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync([]);
+        _unitOfWork.Setup(x => x.GameGenreRepository.Delete(It.IsAny<ProductCategory>()));
+        _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync([]);
+        _unitOfWork.Setup(x => x.GamePlatformRepository.Delete(It.IsAny<ProductPlatform>()));
+        _unitOfWork.Setup(x => x.OrderGameRepository.GetAllAsync()).ReturnsAsync([]);
+        _unitOfWork.Setup(x => x.OrderGameRepository.Delete(It.IsAny<OrderProduct>()));
 
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         await gameService.DeleteGameByIdAsync(gameToDelete.Id);
 
         // Assert
-        unitOfWork.Verify(x => x.GameRepository.Delete(It.Is<Game>(x => x.Id == gameToDelete.Id && x.Name == gameToDelete.Name && x.Key == gameToDelete.Key && x.Description == gameToDelete.Description)));
-        unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(3));
+        _unitOfWork.Verify(x => x.GameRepository.Delete(It.Is<Product>(x => x.Id == gameToDelete.Id && x.Name == gameToDelete.Name && x.Key == gameToDelete.Key && x.Description == gameToDelete.Description)));
+        _unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(3));
     }
 
     [Fact]
     public async Task UpdateGameAsyncShouldUpdateGame()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameToUpdate = BllHelpers.GameModelDtos[0];
         gameToUpdate.Name = "Need For Speed";
         gameToUpdate.Key = "NFS";
@@ -477,33 +526,32 @@ public class GameServiceTests
             Genres = [Guid.NewGuid()],
         };
 
-        unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
-        unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.ProductId == gameToUpdate.Id).ToList());
+        _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.ProductId == gameToUpdate.Id).ToList());
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
+        _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Product>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         await gameService.UpdateGameAsync(gameToUpdateWrapper);
 
         // Assert
-        unitOfWork.Verify(x => x.GameRepository.UpdateAsync(It.Is<Game>(x => x.Id == gameToUpdate.Id && x.Name == gameToUpdate.Name
+        _unitOfWork.Verify(x => x.GameRepository.UpdateAsync(It.Is<Product>(x => x.Id == gameToUpdate.Id && x.Name == gameToUpdate.Name
             && x.Key == gameToUpdate.Key && x.Description == gameToUpdate.Description && x.PublisherId == gameToUpdate.Publisher.Id
             && x.Price == gameToUpdate.Price && x.UnitInStock == gameToUpdate.UnitInStock && x.Discount == gameToUpdate.Discontinued)));
-        unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(6));
+        _unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(3));
     }
 
     [Fact]
     public async Task GetGenresByGameAsyncShouldReturnGenres()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var game = BllHelpers.Games[0];
-        var genreId = game.GameGenres[0].GenreId;
+        var genreId = game.ProductCategories[0].CategoryId;
 
-        unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
-        unitOfWork.Setup(x => x.GameRepository.GetGenresByGameAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGenresByGameAsync(id)));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
+        _unitOfWork.Setup(x => x.GameRepository.GetGenresByGameAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGenresByGameAsync(id)));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         var resultGenres = await gameService.GetGenresByGameKeyAsync(game.Key);
@@ -516,13 +564,12 @@ public class GameServiceTests
     public async Task GetPlatformsByGameAsyncShouldReturnPlatforms()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var game = BllHelpers.Games[0];
-        var platformId = game.GamePlatforms[0].PlatformId;
+        var platformId = game.ProductPlatforms[0].PlatformId;
 
-        unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
-        unitOfWork.Setup(x => x.GameRepository.GetPlatformsByGameAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetPlatformsByGameAsync(id)));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
+        _unitOfWork.Setup(x => x.GameRepository.GetPlatformsByGameAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetPlatformsByGameAsync(id)));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Act
         var resultPlatforms = await gameService.GetPlatformsByGameKeyAsync(game.Key);
@@ -535,14 +582,13 @@ public class GameServiceTests
     public async Task AddGameAsyncThrowsWhenIvalidName()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameId = Guid.NewGuid();
 
         var gameToAdd = new GameModelDto() { Id = gameId, Name = string.Empty, Key = "DCS", Description = "Flight sim", Platforms = BllHelpers.PlatformModelDtos, Genres = BllHelpers.GenreModelDtos };
         var gameToAddWrapper = new GameDtoWrapper() { Game = gameToAdd };
 
-        unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Product>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -555,14 +601,13 @@ public class GameServiceTests
     public async Task AddGameAsyncThrowsWhenIvalidKey()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameId = Guid.NewGuid();
 
         var gameToAdd = new GameModelDto() { Id = gameId, Name = "Digital Combat Simulator", Key = string.Empty, Description = "Flight sim", Platforms = BllHelpers.PlatformModelDtos, Genres = BllHelpers.GenreModelDtos };
         var gameToAddWrapper = new GameDtoWrapper() { Game = gameToAdd };
 
-        unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Product>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -575,13 +620,12 @@ public class GameServiceTests
     public async Task DeleteGameThrowsWhenNoGameWithGivenId()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameToDelete = BllHelpers.Games[0];
-        unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>()));
-        unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
-        unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Product>()));
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -594,18 +638,17 @@ public class GameServiceTests
     public async Task UpdateGameThrowsWhenInvalidName()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameToUpdate = BllHelpers.GameModelDtos[0];
         gameToUpdate.Name = string.Empty;
         gameToUpdate.Key = "NFS";
         gameToUpdate.Description = "Old racing game";
         var gameToUpdateWrapper = new GameDtoWrapper() { Game = gameToUpdate };
 
-        unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
-        unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.ProductId == gameToUpdate.Id).ToList());
+        _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.ProductId == gameToUpdate.Id).ToList());
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
+        _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Product>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -618,18 +661,17 @@ public class GameServiceTests
     public async Task UpdateGameThrowsWhenInvalidKey()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var gameToUpdate = BllHelpers.GameModelDtos[0];
         gameToUpdate.Name = "Need For Speed";
         gameToUpdate.Key = string.Empty;
         gameToUpdate.Description = "Old racing game";
         var gameToUpdateWrapper = new GameDtoWrapper() { Game = gameToUpdate };
 
-        unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
-        unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.ProductId == gameToUpdate.Id).ToList());
+        _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.PlatformId == gameToUpdate.Id).ToList());
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
+        _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Product>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -642,11 +684,11 @@ public class GameServiceTests
     public async Task GetGameByIdAsyncThrowsWhenNoGameWithGivenId()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var expectedId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63");
 
-        unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -659,11 +701,13 @@ public class GameServiceTests
     public async Task GetGameByKeyAsyncThrowsWhenNoGameWithGivenKey()
     {
         // Arrange
-        var unitOfWork = new Mock<IUnitOfWork>();
         var expectedKey = "BG";
 
-        unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>()));
-        var gameService = new GameService(unitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _gameProcessingPipelineDirector);
+        _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
+        _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -672,7 +716,7 @@ public class GameServiceTests
         });
     }
 
-    private static void SetupUnitOfWorkForFilterTests(Mock<IUnitOfWork> unitOfWork, List<Game> games = null)
+    private static void SetupUnitOfWorkForFilterTests(Mock<IUnitOfWork> unitOfWork, Mock<IMongoUnitOfWork> mongoUnitOfWork, List<Product> games = null)
     {
         if (games is null)
         {
@@ -680,6 +724,7 @@ public class GameServiceTests
             unitOfWork.Setup(x => x.PlatformRepository.GetGamesByPlatformAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGamesByPlatformAsync(id)));
             unitOfWork.Setup(x => x.PublisherRepository.GetGamesByPublisherIdAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGamesByPublisherAsync(id)));
             unitOfWork.Setup(x => x.GameRepository.GetGamesAsQueryable()).Returns(BllHelpers.Games.AsQueryable());
+            unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Games]);
         }
         else
         {
@@ -692,5 +737,11 @@ public class GameServiceTests
         unitOfWork.Setup(x => x.GenreRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Genres]);
         unitOfWork.Setup(x => x.PlatformRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Platforms]);
         unitOfWork.Setup(x => x.PublisherRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Publishers]);
+        mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
+        mongoUnitOfWork.Setup(x => x.ProductRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.MongoProducts]);
+        mongoUnitOfWork.Setup(x => x.CategoryRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.MongoCategories]);
+        mongoUnitOfWork.Setup(x => x.SupplierRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.MongoSuppliers]);
+        mongoUnitOfWork.Setup(x => x.SupplierRepository.GetByIdAsync(It.IsAny<int>())).Returns((int id) => Task.FromResult(BllHelpers.GetMongoSupplierById(id)));
+        mongoUnitOfWork.Setup(x => x.CategoryRepository.GetById(It.IsAny<int>())).Returns((int id) => Task.FromResult(BllHelpers.GetMongoCategoryById(id)));
     }
 }

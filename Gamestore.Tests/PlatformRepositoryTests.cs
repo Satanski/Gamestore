@@ -69,7 +69,7 @@ public class PlatformRepositoryTests : IDisposable
 
         // Act
         var actualGames = await _platformRepository.GetGamesByPlatformAsync(expectedPlatformId);
-        var actualPlatformId = actualGames[0].GamePlatforms[0].PlatformId;
+        var actualPlatformId = actualGames[0].ProductPlatforms[0].PlatformId;
 
         // Assert
         Assert.Single(actualGames);

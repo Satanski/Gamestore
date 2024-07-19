@@ -17,7 +17,7 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
     public Task<Order?> GetByCustomerIdAsync(Guid id)
     {
         var query = OrderIncludes();
-        return query.Where(x => x.CustomerId == id).FirstOrDefaultAsync();
+        return query.Where(x => x.Status == Enums.OrderStatus.Open && x.CustomerId == id).FirstOrDefaultAsync();
     }
 
     public Task<Order?> GetByIdAsync(Guid id)
@@ -25,10 +25,9 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         return _context.Orders.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
-    public Task<Order?> GetOrderByCustomerIdAsync(Guid id)
+    public Task<List<Order>> GetOrdersByDateRangeAsync(DateTime startD, DateTime endD)
     {
-        var query = OrderIncludes();
-        return query.Where(x => x.Status == Enums.OrderStatus.Open && x.CustomerId == id).FirstOrDefaultAsync();
+        return _context.Orders.Where(x => x.OrderDate >= startD && x.OrderDate <= endD).OrderByDescending(x => x.OrderDate).ToListAsync();
     }
 
     public Task<Order?> GetWithDetailsByIdAsync(Guid id)
@@ -47,6 +46,6 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
     {
         return _context.Orders
             .Include(x => x.OrderGames)
-            .ThenInclude(x => x.Product);
+            .ThenInclude(x => x.Game);
     }
 }

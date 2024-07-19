@@ -1,26 +1,21 @@
 ﻿using Gamestore.BLL.Filtering.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
 public class PublisherFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
-        if (filters.Publishers.Count == 0)
+        if (filters.Publishers.Count != 0)
         {
-            await SelectAllPublishers(unitOfWork, filters);
+            query = query.Where(game => filters.Publishers.Contains(game.Publisher.Id));
         }
 
-        query = query.Where(game => filters.Publishers.Contains(game.Publisher.Id));
-        query = await base.HandleAsync(unitOfWork, filters, query);
+        query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
 
         return query;
-    }
-
-    private static async Task SelectAllPublishers(IUnitOfWork unitOfWork, GameFiltersDto filters)
-    {
-        filters.Publishers.AddRange((await unitOfWork.PublisherRepository.GetAllAsync()).Select(x => x.Id));
     }
 }

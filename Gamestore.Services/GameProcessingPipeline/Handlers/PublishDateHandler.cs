@@ -2,6 +2,7 @@
 using Gamestore.BLL.Filtering.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
@@ -13,7 +14,7 @@ public class PublishDateHandler : GameProcessingPipelineHandlerBase
     private readonly string _twoYears = PublishDateOptionsDto.PublishDateOptions[3];
     private readonly string _threeYears = PublishDateOptionsDto.PublishDateOptions[4];
 
-    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         var publishingDate = filters.DatePublishing;
         var now = DateOnly.FromDateTime(DateTime.Now);
@@ -47,7 +48,7 @@ public class PublishDateHandler : GameProcessingPipelineHandlerBase
                 throw new GamestoreException("Wrong publishing date filter");
         }
 
-        query = await base.HandleAsync(unitOfWork, filters, query);
+        query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
 
         return query;
     }

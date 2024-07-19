@@ -1,4 +1,6 @@
-﻿namespace Gamestore.BLL.Filtering.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Gamestore.BLL.Filtering.Models;
 
 public class GameFiltersDto
 {
@@ -22,5 +24,12 @@ public class GameFiltersDto
 
     public string? Name { get; set; }
 
-    public int? NumberOfPagesAfterFiltration { get; set; }
+    [JsonIgnore]
+    public int NumberOfPagesAfterFiltration { get; set; } = 0;
+
+    [JsonIgnore]
+    public int NumberOfGamesFromPreviousSource { get; set; } = 0;
+
+    [JsonIgnore]
+    public int NumberOfDisplayedGamesFromPreviousSource { get; internal set; }
 }

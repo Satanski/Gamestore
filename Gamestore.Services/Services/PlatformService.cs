@@ -5,26 +5,28 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
+public class PlatformService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<PlatformService> logger) : IPlatformService
 {
+    private const string PhysicalProductType = "Physical Product";
     private readonly PlatformDtoWrapperValidator _platformDtoWrapperValidator = new(unitOfWork);
 
     public async Task<IEnumerable<GameModelDto>> GetGamesByPlatformIdAsync(Guid platformId)
     {
         logger.LogInformation("Getting games by platform id: {platformId}", platformId);
         var games = await unitOfWork.PlatformRepository.GetGamesByPlatformAsync(platformId);
+        List<GameModelDto> gameModels = automapper.Map<List<GameModelDto>>(games);
 
-        List<GameModelDto> gameModels = [];
-
-        foreach (var game in games)
+        if (platformId == (await unitOfWork.PlatformRepository.GetByTypeAsync(PhysicalProductType)).Id)
         {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
+            var gamesFromMongoDB = automapper.Map<List<GameModelDto>>(await mongoUnitOfWork.ProductRepository.GetAllAsync()).Except(gameModels);
+            gameModels.AddRange(gamesFromMongoDB);
         }
 
         return gameModels.AsEnumerable();
@@ -42,12 +44,7 @@ public class PlatformService(IUnitOfWork unitOfWork, IMapper automapper, ILogger
     {
         logger.LogInformation("Getting all platforms");
         var platforms = await unitOfWork.PlatformRepository.GetAllAsync();
-        List<PlatformModelDto> platformModels = [];
-
-        foreach (var platform in platforms)
-        {
-            platformModels.Add(automapper.Map<PlatformModelDto>(platform));
-        }
+        List<PlatformModelDto> platformModels = automapper.Map<List<PlatformModelDto>>(platforms);
 
         return platformModels.AsEnumerable();
     }

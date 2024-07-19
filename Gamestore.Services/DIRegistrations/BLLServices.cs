@@ -5,6 +5,7 @@ using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Filtering.Handlers;
 using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.MongoLogging;
 using Gamestore.BLL.Services;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Services;
@@ -21,6 +22,7 @@ public static class BllServices
         services.AddScoped<IGenreService, GenreService>();
         services.AddScoped<IPublisherService, PublisherService>();
         services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IShipperService, ShipperService>();
         services.AddScoped<PaymentServiceConfiguration>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IBanService, BanService>();
@@ -34,6 +36,7 @@ public static class BllServices
         services.AddScoped<SortingHandler>();
         services.AddScoped<IGameProcessingPipelineBuilder, GameProcessingPipelineBuilder>();
         services.AddScoped<IGameProcessingPipelineDirector, GameProcessingPipelineDirector>();
+        services.AddScoped<IMongoLoggingService, MongoLoggingService>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
         var autoMapper = autoMapperConfiguration.CreateMapper();

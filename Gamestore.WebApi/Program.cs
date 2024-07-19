@@ -1,5 +1,6 @@
 ﻿using Gamestore.BLL.DiRegistrations;
 using Gamestore.DAL.DIRegistrations;
+using Gamestore.MongoRepository.DIRegistrations;
 using Gamestore.WebApi.Interfaces;
 using Gamestore.WebApi.Middlewares;
 using Gamestore.WebApi.Strategies;
@@ -35,6 +36,7 @@ public static class Program
         builder.Services.AddMemoryCache();
 
         DAlServices.Configure(builder.Services, connectionString);
+        MongoRepositoryServices.Configure(builder.Services, builder.Configuration.GetSection("MongoDB"));
         BllServices.Congigure(builder.Services);
 
         builder.Services.AddControllers().AddNewtonsoftJson();
