@@ -5,13 +5,15 @@ using Gamestore.BLL.Models;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Helpers;
+using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Gamestore.Services.Services;
 
-public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<GenreService> logger) : IGenreService
+public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<GenreService> logger) : IGenreService
 {
     private readonly GenreDtoWrapperAddValidator _genreDtoWrapperAddValidator = new(unitOfWork);
     private readonly GenreDtoWrapperUpdateValidator _genreDtoWrapperUpdateValidator = new(unitOfWork);
@@ -41,13 +43,9 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     public async Task<IEnumerable<GenreModelDto>> GetAllGenresAsync()
     {
         logger.LogInformation("Getting all genres");
-        var genres = await unitOfWork.GenreRepository.GetAllAsync();
-        List<GenreModelDto> genreModels = [];
 
-        foreach (var genre in genres)
-        {
-            genreModels.Add(automapper.Map<GenreModelDto>(genre));
-        }
+        var genreModels = await GetGenresFromSQLServer(unitOfWork, automapper);
+        genreModels.AddRange((await GetCategoriesFromMongoDB(mongoUnitOfWork, automapper)).Except(genreModels));
 
         return genreModels.AsEnumerable();
     }
@@ -55,22 +53,19 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     public async Task<IEnumerable<GameModelDto>> GetGamesByGenreAsync(Guid genreId)
     {
         logger.LogInformation("Getting games by genre: {genreId}", genreId);
-        var games = await unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId);
 
-        List<GameModelDto> gameModels = [];
+        var games = await GetGamesByGenreIdFromSQLServer(unitOfWork, automapper, genreId);
+        games.AddRange(await GetGamesByGenreIdFromMongoDB(mongoUnitOfWork, automapper, genreId, games));
 
-        foreach (var game in games)
-        {
-            gameModels.Add(automapper.Map<GameModelDto>(game));
-        }
-
-        return gameModels.AsEnumerable();
+        return games;
     }
 
     public async Task<GenreModelDto> GetGenreByIdAsync(Guid genreId)
     {
         logger.LogInformation("Getting genre by id: {genreId}", genreId);
-        var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+
+        var genre = await GetGenreFromSQLServerById(unitOfWork, genreId);
+        genre ??= await GetGenreFromMongoDB(mongoUnitOfWork, automapper, genreId);
 
         return genre == null ? throw new GamestoreException($"No genre found with given id: {genreId}") : automapper.Map<GenreModelDto>(genre);
     }
@@ -79,12 +74,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
     {
         logger.LogInformation("Getting genres by parent genre id: {genreId}", genreId);
         var genres = await unitOfWork.GenreRepository.GetGenresByParentGenreAsync(genreId);
-        List<GenreModelDto> genreModels = [];
-
-        foreach (var genre in genres)
-        {
-            genreModels.Add(automapper.Map<GenreModelDto>(genre));
-        }
+        List<GenreModelDto> genreModels = automapper.Map<List<GenreModelDto>>(genres);
 
         return genreModels.AsEnumerable();
     }
@@ -113,5 +103,70 @@ public class GenreService(IUnitOfWork unitOfWork, IMapper automapper, ILogger<Ge
         await unitOfWork.GenreRepository.UpdateAsync(genre);
 
         await unitOfWork.SaveAsync();
+    }
+
+    private static int ConvertFirstEightCharactersOfGuidToId(Guid genreId)
+    {
+        return int.Parse(genreId.ToString()[..8]);
+    }
+
+    private static async Task<Genre?> GetGenreFromSQLServerById(IUnitOfWork unitOfWork, Guid genreId)
+    {
+        return await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+    }
+
+    private static async Task<Genre?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
+    {
+        int id = ConvertFirstEightCharactersOfGuidToId(genreId);
+        var category = await mongoUnitOfWork.CategoryRepository.GetById(id);
+        var genre = automapper.Map<Genre>(category);
+
+        return genre;
+    }
+
+    private static async Task<List<GameModelDto>> GetGamesByGenreIdFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper, Guid genreId)
+    {
+        List<GameModelDto> gameModels = [];
+        var games = await unitOfWork.GenreRepository.GetGamesByGenreAsync(genreId);
+        if (games is not null)
+        {
+            gameModels = automapper.Map<List<GameModelDto>>(games);
+        }
+
+        return gameModels;
+    }
+
+    private static async Task<List<GameModelDto>> GetGamesByGenreIdFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId, List<GameModelDto> gamesFromPreviousSource)
+    {
+        List<GameModelDto> games = [];
+        int id = GuidHelpers.GuidToInt(genreId);
+        var category = await mongoUnitOfWork.CategoryRepository.GetById(id);
+        if (category is not null)
+        {
+            var products = await mongoUnitOfWork.ProductRepository.GetByCategoryIdAsync(category.CategoryId);
+
+            if (products is not null)
+            {
+                games = automapper.Map<List<GameModelDto>>(products);
+            }
+        }
+
+        return games.Except(gamesFromPreviousSource).ToList();
+    }
+
+    private static async Task<List<GenreModelDto>> GetGenresFromSQLServer(IUnitOfWork unitOfWork, IMapper automapper)
+    {
+        var genres = await unitOfWork.GenreRepository.GetAllAsync();
+        var genreModels = automapper.Map<List<GenreModelDto>>(genres);
+
+        return genreModels;
+    }
+
+    private static async Task<List<GenreModelDto>> GetCategoriesFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper)
+    {
+        var categories = await mongoUnitOfWork.CategoryRepository.GetAllAsync();
+        var genres = automapper.Map<List<GenreModelDto>>(categories);
+
+        return genres;
     }
 }

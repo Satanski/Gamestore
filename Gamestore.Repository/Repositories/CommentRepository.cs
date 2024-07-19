@@ -25,7 +25,7 @@ public class CommentRepository(GamestoreContext context) : RepositoryBase<Commen
 
     public Task<List<Comment>> GetByGameKeyAsync(string key)
     {
-        return _context.Comments.Where(x => x.Game.Key == key).ToListAsync();
+        return _context.Comments.Where(x => x.Product.Key == key).ToListAsync();
     }
 
     public async Task UpdateAsync(Comment entity)

@@ -46,4 +46,24 @@ public record GameModelDto
     public List<GenreModelDto>? Genres { get; set; }
 
     public List<PlatformModelDto>? Platforms { get; set; }
+
+    public virtual bool Equals(GameModelDto? other)
+    {
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        if (other is null)
+        {
+            return false;
+        }
+
+        return Id == other.Id && Key == other.Key;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name, Price);
+    }
 }

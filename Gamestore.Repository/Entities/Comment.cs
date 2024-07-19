@@ -19,7 +19,7 @@ public class Comment
 
     public Guid? ParentCommentId { get; set; }
 
-    public Game Game { get; set; }
+    public Game Product { get; set; }
 
     public Comment? ParentComment { get; set; }
 }

@@ -69,7 +69,7 @@ public class GenreRepositoryTests : IDisposable
 
         // Act
         var actualGames = await _genreRepository.GetGamesByGenreAsync(expectedGenreId);
-        var actualGenreId = actualGames[0].GameGenres[0].GenreId;
+        var actualGenreId = actualGames[0].ProductCategories[0].GenreId;
 
         // Assert
         Assert.Single(actualGames);
