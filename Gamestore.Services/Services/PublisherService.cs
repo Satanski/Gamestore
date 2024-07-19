@@ -88,7 +88,7 @@ public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnit
 
         await _publisherDtoWrapperValidator.ValidatePublisher(publisherModel);
 
-        var publisher = automapper.Map<Supplier>(publisherModel.Publisher);
+        var publisher = automapper.Map<Publisher>(publisherModel.Publisher);
         await unitOfWork.PublisherRepository.AddAsync(publisher);
         await unitOfWork.SaveAsync();
     }
@@ -99,21 +99,21 @@ public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnit
 
         await _publisherDtoWrapperValidator.ValidatePublisher(publisherModel);
 
-        var publisher = automapper.Map<Supplier>(publisherModel.Publisher);
+        var publisher = automapper.Map<Publisher>(publisherModel.Publisher);
 
         await unitOfWork.PublisherRepository.UpdateAsync(publisher);
 
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task<Supplier?> GetPublisherFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string companyName)
+    private static async Task<Publisher?> GetPublisherFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, string companyName)
     {
         var supplier = await mongoUnitOfWork.SupplierRepository.GetByNameAsync(companyName);
-        var publisher = automapper.Map<Supplier>(supplier);
+        var publisher = automapper.Map<Publisher>(supplier);
         return publisher;
     }
 
-    private static async Task<Supplier?> GetPublisherFromSQLServerByCompanyName(IUnitOfWork unitOfWork, string companyName)
+    private static async Task<Publisher?> GetPublisherFromSQLServerByCompanyName(IUnitOfWork unitOfWork, string companyName)
     {
         return await unitOfWork.PublisherRepository.GetByCompanyNameAsync(companyName);
     }

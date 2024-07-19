@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Entities;
 
-[Table("ProductPlatforms")]
-[PrimaryKey(nameof(ProductId), nameof(PlatformId))]
-public class ProductPlatform
+[Table("GamePlatforms")]
+[PrimaryKey(nameof(GameId), nameof(PlatformId))]
+public class GamePlatform
 {
-    public Guid ProductId { get; set; }
+    public Guid GameId { get; set; }
 
     public Guid PlatformId { get; set; }
 
-    public Product Product { get; set; }
+    public Game Game { get; set; }
 
     public Platform Platform { get; set; }
 }

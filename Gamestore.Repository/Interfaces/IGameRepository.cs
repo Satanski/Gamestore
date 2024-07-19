@@ -2,17 +2,17 @@
 
 namespace Gamestore.DAL.Interfaces;
 
-public interface IGameRepository : IRepository<Product>, IRepositoryBase<Product>
+public interface IGameRepository : IRepository<Game>, IRepositoryBase<Game>
 {
-    Task<Product?> GetGameByKeyAsync(string key);
+    Task<Game?> GetGameByKeyAsync(string key);
 
-    IQueryable<Product> GetGamesAsQueryable();
+    IQueryable<Game> GetGamesAsQueryable();
 
-    Task<List<Category>> GetGenresByGameAsync(Guid id);
+    Task<List<Genre>> GetGenresByGameAsync(Guid id);
 
     Task<List<Platform>> GetPlatformsByGameAsync(Guid id);
 
-    Task<Supplier?> GetPublisherByGameAsync(Guid gameId);
+    Task<Publisher?> GetPublisherByGameAsync(Guid gameId);
 
-    Task SoftDelete(Product game);
+    Task SoftDelete(Game game);
 }

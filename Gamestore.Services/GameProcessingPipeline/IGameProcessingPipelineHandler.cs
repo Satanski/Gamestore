@@ -9,5 +9,5 @@ public interface IGameProcessingPipelineHandler
 {
     void SetNext(IGameProcessingPipelineHandler nextHandler);
 
-    Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query);
+    Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query);
 }

@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Gamestore.DAL.EntityConfigurations;
 
-internal class GameConfiguration : IEntityTypeConfiguration<Product>
+internal class GameConfiguration : IEntityTypeConfiguration<Game>
 {
-    public void Configure(EntityTypeBuilder<Product> builder)
+    public void Configure(EntityTypeBuilder<Game> builder)
     {
         Seed(builder);
     }
 
-    private static void Seed(EntityTypeBuilder<Product> builder)
+    private static void Seed(EntityTypeBuilder<Game> builder)
     {
-        builder.HasData(new Product()
+        builder.HasData(new Game()
         {
             Id = Guid.NewGuid(),
             Name = "Baldurs Gate",
@@ -25,7 +25,7 @@ internal class GameConfiguration : IEntityTypeConfiguration<Product>
             PublisherId = new Guid("22222222-2222-2222-2222-222222222222"),
         });
 
-        builder.HasData(new Product()
+        builder.HasData(new Game()
         {
             Id = Guid.NewGuid(),
             Name = "Tedt Drive",

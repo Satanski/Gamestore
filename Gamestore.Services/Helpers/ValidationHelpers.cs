@@ -5,9 +5,9 @@ namespace Gamestore.BLL.Helpers;
 
 internal static class ValidationHelpers
 {
-    internal static void CyclicReferenceHelper(List<Category> genres, List<Category> forbiddenList, Guid parentId)
+    internal static void CyclicReferenceHelper(List<Genre> genres, List<Genre> forbiddenList, Guid parentId)
     {
-        var childGenres = genres.Where(x => x.ParentCategoryId == parentId);
+        var childGenres = genres.Where(x => x.ParentGenreId == parentId);
         if (childGenres.Any())
         {
             forbiddenList.AddRange(childGenres);

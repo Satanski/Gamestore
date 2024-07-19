@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Gamestore.DAL.Entities;
 
-[Table("Suppliers")]
+[Table("Publishers")]
 [Index(nameof(CompanyName), IsUnique = true)]
-public class Supplier
+public class Publisher
 {
     [Key]
     public Guid Id { get; set; }
@@ -37,5 +37,5 @@ public class Supplier
 
     public string? Fax { get; set; }
 
-    public ICollection<Product> Products { get; set; }
+    public ICollection<Game> Games { get; set; }
 }

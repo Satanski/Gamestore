@@ -15,11 +15,11 @@ public class Comment
     public string Body { get; set; }
 
     [Required]
-    public Guid ProductId { get; set; }
+    public Guid GameId { get; set; }
 
     public Guid? ParentCommentId { get; set; }
 
-    public Product Product { get; set; }
+    public Game Product { get; set; }
 
     public Comment? ParentComment { get; set; }
 }

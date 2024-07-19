@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Gamestore.DAL.Entities;
 
-[Table("OrderProducts")]
-[PrimaryKey(nameof(OrderId), nameof(ProductId))]
-public class OrderProduct
+[Table("OrderGames")]
+[PrimaryKey(nameof(OrderId), nameof(GameId))]
+public class OrderGame
 {
     [Required]
     public Guid OrderId { get; set; }
 
     [Required]
-    public Guid ProductId { get; set; }
+    public Guid GameId { get; set; }
 
     [Required]
     public double Price { get; set; }
@@ -25,5 +25,5 @@ public class OrderProduct
 
     public Order Order { get; set; }
 
-    public Product Product { get; set; }
+    public Game Game { get; set; }
 }

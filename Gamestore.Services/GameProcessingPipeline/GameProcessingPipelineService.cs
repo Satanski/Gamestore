@@ -8,7 +8,7 @@ namespace Gamestore.BLL.Filtering;
 
 public class GameProcessingPipelineService(IGameProcessingPipelineHandler handlerChain) : IGameProcessingPipelineService
 {
-    public Task<IQueryable<Product>> ProcessGamesAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
+    public Task<IQueryable<Game>> ProcessGamesAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         return handlerChain.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
     }

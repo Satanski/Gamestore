@@ -4,17 +4,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Repositories;
 
-public class GameGenreRepository(GamestoreContext context) : RepositoryBase<ProductCategory>(context), IGameGenreRepository
+public class GameGenreRepository(GamestoreContext context) : RepositoryBase<GameGenres>(context), IGameGenreRepository
 {
     private readonly GamestoreContext _context = context;
 
-    public Task<List<ProductCategory>> GetByGameIdAsync(Guid id)
+    public Task<List<GameGenres>> GetByGameIdAsync(Guid id)
     {
-        return _context.ProductGenres.Where(x => x.ProductId == id).ToListAsync();
+        return _context.GameGenres.Where(x => x.GameId == id).ToListAsync();
     }
 
-    public Task<List<ProductCategory>> GetAllAsync()
+    public Task<List<GameGenres>> GetAllAsync()
     {
-        return _context.ProductGenres.ToListAsync();
+        return _context.GameGenres.ToListAsync();
     }
 }

@@ -8,6 +8,6 @@ internal class OrderConfiguration : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
     {
-        builder.HasMany(x => x.OrderProducts).WithOne(x => x.Order).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(x => x.OrderGames).WithOne(x => x.Order).OnDelete(DeleteBehavior.Restrict);
     }
 }

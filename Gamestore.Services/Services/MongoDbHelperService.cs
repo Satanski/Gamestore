@@ -38,9 +38,9 @@ internal static class MongoDbHelperService
         }
     }
 
-    private static async Task<List<Product>> GetProductsFromMongoDBThatDoesntExistInSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper)
+    private static async Task<List<Game>> GetProductsFromMongoDBThatDoesntExistInSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper)
     {
-        var productsFromMongoDB = automapper.Map<List<Product>>(await mongoUnitOfWork.ProductRepository.GetAllAsync());
+        var productsFromMongoDB = automapper.Map<List<Game>>(await mongoUnitOfWork.ProductRepository.GetAllAsync());
         return productsFromMongoDB.Except(await unitOfWork.GameRepository.GetAllAsync()).ToList();
     }
 }

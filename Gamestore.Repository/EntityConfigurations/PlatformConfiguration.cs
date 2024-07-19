@@ -8,7 +8,7 @@ internal class PlatformConfiguration : IEntityTypeConfiguration<Platform>
 {
     public void Configure(EntityTypeBuilder<Platform> builder)
     {
-        builder.HasMany(x => x.ProductPlatforms).WithOne(x => x.Platform).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(x => x.GamePlatforms).WithOne(x => x.Platform).OnDelete(DeleteBehavior.Restrict);
         Seed(builder);
     }
 
