@@ -237,7 +237,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         }
 
         var gameId = game.Id;
-        await CreateOrderGameAsync(unitOfWork, orderId, gameId);
+        await CreateOrderGameAsync(unitOfWork, orderId, game);
         await SetProductCountAsync(unitOfWork, orderId, gameId);
         await unitOfWork.SaveAsync();
     }
@@ -248,9 +248,9 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         order.OrderGames.First(x => x.OrderId == new Guid(orderId) && x.GameId == gameId).Quantity = 1;
     }
 
-    private static async Task CreateOrderGameAsync(IUnitOfWork unitOfWork, string orderId, Guid gameId)
+    private static async Task CreateOrderGameAsync(IUnitOfWork unitOfWork, string orderId, Game game)
     {
-        await unitOfWork.OrderGameRepository.AddAsync(new OrderGame() { OrderId = new Guid(orderId), GameId = gameId });
+        await unitOfWork.OrderGameRepository.AddAsync(new OrderGame() { OrderId = new Guid(orderId), GameId = game.Id, Price = game.Price, Discount = game.Discount });
     }
 
     private static void DeleteOrderGames(IUnitOfWork unitOfWork, Order? order)
