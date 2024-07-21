@@ -26,21 +26,4 @@ public class SupplierRepository(IMongoDatabase database) : ISupplierRepository
         var supplier = await _collection.Find(x => x.CompanyName == companyName).FirstOrDefaultAsync();
         return supplier;
     }
-
-    public async Task UpdateAsync(MongoSupplier entity)
-    {
-        var filter = Builders<MongoSupplier>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.ReplaceOneAsync(filter, entity);
-    }
-
-    public async Task AddAsync(MongoSupplier entity)
-    {
-        await _collection.InsertOneAsync(entity);
-    }
-
-    public async Task DeleteAsync(MongoSupplier entity)
-    {
-        var filter = Builders<MongoSupplier>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.DeleteOneAsync(filter);
-    }
 }

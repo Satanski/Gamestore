@@ -2,9 +2,9 @@
 
 namespace Gamestore.DAL.Interfaces;
 
-public interface IOrderGameRepository : IRepository<OrderProduct>, IRepositoryBase<OrderProduct>
+public interface IOrderGameRepository : IRepository<OrderGame>, IRepositoryBase<OrderGame>
 {
-    Task<OrderProduct?> GetByOrderIdAndProductIdAsync(Guid orderId, Guid productId);
+    Task<OrderGame?> GetByOrderIdAndProductIdAsync(Guid orderId, Guid productId);
 
-    Task<List<OrderProduct>> GetByOrderIdAsync(Guid id);
+    Task<List<OrderGame>> GetByOrderIdAsync(Guid id);
 }

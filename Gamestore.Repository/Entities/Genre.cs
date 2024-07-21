@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Gamestore.DAL.Entities;
 
-[Table("Categories")]
+[Table("Genres")]
 [Index(nameof(Name), IsUnique = true)]
-public class Category
+public class Genre
 {
     [Key]
     public Guid Id { get; set; }
@@ -15,7 +15,7 @@ public class Category
     [Required]
     public string Name { get; set; }
 
-    public Guid? ParentCategoryId { get; set; } = null!;
+    public Guid? ParentGenreId { get; set; } = null!;
 
-    public ICollection<ProductCategory> ProductGenres { get; set; }
+    public ICollection<GameGenres> GameGenres { get; set; }
 }

@@ -9,7 +9,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
 {
     private readonly string _allGames = PaginationOptionsDto.PaginationOptions[4];
 
-    public override async Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         var pageCount = filters.PageCount;
 
@@ -52,7 +52,7 @@ public class PaginationFilterHandler : GameProcessingPipelineHandlerBase
         return numberToSkip;
     }
 
-    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Product> query, GameFiltersDto filters)
+    private static int CountNumberOfPagesAfterFiltration(int numberOfGamesPerPage, IQueryable<Game> query, GameFiltersDto filters)
     {
         var noOfGames = query.Count() + filters.NumberOfGamesFromPreviousSource;
         return (int)Math.Ceiling((double)noOfGames / numberOfGamesPerPage);

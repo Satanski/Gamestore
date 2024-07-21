@@ -2,7 +2,7 @@
 
 namespace Gamestore.DAL.Interfaces;
 
-public interface IGamePlatformRepository : IRepositoryBase<ProductPlatform>
+public interface IGamePlatformRepository : IRepositoryBase<GamePlatform>
 {
-    Task<List<ProductPlatform>> GetByGameIdAsync(Guid id);
+    Task<List<GamePlatform>> GetByGameIdAsync(Guid id);
 }

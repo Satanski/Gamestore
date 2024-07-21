@@ -33,21 +33,21 @@ public class GameRepositoryTests : IDisposable
         var expectedGameId = Guid.NewGuid();
         var genre = _context.Genres.First();
         var expectedGenreId = genre.Id;
-        var expectedGameGenre = new ProductCategory() { ProductId = expectedGameId, CategoryId = expectedGenreId };
+        var expectedGameGenre = new GameGenres() { GameId = expectedGameId, GenreId = expectedGenreId };
 
         var platform = _context.Platforms.First();
         var expectedPlatformId = platform.Id;
-        var expectedGamePlatform = new ProductPlatform() { ProductId = expectedGameId, PlatformId = expectedPlatformId };
+        var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
 
         var expectedName = "Baldurs Gate";
         var expectedKey = "BG";
         var expectedDescription = "Rpg game";
 
-        List<ProductCategory> gameGenres = [expectedGameGenre];
-        List<ProductPlatform> gamePlatforms = [expectedGamePlatform];
+        List<GameGenres> gameGenres = [expectedGameGenre];
+        List<GamePlatform> gamePlatforms = [expectedGamePlatform];
 
         // Act
-        await _gameRepository.AddAsync(new Product()
+        await _gameRepository.AddAsync(new Game()
         {
             Id = expectedGameId,
             Name = expectedName,
@@ -59,8 +59,8 @@ public class GameRepositoryTests : IDisposable
         await _context.SaveChangesAsync();
 
         // Assert
-        var gamesInDatabase = _context.Products;
-        var resultGame = _context.Products.Find(expectedGameId);
+        var gamesInDatabase = _context.Games;
+        var resultGame = _context.Games.Find(expectedGameId);
 
         Assert.Equal(1, gamesInDatabase.Count());
         Assert.Equal(expectedName, resultGame.Name);
@@ -171,7 +171,7 @@ public class GameRepositoryTests : IDisposable
         // Arrange
         var expectedGameId = Guid.NewGuid();
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", "BG", "Rpg game");
-        var gameToUpdate = _context.Products.First();
+        var gameToUpdate = _context.Games.First();
 
         var expectedName = "Digital Combat Simulator";
         var expectedKey = "DCS";

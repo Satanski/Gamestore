@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Gamestore.DAL.EntityConfigurations;
 
-internal class OrderGameConfiguration : IEntityTypeConfiguration<OrderProduct>
+internal class OrderGameConfiguration : IEntityTypeConfiguration<OrderGame>
 {
-    public void Configure(EntityTypeBuilder<OrderProduct> builder)
+    public void Configure(EntityTypeBuilder<OrderGame> builder)
     {
-        builder.HasOne(x => x.Order).WithMany(x => x.OrderProducts).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(x => x.Product).WithMany(x => x.OrderProducts).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Order).WithMany(x => x.OrderGames).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.Game).WithMany(x => x.OrderProducts).OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -43,21 +43,4 @@ public class ProductRepository(IMongoDatabase database) : IProductRepository
         var products = _collection.Find(x => x.CategoryID == categoryId).ToListAsync();
         return products;
     }
-
-    public async Task UpdateAsync(MongoProduct entity)
-    {
-        var filter = Builders<MongoProduct>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.ReplaceOneAsync(filter, entity);
-    }
-
-    public async Task AddAsync(MongoProduct entity)
-    {
-        await _collection.InsertOneAsync(entity);
-    }
-
-    public async Task DeleteAsync(MongoProduct entity)
-    {
-        var filter = Builders<MongoProduct>.Filter.Eq("_id", entity.ObjectId);
-        await _collection.DeleteOneAsync(filter);
-    }
 }

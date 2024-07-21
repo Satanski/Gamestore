@@ -14,7 +14,7 @@ public class PublishDateHandler : GameProcessingPipelineHandlerBase
     private readonly string _twoYears = PublishDateOptionsDto.PublishDateOptions[3];
     private readonly string _threeYears = PublishDateOptionsDto.PublishDateOptions[4];
 
-    public override async Task<IQueryable<Product>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Product> query)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         var publishingDate = filters.DatePublishing;
         var now = DateOnly.FromDateTime(DateTime.Now);

@@ -40,5 +40,5 @@ public class Order
 
     public string? ShipCountry { get; set; }
 
-    public List<OrderProduct> OrderProducts { get; set; }
+    public List<OrderGame> OrderGames { get; set; }
 }

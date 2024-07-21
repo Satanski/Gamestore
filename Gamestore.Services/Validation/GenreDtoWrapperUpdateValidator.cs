@@ -38,13 +38,13 @@ internal class GenreDtoWrapperUpdateValidator : AbstractValidator<GenreModelDto>
         RuleFor(x => new { x.Id, x.ParentGenreId }).MustAsync(async (data, cancellation) =>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
-            var existingGenres = genres.Where(x => x.ParentCategoryId == data.Id && x.Id == data.ParentGenreId);
+            var existingGenres = genres.Where(x => x.ParentGenreId == data.Id && x.Id == data.ParentGenreId);
             return !existingGenres.Any();
         }).WithMessage("You can't set a parent genre that have this genre as a parent genre.");
         RuleFor(x => new { x.Id, x.ParentGenreId }).MustAsync(async (data, cancellation) =>
         {
             var genres = await unitOfWork.GenreRepository.GetAllAsync();
-            List<Category> forbiddenList = [];
+            List<Genre> forbiddenList = [];
 
             if (data.Id != null)
             {

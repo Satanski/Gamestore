@@ -2,11 +2,11 @@
 
 namespace Gamestore.DAL.Interfaces;
 
-public interface IPublisherRepository : IRepository<Supplier>, IRepositoryBase<Supplier>
+public interface IPublisherRepository : IRepository<Publisher>, IRepositoryBase<Publisher>
 {
-    Task<Supplier?> GetByCompanyNameAsync(string companyName);
+    Task<Publisher?> GetByCompanyNameAsync(string companyName);
 
-    Task<List<Product>> GetGamesByPublisherIdAsync(Guid id);
+    Task<List<Game>> GetGamesByPublisherIdAsync(Guid id);
 
-    Task<List<Product>> GetGamesByPublisherNameAsync(string name);
+    Task<List<Game>> GetGamesByPublisherNameAsync(string name);
 }

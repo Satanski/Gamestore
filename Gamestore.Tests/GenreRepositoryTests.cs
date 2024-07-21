@@ -69,7 +69,7 @@ public class GenreRepositoryTests : IDisposable
 
         // Act
         var actualGames = await _genreRepository.GetGamesByGenreAsync(expectedGenreId);
-        var actualGenreId = actualGames[0].ProductCategories[0].CategoryId;
+        var actualGenreId = actualGames[0].ProductCategories[0].GenreId;
 
         // Assert
         Assert.Single(actualGames);
@@ -81,7 +81,7 @@ public class GenreRepositoryTests : IDisposable
     {
         // Arrange
         var parentGenre = _context.Genres.First(x => x.Name == "Races");
-        var expectedGenres = _context.Genres.Where(x => x.ParentCategoryId == parentGenre.Id);
+        var expectedGenres = _context.Genres.Where(x => x.ParentGenreId == parentGenre.Id);
 
         // Act
         var actualGenres = await _genreRepository.GetGenresByParentGenreAsync(parentGenre.Id);
@@ -97,7 +97,7 @@ public class GenreRepositoryTests : IDisposable
         var startingGenres = _context.Genres;
         var expectedGenreCount = startingGenres.Count() + 1;
 
-        var expectedGenre = new Category()
+        var expectedGenre = new Genre()
         {
             Id = Guid.NewGuid(),
             Name = "New Genre",

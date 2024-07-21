@@ -8,13 +8,13 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
 {
     private readonly GamestoreContext _context = context;
 
-    public Task<List<Product>> GetGamesByPlatformAsync(Guid id)
+    public Task<List<Game>> GetGamesByPlatformAsync(Guid id)
     {
-        return _context.Products
+        return _context.Games
            .Include(x => x.Publisher)
            .Include(x => x.ProductCategories).ThenInclude(x => x.Category)
            .Include(x => x.ProductPlatforms).ThenInclude(x => x.Platform)
-           .Where(x => x.ProductPlatforms.Any(gp => gp.PlatformId == id && gp.ProductId == x.Id) && !x.IsDeleted)
+           .Where(x => x.ProductPlatforms.Any(gp => gp.PlatformId == id && gp.GameId == x.Id) && !x.IsDeleted)
            .ToListAsync();
     }
 

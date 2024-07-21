@@ -42,10 +42,10 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         _context.Entry(g).CurrentValues.SetValues(entity);
     }
 
-    private IIncludableQueryable<Order, Product> OrderIncludes()
+    private IIncludableQueryable<Order, Game> OrderIncludes()
     {
         return _context.Orders
-            .Include(x => x.OrderProducts)
-            .ThenInclude(x => x.Product);
+            .Include(x => x.OrderGames)
+            .ThenInclude(x => x.Game);
     }
 }

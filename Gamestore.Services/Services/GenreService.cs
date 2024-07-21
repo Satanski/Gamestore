@@ -85,7 +85,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
         await _genreDtoWrapperAddValidator.ValidateGenreForAdding(genreModel);
 
-        var genre = automapper.Map<Category>(genreModel.Genre);
+        var genre = automapper.Map<Genre>(genreModel.Genre);
 
         await unitOfWork.GenreRepository.AddAsync(genre);
 
@@ -98,7 +98,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
         await _genreDtoWrapperUpdateValidator.ValidateGenreForUpdating(genreModel);
 
-        var genre = automapper.Map<Category>(genreModel.Genre);
+        var genre = automapper.Map<Genre>(genreModel.Genre);
 
         await unitOfWork.GenreRepository.UpdateAsync(genre);
 
@@ -110,16 +110,16 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return int.Parse(genreId.ToString()[..8]);
     }
 
-    private static async Task<Category?> GetGenreFromSQLServerById(IUnitOfWork unitOfWork, Guid genreId)
+    private static async Task<Genre?> GetGenreFromSQLServerById(IUnitOfWork unitOfWork, Guid genreId)
     {
         return await unitOfWork.GenreRepository.GetByIdAsync(genreId);
     }
 
-    private static async Task<Category?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
+    private static async Task<Genre?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)
     {
         int id = ConvertFirstEightCharactersOfGuidToId(genreId);
         var category = await mongoUnitOfWork.CategoryRepository.GetById(id);
-        var genre = automapper.Map<Category>(category);
+        var genre = automapper.Map<Genre>(category);
 
         return genre;
     }

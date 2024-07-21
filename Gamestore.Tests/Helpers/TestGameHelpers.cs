@@ -4,22 +4,22 @@ namespace Gamestore.Tests.Helpers;
 
 internal static class TestGameHelpers
 {
-    internal static async Task<Product> AddTestGameAsync(GamestoreContext context, Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Category expectedGenre = null, Platform expectedPlatform = null)
+    internal static async Task<Game> AddTestGameAsync(GamestoreContext context, Guid expectedGameId, string expectedName, string expectedKey, string expectedDescription, Genre expectedGenre = null, Platform expectedPlatform = null)
     {
         expectedGenre ??= context.Genres.First();
         expectedPlatform ??= context.Platforms.First();
 
         var expectedGenreId = expectedGenre.Id;
 
-        var expectedGameGenre = new ProductCategory() { ProductId = expectedGameId, CategoryId = expectedGenreId };
+        var expectedGameGenre = new GameGenres() { GameId = expectedGameId, GenreId = expectedGenreId };
 
         var expectedPlatformId = expectedPlatform.Id;
-        var expectedGamePlatform = new ProductPlatform() { ProductId = expectedGameId, PlatformId = expectedPlatformId };
+        var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
 
-        List<ProductCategory> gameGenres = [expectedGameGenre];
-        List<ProductPlatform> gamePlatforms = [expectedGamePlatform];
+        List<GameGenres> gameGenres = [expectedGameGenre];
+        List<GamePlatform> gamePlatforms = [expectedGamePlatform];
 
-        var game = new Product()
+        var game = new Game()
         {
             Id = expectedGameId,
             Name = expectedName,
@@ -27,12 +27,12 @@ internal static class TestGameHelpers
             Description = expectedDescription,
             ProductCategories = gameGenres,
             ProductPlatforms = gamePlatforms,
-            Publisher = new Supplier() { Id = Guid.NewGuid(), CompanyName = "Test company" },
+            Publisher = new Publisher() { Id = Guid.NewGuid(), CompanyName = "Test company" },
             Comments = [],
             IsDeleted = false,
         };
 
-        await context.Products.AddAsync(game);
+        await context.Games.AddAsync(game);
         await context.SaveChangesAsync();
         return game;
     }
