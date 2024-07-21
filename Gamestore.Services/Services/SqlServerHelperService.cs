@@ -11,9 +11,18 @@ namespace Gamestore.BLL.Services;
 
 internal static class SqlServerHelperService
 {
-    internal static async Task FilterGamesFromSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
+    internal static async Task FilterGamesFromSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService, bool canSeeDeletedGames)
     {
-        var games = unitOfWork.GameRepository.GetGamesAsQueryable();
+        IQueryable<Game> games;
+        if (canSeeDeletedGames)
+        {
+            games = unitOfWork.GameRepository.GetGamesWithDeletedAsQueryable();
+        }
+        else
+        {
+            games = unitOfWork.GameRepository.GetGamesAsQueryable();
+        }
+
         var gamesFromSQLServer = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, games)).ToList();
         if (gamesFromSQLServer.Count != 0)
         {

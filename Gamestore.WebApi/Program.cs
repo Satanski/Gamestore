@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Gamestore.BLL.DiRegistrations;
-using Gamestore.BLL.Identity;
+using Gamestore.BLL.Identity.Models;
 using Gamestore.DAL.DIRegistrations;
 using Gamestore.IdentityRepository.DIRegistrations;
 using Gamestore.IdentityRepository.Entities;
@@ -32,14 +32,16 @@ public static class Program
 
         builder.Services.AddSerilog((services, lc) => lc
             .ReadFrom.Configuration(builder.Configuration)
-            .ReadFrom.Services(services));
+        .ReadFrom.Services(services));
 
-        builder.Services.AddIdentity<AppUser, AppRole>()
+        builder.Services.AddIdentity<AppUser, AppRole>(options => options.User.RequireUniqueEmail = false)
             .AddEntityFrameworkStores<IdentityDbContext>()
             .AddDefaultTokenProviders();
 
         builder.Services.Configure<IdentityOptions>(options =>
         {
+            options.User.RequireUniqueEmail = false;
+
             options.Password.RequireDigit = false;
             options.Password.RequireLowercase = false;
             options.Password.RequireNonAlphanumeric = false;
@@ -74,17 +76,19 @@ public static class Program
             });
 
         builder.Services.AddAuthorizationBuilder()
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.add.comment")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.add.comment")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.delete.comment")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.delete.comment")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.buy.game")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.buy.game")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.users")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.manage.users")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.roles")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.manage.roles")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.entities")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.manage.entities")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.edit.orders")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.edit.orders")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.order.history")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.order.history")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.order.status")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.order.status")!))
-            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.ban.users")!, policy => policy.RequireClaim(Permissions.PermissionList.GetValueOrDefault("permissions.ban.users")!));
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.add.comment")!, policy => policy.RequireClaim("permissions.add.comment"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.delete.comment")!, policy => policy.RequireClaim("permissions.delete.comment"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.buy.game")!, policy => policy.RequireClaim("permissions.buy.game"!))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.users")!, policy => policy.RequireClaim("permissions.manage.users"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.roles")!, policy => policy.RequireClaim("permissions.manage.roles"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")!, policy => policy.RequireClaim("permissions.deleted.games"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.manage.entities")!, policy => policy.RequireClaim("permissions.manage.entities"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.edit.orders")!, policy => policy.RequireClaim("permissions.edit.orders"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.order.history")!, policy => policy.RequireClaim("permissions.order.history"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.order.status")!, policy => policy.RequireClaim("permissions.order.status"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.ban.users")!, policy => policy.RequireClaim("permissions.ban.users"))
+            .AddPolicy(Permissions.PermissionList.GetValueOrDefault("permissions.moderate.comments")!, policy => policy.RequireClaim("permissions.moderate.comments"))
+            .AddPolicy("ManageEntitiesOrDeletedGames", policy => policy.RequireAssertion(context => context.User.HasClaim(claim => claim.Type == "permissions.manage.entities") || context.User.HasClaim(claim => claim.Type == "permissions.deleted.games")));
 
         builder.Services.AddMemoryCache();
 

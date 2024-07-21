@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using AutoMapper;
+using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
 using Gamestore.DAL.Entities;

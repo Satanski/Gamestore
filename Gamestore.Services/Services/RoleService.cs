@@ -1,8 +1,8 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
 using Gamestore.BLL.Exceptions;
-using Gamestore.BLL.Identity;
+using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Interfaces;
-using Gamestore.BLL.Models;
 using Gamestore.IdentityRepository;
 using Gamestore.IdentityRepository.Identity;
 using Gamestore.IdentityRepository.Interfaces;
@@ -69,6 +69,7 @@ public class RoleService(IIdentityUnitOfWork unitOfWork, IMapper automapper) : I
         }
 
         identityRole.Name = roleDto.Role.Name;
+        identityRole.NormalizedName = roleDto.Role.Name.ToUpper(CultureInfo.InvariantCulture);
         unitOfWork.RoleRepository.Update(identityRole);
         await UpdateRoleCialmsInrepositoryAsync(unitOfWork, roleDto, identityRole);
         await unitOfWork.SaveAsync();

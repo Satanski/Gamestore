@@ -1,6 +1,7 @@
-﻿using Gamestore.BLL.Interfaces;
-using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Identity.Models;
+using Gamestore.BLL.Interfaces;
 using Gamestore.IdentityRepository.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ namespace Gamestore.WebApi.Controllers;
 public class RolesController(IRoleService roleService, RoleManager<AppRole> roleManager) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "ManageRoles")]
     public IActionResult GetRoles()
     {
         var roles = roleService.GetAllRoles(roleManager);
@@ -19,7 +21,8 @@ public class RolesController(IRoleService roleService, RoleManager<AppRole> role
     }
 
     [HttpGet("{roleId}")]
-    public async Task<IActionResult> GetRole(Guid roleId)
+    [Authorize(Policy = "ManageRoles")]
+    public async Task<IActionResult> GetRoleAsync(Guid roleId)
     {
         var result = await roleService.GetRoleByIdAsync(roleManager, roleId);
 
@@ -27,6 +30,7 @@ public class RolesController(IRoleService roleService, RoleManager<AppRole> role
     }
 
     [HttpGet("permissions")]
+    [Authorize(Policy = "ManageRoles")]
     public IActionResult GetAllPermissions()
     {
         var roles = roleService.GetAllPermissions();
@@ -35,7 +39,8 @@ public class RolesController(IRoleService roleService, RoleManager<AppRole> role
     }
 
     [HttpGet("{roleId}/permissions")]
-    public async Task<IActionResult> GetRolePermissions(Guid roleId)
+    [Authorize(Policy = "ManageRoles")]
+    public async Task<IActionResult> GetRolePermissionsAsync(Guid roleId)
     {
         var permissions = await roleService.GetPermissionsByRoleIdAsync(roleManager, roleId);
 
@@ -43,7 +48,8 @@ public class RolesController(IRoleService roleService, RoleManager<AppRole> role
     }
 
     [HttpDelete("{roleId}")]
-    public async Task<IdentityResult> DeleteRole(Guid roleId)
+    [Authorize(Policy = "ManageRoles")]
+    public async Task<IdentityResult> DeleteRoleAsync(Guid roleId)
     {
         var result = await roleService.DeleteRoleByIdAsync(roleManager, roleId);
 
@@ -51,7 +57,8 @@ public class RolesController(IRoleService roleService, RoleManager<AppRole> role
     }
 
     [HttpPost]
-    public async Task<IdentityResult> AddRole(RoleModelDto role)
+    [Authorize(Policy = "ManageRoles")]
+    public async Task<IdentityResult> AddRoleAsync(RoleModelDto role)
     {
         var result = await roleService.AddRoleAsync(roleManager, role);
 
@@ -59,7 +66,8 @@ public class RolesController(IRoleService roleService, RoleManager<AppRole> role
     }
 
     [HttpPut]
-    public async Task<IdentityResult> UpdateRole(RoleModelDto role)
+    [Authorize(Policy = "ManageRoles")]
+    public async Task<IdentityResult> UpdateRoleAsync(RoleModelDto role)
     {
         var result = await roleService.UpdateRoleAsync(roleManager, role);
 

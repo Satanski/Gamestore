@@ -20,7 +20,7 @@ public class CommentsController([FromServices] ICommentService commentService) :
 
     // POST: comments/ban
     [HttpPost("ban")]
-    [Authorize(Roles = "Moderator")]
+    [Authorize(Policy = "BanUsers")]
     public IActionResult BanCustomer([FromBody] BanDto ban)
     {
         commentService.BanCustomerFromCommenting(ban);

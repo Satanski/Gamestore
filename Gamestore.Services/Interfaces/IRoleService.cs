@@ -1,4 +1,4 @@
-﻿using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Identity.Models;
 using Gamestore.IdentityRepository.Identity;
 using Microsoft.AspNetCore.Identity;
 

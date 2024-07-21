@@ -34,7 +34,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // POST: genres
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> AddGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.AddGenreAsync(genreModel);
@@ -62,7 +62,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // PUT: genres
     [HttpPut]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> UpdateGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.UpdateGenreAsync(genreModel);
@@ -72,7 +72,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // DELETE: genres
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> DeleteGenreByIdAsync(Guid id)
     {
         await _genreService.DeleteGenreAsync(id);

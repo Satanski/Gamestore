@@ -218,6 +218,41 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return paymentMethods;
     }
 
+    public async Task ShipAsync(string id)
+    {
+        var order = await unitOfWork.OrderRepository.GetByIdAsync(new Guid(id));
+        order.Status = OrderStatus.Shipped;
+        await unitOfWork.OrderRepository.UpdateAsync(order);
+        await unitOfWork.SaveAsync();
+    }
+
+    public async Task AddProductToOrderAsync(string orderId, string productKey)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(productKey);
+        if (game == null)
+        {
+            var gameFromMongoDB = await MongoDbHelperService.GetGameWithDetailsFromMongoDBByKeyAsync(mongoUnitOfWork, automapper, productKey);
+            await SqlServerHelperService.CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, gameFromMongoDB, game);
+            game = await unitOfWork.GameRepository.GetGameByKeyAsync(productKey);
+        }
+
+        var gameId = game.Id;
+        await CreateOrderGameAsync(unitOfWork, orderId, gameId);
+        await SetProductCountAsync(unitOfWork, orderId, gameId);
+        await unitOfWork.SaveAsync();
+    }
+
+    private static async Task SetProductCountAsync(IUnitOfWork unitOfWork, string orderId, Guid gameId)
+    {
+        var order = await unitOfWork.OrderRepository.GetByIdAsync(new Guid(orderId));
+        order.OrderGames.First(x => x.OrderId == new Guid(orderId) && x.GameId == gameId).Quantity = 1;
+    }
+
+    private static async Task CreateOrderGameAsync(IUnitOfWork unitOfWork, string orderId, Guid gameId)
+    {
+        await unitOfWork.OrderGameRepository.AddAsync(new OrderGame() { OrderId = new Guid(orderId), GameId = gameId });
+    }
+
     private static void DeleteOrderGames(IUnitOfWork unitOfWork, Order? order)
     {
         foreach (var item in order.OrderGames)

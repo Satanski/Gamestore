@@ -16,7 +16,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders
     [HttpGet]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "OrderHistory")]
     public async Task<IActionResult> GetOrdersAsync()
     {
         var orders = await _orderService.GetAllOrdersAsync();
@@ -26,7 +26,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders/GUID
     [HttpGet("{id}")]
-    [Authorize(Roles = "User, Manager")]
+    [Authorize(Policy = "OrderStatus")]
     public async Task<IActionResult> GetOrderByIdAsync(Guid id)
     {
         var order = await _orderService.GetOrderByIdAsync(id);
@@ -36,7 +36,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders
     [HttpGet("history")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "OrderHistory")]
     public async Task<IActionResult> GetOrdersHistoryAsync([FromQuery] string? start, [FromQuery] string? end)
     {
         var orders = await _orderService.GetOrdersHistoryAsync(start, end);
@@ -46,7 +46,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders/GUID/details
     [HttpGet("{id}/details")]
-    [Authorize(Roles = "User, Manager")]
+    [Authorize(Policy = "OrderStatus")]
     public async Task<IActionResult> GetOrderDetailsByOrderIdAsync(Guid id)
     {
         var order = await _orderService.GetOrderDetailsByOrderIdAsync(id);
@@ -56,7 +56,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders/cart
     [HttpGet("cart")]
-    [Authorize(Roles = "User, Manager")]
+    [Authorize(Policy = "OrderStatus")]
     public async Task<IActionResult> GetCartAsync()
     {
         var userId = new Guid(User.GetJwtSubjectId());
@@ -67,7 +67,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // POST: orders
     [HttpPost("payment")]
-    [Authorize(Roles = "User")]
+    [Authorize(Policy = "OrderStatus")]
     public async Task<IActionResult> PayAsync([FromBody] PaymentModelDto payment)
     {
         var id = User.GetJwtSubjectId();
@@ -77,9 +77,26 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
         return await paymentContext.ExecuteStrategyAsync(payment.Method, payment, customer);
     }
 
+    [HttpPost("{id}/ship")]
+    [Authorize(Policy = "EditOrders")]
+    public async Task<IActionResult> ShipAsync(string id)
+    {
+        await _orderService.ShipAsync(id);
+
+        return Ok();
+    }
+
+    [HttpPost("{orderId}/details/{productName}")]
+    [Authorize(Policy = "EditOrders")]
+    public async Task<IActionResult> AddProductToOrderAsync(string orderId, string productName)
+    {
+        await _orderService.AddProductToOrderAsync(orderId, productName);
+
+        return Ok();
+    }
+
     // GET: orders/cart
     [HttpGet("payment-methods")]
-    [Authorize(Roles = "User, Manager")]
     public IActionResult GetPaymentMethods()
     {
         var paymentMethods = _orderService.GetPaymentMethods();
@@ -89,7 +106,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // DELETE: orders
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "EditOrders")]
     public async Task<IActionResult> DeleteOrderByIdAsync(Guid id)
     {
         await _orderService.DeleteOrderByIdAsync(id);
@@ -99,12 +116,23 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // DELETE: orders
     [HttpDelete("cart/{key}")]
-    [Authorize(Roles = "User, Manager")]
+    [Authorize(Policy = "EditOrders")]
     public async Task<IActionResult> DeleteOrderByIdAsync(string key)
     {
         var userId = new Guid(User.GetJwtSubjectId());
 
         await _orderService.RemoveGameFromCartAsync(userId, key, 1);
+
+        return Ok();
+    }
+
+    [HttpPatch("details/{detailId}/quantity")]
+    [Authorize(Policy = "EditOrders")]
+    public async Task<IActionResult> UpdateDetailsQuantityAsync(string detailId)
+    {
+        var userId = new Guid(User.GetJwtSubjectId());
+
+        await _orderService.RemoveGameFromCartAsync(userId, detailId, 1);
 
         return Ok();
     }

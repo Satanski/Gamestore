@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Gamestore.BLL.Identity.Helpers;
 using Gamestore.IdentityRepository.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -22,8 +23,10 @@ public static class JwtHelpers
             new(UserIdClaim, user.Id),
         };
 
-        var roles = await userManager.GetRolesAsync(user);
-        foreach (var role in roles)
+        var roleHierarchyHelper = new RoleHierarchyHelper(roleManager);
+        var effectiveRoles = await roleHierarchyHelper.GetEffectiveRolesAsync(user, userManager);
+
+        foreach (var role in effectiveRoles)
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
             var appRole = await roleManager.FindByNameAsync(role);

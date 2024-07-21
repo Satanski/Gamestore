@@ -50,10 +50,21 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         return query.Where(x => !x.IsDeleted).AsSplitQuery().ToListAsync();
     }
 
+    public Task<List<Game>> GetAllWithDeletedAsync()
+    {
+        var query = GameIncludes();
+        return query.AsSplitQuery().ToListAsync();
+    }
+
     public IQueryable<Game> GetGamesAsQueryable()
     {
         var includes = GameIncludes();
         return includes.Where(x => !x.IsDeleted);
+    }
+
+    public IQueryable<Game> GetGamesWithDeletedAsQueryable()
+    {
+        return GameIncludes();
     }
 
     public async Task SoftDelete(Game game)

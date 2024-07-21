@@ -26,4 +26,8 @@ public interface IOrderService
     PaymentMethodsDto GetPaymentMethods();
 
     Task<List<OrderModelDto>> GetOrdersHistoryAsync(string? startDate, string? endDate);
+
+    Task ShipAsync(string id);
+
+    Task AddProductToOrderAsync(string orderId, string productKey);
 }

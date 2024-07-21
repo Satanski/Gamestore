@@ -1,4 +1,4 @@
-﻿namespace Gamestore.BLL.Identity;
+﻿namespace Gamestore.BLL.Identity.Models;
 
 public static class Permissions
 {
@@ -15,6 +15,7 @@ public static class Permissions
         { "permissions.order.history", "OrderHistory" },
         { "permissions.order.status", "OrderStatus" },
         { "permissions.ban.users", "BanUsers" },
+        { "permissions.moderate.comments", "ModerateComments" },
     };
 
     public static Dictionary<string, string> PermissionList => PermissionListDictionary;

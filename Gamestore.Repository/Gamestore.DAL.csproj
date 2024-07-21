@@ -17,6 +17,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.7" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Gamestore.IdentityRepository\Gamestore.IdentityRepository.csproj" />
+  </ItemGroup>
   
   
   <ItemGroup>

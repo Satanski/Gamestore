@@ -22,7 +22,7 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
 
     public Task<Order?> GetByIdAsync(Guid id)
     {
-        return _context.Orders.Where(x => x.Id == id).FirstOrDefaultAsync();
+        return _context.Orders.Include(x => x.OrderGames).Where(x => x.Id == id).FirstOrDefaultAsync();
     }
 
     public Task<List<Order>> GetOrdersByDateRangeAsync(DateTime startD, DateTime endD)

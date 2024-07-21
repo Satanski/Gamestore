@@ -33,23 +33,34 @@ public class GameService(
     private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
     private readonly CommentModelDtoValidator _commentModelDtoValidator = new();
 
-    public async Task<IEnumerable<GameModelDto>> GetAllGamesAsync()
+    public async Task<List<GameModelDto>> GetAllGamesAsync(bool canSeeDeletedGames)
     {
         logger.LogInformation("Getting all games");
-        var games = await unitOfWork.GameRepository.GetAllAsync();
-        var gameModels = automapper.Map<List<GameModelDto>>(games);
 
-        return gameModels.AsEnumerable();
+        List<GameModelDto> gameModels;
+        if (canSeeDeletedGames)
+        {
+            gameModels = automapper.Map<List<GameModelDto>>(await unitOfWork.GameRepository.GetAllWithDeletedAsync());
+        }
+        else
+        {
+            gameModels = automapper.Map<List<GameModelDto>>(await unitOfWork.GameRepository.GetAllAsync());
+        }
+
+        var productsFromMongoDB = automapper.Map<List<GameModelDto>>(await mongoUnitOfWork.ProductRepository.GetAllAsync());
+        gameModels.AddRange(productsFromMongoDB);
+
+        return gameModels;
     }
 
-    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters)
+    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters, bool canSeeDeletedGames)
     {
         logger.LogInformation("Getting games by filter");
 
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
         FilteredGamesDto filteredGameDtos = new();
-        await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, canSeeDeletedGames);
         await MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
         SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
         CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
@@ -313,13 +324,13 @@ public class GameService(
         return string.Empty;
     }
 
-    public async Task DeleteCommentAsync(string userName, string gameKey, Guid commentId)
+    public async Task DeleteCommentAsync(string userName, string gameKey, Guid commentId, bool canModerate)
     {
         logger.LogInformation("Deleting comment: {@commentId}", commentId);
 
         var comment = await unitOfWork.CommentRepository.GetByIdAsync(commentId);
 
-        if (comment != null && comment.Name == userName)
+        if ((comment != null && comment.Name == userName) || (comment != null && canModerate))
         {
             comment.Body = DeletedMessageTemplate;
             await unitOfWork.CommentRepository.UpdateAsync(comment);

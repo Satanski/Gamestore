@@ -21,7 +21,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformDtoWrapper platform)
     {
         await _platformService.AddPlatformAsync(platform);
@@ -48,7 +48,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // PUT: platforms
     [HttpPut]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformDtoWrapper platformModel)
     {
         await _platformService.UpdatePlatformAsync(platformModel);
@@ -58,7 +58,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // DELETE: platforms
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> DeletePlatformByIdAsync(Guid id)
     {
         await _platformService.DeletePlatformByIdAsync(id);

@@ -14,9 +14,9 @@ public interface IGameService
 
     Task DeleteGameByKeyAsync(string gameKey);
 
-    Task<IEnumerable<GameModelDto>> GetAllGamesAsync();
+    Task<List<GameModelDto>> GetAllGamesAsync(bool canSeeDeletedGames);
 
-    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters);
+    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters, bool canSeeDeletedGames);
 
     Task<GameModelDto> GetGameByIdAsync(Guid gameId);
 
@@ -38,7 +38,7 @@ public interface IGameService
 
     Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
 
-    Task DeleteCommentAsync(string userName, string gameKey, Guid commentId);
+    Task DeleteCommentAsync(string userName, string gameKey, Guid commentId, bool canModerate);
 
     List<string> GetPaginationOptions();
 

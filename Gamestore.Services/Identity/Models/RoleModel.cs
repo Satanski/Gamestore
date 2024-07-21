@@ -1,4 +1,4 @@
-﻿namespace Gamestore.BLL.Models;
+﻿namespace Gamestore.BLL.Identity.Models;
 
 public record RoleModel
 {

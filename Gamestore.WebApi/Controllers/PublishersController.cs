@@ -20,7 +20,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // GET: publishers/GUID
     [HttpGet("find/{id}")]
-    public async Task<IActionResult> GetPublisherById(Guid id)
+    public async Task<IActionResult> GetPublisherByIdAsync(Guid id)
     {
         var publisher = await publisherService.GetPublisherByIdAsync(id);
 
@@ -29,7 +29,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // GET: publishers/STRING
     [HttpGet("{companyName}")]
-    public async Task<IActionResult> GetPublisherByCompanyName(string companyName)
+    public async Task<IActionResult> GetPublisherByCompanyNameAsync(string companyName)
     {
         var publisher = await publisherService.GetPublisherByCompanyNameAsync(companyName);
 
@@ -38,7 +38,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // GET: publishers/GUID/games
     [HttpGet("{publisherName}/games")]
-    public async Task<IActionResult> GetGamesByPublisherName(string publisherName)
+    public async Task<IActionResult> GetGamesByPublisherNameAsync(string publisherName)
     {
         var games = await publisherService.GetGamesByPublisherNameAsync(publisherName);
 
@@ -47,7 +47,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // POST: publishers
     [HttpPost]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.AddPublisherAsync(publisherModel);
@@ -57,7 +57,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // PUT: publishers
     [HttpPut]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.UpdatePublisherAsync(publisherModel);
@@ -67,7 +67,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // DELETE: publishers
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Policy = "ManageEntities")]
     public async Task<IActionResult> DeletePublisherByIdAsync(Guid id)
     {
         await publisherService.DeletPublisherByIdAsync(id);
