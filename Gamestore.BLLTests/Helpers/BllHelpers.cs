@@ -76,7 +76,7 @@ internal static class BllHelpers
             },
         ];
 
-    internal static List<Product> Games =>
+    internal static List<Game> Games =>
         [
             new()
             {
@@ -89,7 +89,7 @@ internal static class BllHelpers
                 NumberOfViews = 10,
                 IsDeleted = false,
                 Comments = [new()],
-                ProductCategories = [GameGenres.First(x => x.CategoryId == Genres.First(x => x.Name == "Rpg").Id)],
+                ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Rpg").Id)],
                 ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Desktop").Id)],
                 Publisher = Publishers.First(x => x.CompanyName == "Blizzard"),
             },
@@ -104,7 +104,7 @@ internal static class BllHelpers
                 NumberOfViews = 100,
                 IsDeleted = false,
                 Comments = [new(), new()],
-                ProductCategories = [GameGenres.First(x => x.CategoryId == Genres.First(x => x.Name == "Racing").Id)],
+                ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Racing").Id)],
                 ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Mobile").Id)],
                 Publisher = Publishers.First(x => x.CompanyName == "Activision"),
             },
@@ -119,24 +119,24 @@ internal static class BllHelpers
                 NumberOfViews = 1000,
                 IsDeleted = false,
                 Comments = [new(), new(), new()],
-                ProductCategories = [GameGenres.First(x => x.CategoryId == Genres.First(x => x.Name == "Simulator").Id)],
+                ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Simulator").Id)],
                 ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Console").Id)],
                 Publisher = Publishers.First(x => x.CompanyName == "BioWare"),
             },
         ];
 
-    internal static List<ProductCategory> GameGenres =>
+    internal static List<GameGenres> GameGenres =>
         [
-            new() { ProductId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63"), CategoryId = Genres.Find(x => x.Name == "Rpg").Id },
-            new() { ProductId = new Guid("382f980c-11fd-48f8-8c12-916ad4390622"), CategoryId = Genres.Find(x => x.Name == "Racing").Id },
-            new() { ProductId = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa63"), CategoryId = Genres.Find(x => x.Name == "Simulator").Id },
+            new() { GameId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63"), GenreId = Genres.Find(x => x.Name == "Rpg").Id },
+            new() { GameId = new Guid("382f980c-11fd-48f8-8c12-916ad4390622"), GenreId = Genres.Find(x => x.Name == "Racing").Id },
+            new() { GameId = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa63"), GenreId = Genres.Find(x => x.Name == "Simulator").Id },
         ];
 
-    internal static List<ProductPlatform> GamePlatforms =>
+    internal static List<GamePlatform> GamePlatforms =>
         [
-            new() { ProductId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Desktop").Id },
-            new() { ProductId = new Guid("382f980c-11fd-48f8-8c12-916ad4390622"), PlatformId = Platforms.Find(x => x.Type == "Mobile").Id },
-            new() { ProductId = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Console").Id },
+            new() { GameId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Desktop").Id },
+            new() { GameId = new Guid("382f980c-11fd-48f8-8c12-916ad4390622"), PlatformId = Platforms.Find(x => x.Type == "Mobile").Id },
+            new() { GameId = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa63"), PlatformId = Platforms.Find(x => x.Type == "Console").Id },
         ];
 
 #pragma warning disable CS8601 // Possible null reference assignment.
@@ -147,7 +147,7 @@ internal static class BllHelpers
             List<GameModelDto> gameModelDtos = [];
             for (int i = 0; i < Games.Count; i++)
             {
-                gameModelDtos.Add(new() { Id = Games[i].Id, Name = Games[i].Name, Key = Games[i].Key, Description = Games[i].Description, Platforms = [PlatformModelDtos.First(x => x.Id == Games[i].ProductPlatforms[0].PlatformId)], Genres = [GenreModelDtos.First(x => x.Id == Games[i].ProductCategories[0].CategoryId)], Publisher = PublisherModelDtos.First(x => x.Id == Games[i].Publisher.Id) });
+                gameModelDtos.Add(new() { Id = Games[i].Id, Name = Games[i].Name, Key = Games[i].Key, Description = Games[i].Description, Platforms = [PlatformModelDtos.First(x => x.Id == Games[i].ProductPlatforms[0].PlatformId)], Genres = [GenreModelDtos.First(x => x.Id == Games[i].ProductCategories[0].GenreId)], Publisher = PublisherModelDtos.First(x => x.Id == Games[i].Publisher.Id) });
             }
 
             return gameModelDtos;
@@ -155,7 +155,7 @@ internal static class BllHelpers
     }
 #pragma warning restore CS8601 // Possible null reference assignment.
 
-    internal static List<Category> Genres =>
+    internal static List<Genre> Genres =>
         [
             new() { Id = new Guid("4885AB50-BF64-48D2-80CC-28C94D184841"), Name = "Rpg" },
             new() { Id = new Guid("4885AB50-1111-48D2-80CC-28C94D184841"), Name = "Racing" },
@@ -198,7 +198,7 @@ internal static class BllHelpers
         }
     }
 
-    internal static List<Supplier> Publishers =>
+    internal static List<Publisher> Publishers =>
     [
         new() { Id = new Guid("12345678-D5E1-4449-AF51-2CB10B025935"), CompanyName = "Blizzard" },
         new() { Id = new Guid("12345678-D5E1-4581-AF51-2CB10B025935"), CompanyName = "Activision" },
@@ -227,29 +227,29 @@ internal static class BllHelpers
         return new Mapper(configuration);
     }
 
-    internal static List<Product> GetGamesByGenreAsync(Guid id)
+    internal static List<Game> GetGamesByGenreAsync(Guid id)
     {
-        return Games.Where(x => x.ProductCategories.Exists(x => x.CategoryId == id)).ToList();
+        return Games.Where(x => x.ProductCategories.Exists(x => x.GameId == id)).ToList();
     }
 
-    internal static List<Product> GetGamesByPlatformAsync(Guid id)
+    internal static List<Game> GetGamesByPlatformAsync(Guid id)
     {
         return Games.Where(x => x.ProductPlatforms.Exists(x => x.PlatformId == id)).ToList();
     }
 
-    internal static List<Product> GetGamesByPublisherAsync(Guid id)
+    internal static List<Game> GetGamesByPublisherAsync(Guid id)
     {
         return Games.Where(x => x.Publisher.Id == id).ToList();
     }
 
-    internal static List<Category> GetGenresByGameAsync(Guid id)
+    internal static List<Genre> GetGenresByGameAsync(Guid id)
     {
-        var gameGernes = GameGenres.Where(x => x.ProductId == id).ToList();
-        var genres = new List<Category>();
+        var gameGernes = GameGenres.Where(x => x.GameId == id).ToList();
+        var genres = new List<Genre>();
 
         foreach (var gameGenre in gameGernes)
         {
-            genres.Add(Genres.First(x => x.Id == gameGenre.CategoryId));
+            genres.Add(Genres.First(x => x.Id == gameGenre.GenreId));
         }
 
         return genres;
@@ -257,7 +257,7 @@ internal static class BllHelpers
 
     internal static List<Platform> GetPlatformsByGameAsync(Guid id)
     {
-        var gamePlatforms = GamePlatforms.Where(x => x.ProductId == id).ToList();
+        var gamePlatforms = GamePlatforms.Where(x => x.GameId == id).ToList();
         var platforms = new List<Platform>();
 
         foreach (var gamePlatform in gamePlatforms)
