@@ -1,6 +1,8 @@
 ﻿using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Models;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.Services.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gamestore.Services.Interfaces;
 
@@ -34,7 +36,7 @@ public interface IGameService
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 
-    Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment);
+    Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment, UserManager<AppUser> userManager);
 
     Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
 

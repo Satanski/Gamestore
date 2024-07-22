@@ -3,16 +3,18 @@ using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Identity.Extensions;
 using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Models;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class GamesController([FromServices] IGameService gameService) : ControllerBase
+public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager) : ControllerBase
 {
     private readonly IGameService _gameService = gameService;
 
@@ -174,7 +176,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     public async Task<IActionResult> AddCommentToGameAsync([FromBody] CommentModelDto comment, string key)
     {
         var userName = User.GetJwtSubject();
-        var result = await _gameService.AddCommentToGameAsync(userName, key, comment);
+        var result = await _gameService.AddCommentToGameAsync(userName, key, comment, userManager);
 
         return Ok(result);
     }

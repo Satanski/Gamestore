@@ -10,11 +10,14 @@ using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Gamestore.WebApi.Stubs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -291,13 +294,15 @@ public class GameService(
         return commentList.AsEnumerable();
     }
 
-    public async Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment)
+    public async Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment, UserManager<AppUser> userManager)
     {
         logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
         await _commentModelDtoValidator.ValidateComment(comment);
-        if (CheckIfUserIsBanned(comment))
+
+        var banCheckResult = await CheckIfUserIsBanned(userName, userManager);
+        if (banCheckResult.IsBanned)
         {
-            return $"User banned till {CustomerStub.BannedTill}";
+            return $"User banned till {banCheckResult.BannedTill}";
         }
         else
         {
@@ -490,14 +495,21 @@ public class GameService(
         await unitOfWork.SaveAsync();
     }
 
-    private static bool CheckIfUserIsBanned(CommentModelDto comment)
+    private static async Task<(bool IsBanned, string BannedTill)> CheckIfUserIsBanned(string userName, UserManager<AppUser> userManager)
     {
-        if (comment.Comment.Name == CustomerStub.Name && CustomerStub.BannedTill > DateTime.Now)
+        bool isBanned = false;
+        string bannedTill = string.Empty;
+
+        var u = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+        if (u is not null && userName == u.UserName && u.BannedTill > DateTime.Now)
         {
-            return true;
+            isBanned = true;
+            bannedTill = u.BannedTill.ToString();
+
+            return (isBanned, bannedTill);
         }
 
-        return false;
+        return (false, bannedTill);
     }
 
     private static void SetTotalNumberOfPagesAfterFiltering(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)
