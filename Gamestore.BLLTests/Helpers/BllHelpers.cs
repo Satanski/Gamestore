@@ -85,6 +85,7 @@ internal static class BllHelpers
                 Key = "BG",
                 Description = "Rpg game",
                 Price = 100,
+                UnitInStock = 100,
                 PublishDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-7),
                 NumberOfViews = 10,
                 IsDeleted = false,
@@ -100,6 +101,7 @@ internal static class BllHelpers
                 Key = "TD",
                 Description = "Racing game",
                 Price = 200,
+                UnitInStock = 100,
                 PublishDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(-1),
                 NumberOfViews = 100,
                 IsDeleted = false,
@@ -115,9 +117,58 @@ internal static class BllHelpers
                 Key = "DCS",
                 Description = "Sim game",
                 Price = 300,
+                UnitInStock = 100,
                 PublishDate = DateOnly.FromDateTime(DateTime.Now).AddYears(-1),
                 NumberOfViews = 1000,
                 IsDeleted = false,
+                Comments = [new(), new(), new()],
+                ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Simulator").Id)],
+                ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Console").Id)],
+                Publisher = Publishers.First(x => x.CompanyName == "BioWare"),
+            },
+         new()
+            {
+                Id = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa61"),
+                Name = "Baldurs Gate",
+                Key = "BG",
+                Description = "Rpg game",
+                Price = 100,
+                UnitInStock = 100,
+                PublishDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-7),
+                NumberOfViews = 10,
+                IsDeleted = true,
+                Comments = [new()],
+                ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Rpg").Id)],
+                ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Desktop").Id)],
+                Publisher = Publishers.First(x => x.CompanyName == "Blizzard"),
+            },
+            new()
+            {
+                Id = new Guid("382f980c-11fd-48f8-8c12-916ad4390621"),
+                Name = "Test Drive",
+                Key = "TD",
+                Description = "Racing game",
+                Price = 200,
+                UnitInStock = 100,
+                PublishDate = DateOnly.FromDateTime(DateTime.Now).AddMonths(-1),
+                NumberOfViews = 100,
+                IsDeleted = true,
+                Comments = [new(), new()],
+                ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Racing").Id)],
+                ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Mobile").Id)],
+                Publisher = Publishers.First(x => x.CompanyName == "Activision"),
+            },
+            new()
+            {
+                Id = new Guid("08b747fc-8a9b-1234-94ef-56a36fc0fa61"),
+                Name = "Digital Combat Simulator",
+                Key = "DCS",
+                Description = "Sim game",
+                Price = 300,
+                UnitInStock = 100,
+                PublishDate = DateOnly.FromDateTime(DateTime.Now).AddYears(-1),
+                NumberOfViews = 1000,
+                IsDeleted = true,
                 Comments = [new(), new(), new()],
                 ProductCategories = [GameGenres.First(x => x.GenreId == Genres.First(x => x.Name == "Simulator").Id)],
                 ProductPlatforms = [GamePlatforms.First(x => x.PlatformId == Platforms.First(x => x.Type == "Console").Id)],
@@ -266,6 +317,14 @@ internal static class BllHelpers
         }
 
         return platforms;
+    }
+
+    internal static Publisher GetPublisherByGameAsync(Guid id)
+    {
+        var game = Games.First(x => x.Id == id);
+        var gamePublisher = Publishers.First(x => x.Id == game.Publisher.Id);
+
+        return gamePublisher;
     }
 
     internal static MongoSupplier GetMongoSupplierById(int id)

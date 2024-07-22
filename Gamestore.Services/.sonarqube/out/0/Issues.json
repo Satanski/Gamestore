@@ -1,0 +1,229 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "4.9.0.0",
+        "fileVersion": "4.9.0-3.24067.18 (4fc721bb)",
+        "semanticVersion": "4.9.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Repositories/OrderDetailRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 69,
+                  "endLine": 9,
+                  "endColumn": 127
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Repositories/CategoryRepository.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 66,
+                  "endLine": 11,
+                  "endColumn": 121
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Repositories/OrderRepository.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 63,
+                  "endLine": 11,
+                  "endColumn": 115
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Repositories/ShipperRepository.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 65,
+                  "endLine": 10,
+                  "endColumn": 119
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Repositories/ProductRepository.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 65,
+                  "endLine": 10,
+                  "endColumn": 119
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "SA1010",
+          "level": "error",
+          "message": "Opening square brackets should not be preceded by a space",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Entities/MongoProduct.cs",
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 20,
+                  "endLine": 77,
+                  "endColumn": 21
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "action": "remove",
+              "layout": "pack",
+              "location": "preceding"
+            }
+          }
+        },
+        {
+          "ruleId": "SA1010",
+          "level": "error",
+          "message": "Opening square brackets should not be preceded by a space",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Entities/MongoProduct.cs",
+                "region": {
+                  "startLine": 88,
+                  "startColumn": 20,
+                  "endLine": 88,
+                  "endColumn": 21
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "action": "remove",
+              "layout": "pack",
+              "location": "preceding"
+            }
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.MongoRepository/Repositories/SupplierRepository.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 66,
+                  "endLine": 10,
+                  "endColumn": 121
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        }
+      ],
+      "rules": {
+        "S3604": {
+          "id": "S3604",
+          "shortDescription": "Member initializer values should not be redundant",
+          "fullDescription": "Fields, properties and events can be initialized either inline or in the constructor. Initializing them inline and in the constructor at the same time is redundant; the inline initialization will be overridden.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-3604",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "SA1010": {
+          "id": "SA1010",
+          "shortDescription": "Opening square brackets should be spaced correctly",
+          "fullDescription": "An opening square bracket within a C# statement is not spaced correctly.",
+          "defaultLevel": "warning",
+          "helpUri": "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1010.md",
+          "properties": {
+            "category": "StyleCop.CSharp.SpacingRules",
+            "isEnabledByDefault": true
+          }
+        }
+      }
+    }
+  ]
+}

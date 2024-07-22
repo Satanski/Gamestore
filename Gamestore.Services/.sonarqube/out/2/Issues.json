@@ -1,0 +1,1338 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "4.9.0.0",
+        "fileVersion": "4.9.0-3.24067.18 (4fc721bb)",
+        "semanticVersion": "4.9.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "IDE0161",
+          "level": "warning",
+          "message": "Convert to file-scoped namespace",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 11,
+                  "endLine": 17,
+                  "endColumn": 35
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 1,
+                  "endLine": 301,
+                  "endColumn": 2
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "IDE0161",
+          "level": "warning",
+          "message": "Convert to file-scoped namespace",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240619082208_Comments.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 11,
+                  "endLine": 17,
+                  "endColumn": 35
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240619082208_Comments.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 1,
+                  "endLine": 69,
+                  "endColumn": 2
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 48,
+                  "endLine": 11,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 52,
+                  "endLine": 13,
+                  "endColumn": 68
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 54,
+                  "endLine": 15,
+                  "endColumn": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 60,
+                  "endLine": 17,
+                  "endColumn": 80
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 62,
+                  "endLine": 19,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 21,
+                  "startColumn": 68,
+                  "endLine": 21,
+                  "endColumn": 92
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 23,
+                  "startColumn": 62,
+                  "endLine": 23,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 25,
+                  "startColumn": 54,
+                  "endLine": 25,
+                  "endColumn": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 27,
+                  "startColumn": 62,
+                  "endLine": 27,
+                  "endColumn": 83
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/UnitOfWork.cs",
+                "region": {
+                  "startLine": 29,
+                  "startColumn": 58,
+                  "endLine": 29,
+                  "endColumn": 77
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/CommentRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/GamePlatformRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/GameGenreRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/RepositoryBase.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 41,
+                  "endLine": 9,
+                  "endColumn": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/RepositoryBase.cs",
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 49,
+                  "endLine": 11,
+                  "endColumn": 58
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/OrderGameRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/GenreRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/PlatformRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/PublisherRepository.cs",
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 48,
+                  "endLine": 9,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/OrderRepository.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 48,
+                  "endLine": 10,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Repositories/GameRepository.cs",
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 48,
+                  "endLine": 10,
+                  "endColumn": 57
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240619082208_Comments.cs",
+                "region": {
+                  "startLine": 33,
+                  "startColumn": 21,
+                  "endLine": 33,
+                  "endColumn": 99
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 31,
+                  "startColumn": 21,
+                  "endLine": 31,
+                  "endColumn": 97
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 45,
+                  "startColumn": 21,
+                  "endLine": 45,
+                  "endColumn": 86
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 21,
+                  "endLine": 57,
+                  "endColumn": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 71,
+                  "startColumn": 21,
+                  "endLine": 71,
+                  "endColumn": 94
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 89,
+                  "startColumn": 21,
+                  "endLine": 89,
+                  "endColumn": 94
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 107,
+                  "startColumn": 21,
+                  "endLine": 107,
+                  "endColumn": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 131,
+                  "startColumn": 21,
+                  "endLine": 131,
+                  "endColumn": 95
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 158,
+                  "startColumn": 21,
+                  "endLine": 158,
+                  "endColumn": 78
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 196,
+                  "startColumn": 21,
+                  "endLine": 196,
+                  "endColumn": 133
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 207,
+                  "startColumn": 21,
+                  "endLine": 207,
+                  "endColumn": 84
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 216,
+                  "startColumn": 21,
+                  "endLine": 216,
+                  "endColumn": 112
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 225,
+                  "startColumn": 21,
+                  "endLine": 225,
+                  "endColumn": 172
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "error",
+          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 179,
+                  "startColumn": 26,
+                  "endLine": 179,
+                  "endColumn": 65
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "error",
+          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 26,
+                  "endLine": 201,
+                  "endColumn": 48
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "error",
+          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 26,
+                  "endLine": 212,
+                  "endColumn": 82
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "CA1861",
+          "level": "error",
+          "message": "Prefer 'static readonly' fields over constant array arguments if the called method is called repeatedly and is not mutating the passed array",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 26,
+                  "endLine": 221,
+                  "endColumn": 121
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "paramName": "columns"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0300",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 179,
+                  "startColumn": 26,
+                  "endLine": 179,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 179,
+                  "startColumn": 26,
+                  "endLine": 179,
+                  "endColumn": 65
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IDE0300",
+          "ruleKey": "IDE0300-001",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 179,
+                  "startColumn": 26,
+                  "endLine": 179,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 179,
+                  "startColumn": 26,
+                  "endLine": 179,
+                  "endColumn": 65
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 179,
+                  "startColumn": 26,
+                  "endLine": 179,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "Unnecessary": "[1]"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0300",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 26,
+                  "endLine": 201,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 26,
+                  "endLine": 201,
+                  "endColumn": 48
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IDE0300",
+          "ruleKey": "IDE0300-001",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 26,
+                  "endLine": 201,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 26,
+                  "endLine": 201,
+                  "endColumn": 48
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 26,
+                  "endLine": 201,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "Unnecessary": "[1]"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0300",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 26,
+                  "endLine": 212,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 26,
+                  "endLine": 212,
+                  "endColumn": 82
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IDE0300",
+          "ruleKey": "IDE0300-001",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 26,
+                  "endLine": 212,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 26,
+                  "endLine": 212,
+                  "endColumn": 82
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 212,
+                  "startColumn": 26,
+                  "endLine": 212,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "Unnecessary": "[1]"
+            }
+          }
+        },
+        {
+          "ruleId": "IDE0300",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 26,
+                  "endLine": 221,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 26,
+                  "endLine": 221,
+                  "endColumn": 121
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IDE0300",
+          "ruleKey": "IDE0300-001",
+          "level": "error",
+          "message": "Collection initialization can be simplified",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 26,
+                  "endLine": 221,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 26,
+                  "endLine": 221,
+                  "endColumn": 121
+                }
+              }
+            },
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs",
+                "region": {
+                  "startLine": 221,
+                  "startColumn": 26,
+                  "endLine": 221,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "customProperties": {
+              "Unnecessary": "[1]"
+            }
+          }
+        }
+      ],
+      "rules": {
+        "CA1861": {
+          "id": "CA1861",
+          "shortDescription": "Avoid constant arrays as arguments",
+          "fullDescription": "Constant arrays passed as arguments are not reused when called repeatedly, which implies a new array is created each time. Consider extracting them to 'static readonly' fields to improve performance if the passed array is not mutated within the called method.",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1861",
+          "properties": {
+            "category": "Performance",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnabledRuleInAggressiveMode"
+            ]
+          }
+        },
+        "IDE0161": {
+          "id": "IDE0161",
+          "shortDescription": "Convert to file-scoped namespace",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0161",
+          "properties": {
+            "category": "Style",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnforceOnBuild_HighlyRecommended",
+              "CustomSeverityConfigurable"
+            ]
+          }
+        },
+        "IDE0300": {
+          "id": "IDE0300",
+          "shortDescription": "Simplify collection initialization",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0300",
+          "properties": {
+            "category": "Style",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnforceOnBuild_Recommended"
+            ]
+          }
+        },
+        "IDE0300-001": {
+          "id": "IDE0300",
+          "shortDescription": "Simplify collection initialization",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0300",
+          "properties": {
+            "category": "Style",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnforceOnBuild_Recommended",
+              "Unnecessary"
+            ]
+          }
+        },
+        "S3604": {
+          "id": "S3604",
+          "shortDescription": "Member initializer values should not be redundant",
+          "fullDescription": "Fields, properties and events can be initialized either inline or in the constructor. Initializing them inline and in the constructor at the same time is redundant; the inline initialization will be overridden.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-3604",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "SA1413": {
+          "id": "SA1413",
+          "shortDescription": "Use trailing comma in multi-line initializers",
+          "fullDescription": "A multi-line initializer in a C# code file should use a comma on the last line.",
+          "defaultLevel": "warning",
+          "helpUri": "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1413.md",
+          "properties": {
+            "category": "StyleCop.CSharp.MaintainabilityRules",
+            "isEnabledByDefault": true
+          }
+        }
+      }
+    }
+  ]
+}

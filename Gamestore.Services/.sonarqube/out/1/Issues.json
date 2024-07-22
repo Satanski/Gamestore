@@ -1,0 +1,304 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "4.9.0.0",
+        "fileVersion": "4.9.0-3.24067.18 (4fc721bb)",
+        "semanticVersion": "4.9.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "IDE0161",
+          "level": "warning",
+          "message": "Convert to file-scoped namespace",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 11,
+                  "endLine": 15,
+                  "endColumn": 69
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 1,
+                  "endLine": 244,
+                  "endColumn": 2
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "IDE0161",
+          "level": "warning",
+          "message": "Convert to file-scoped namespace",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240718120117_BanTimeAdded.cs",
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 11,
+                  "endLine": 6,
+                  "endColumn": 69
+                }
+              }
+            }
+          ],
+          "relatedLocations": [
+            {
+              "physicalLocation": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240718120117_BanTimeAdded.cs",
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 1,
+                  "endLine": 30,
+                  "endColumn": 2
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "S3604",
+          "level": "warning",
+          "message": "Remove the member initializer, all constructors set an initial value for the member.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/IdentityUnitOfWork.cs",
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 49,
+                  "endLine": 8,
+                  "endColumn": 58
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 1
+          }
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 30,
+                  "startColumn": 21,
+                  "endLine": 30,
+                  "endColumn": 99
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 55,
+                  "startColumn": 21,
+                  "endLine": 55,
+                  "endColumn": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 70,
+                  "startColumn": 21,
+                  "endLine": 70,
+                  "endColumn": 93
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 91,
+                  "startColumn": 21,
+                  "endLine": 91,
+                  "endColumn": 93
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 111,
+                  "startColumn": 21,
+                  "endLine": 111,
+                  "endColumn": 90
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 130,
+                  "startColumn": 21,
+                  "endLine": 130,
+                  "endColumn": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SA1413",
+          "level": "error",
+          "message": "Use trailing comma in multi-line initializers",
+          "suppressionStates": [
+            "suppressedInSource"
+          ],
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/OneDrive/Dokumenty/Programowanie/EPAM/Repos/Gamestore/Gamestore.IdentityRepository/Migrations/IdentityMigrations/20240717125448_InitialCreate.cs",
+                "region": {
+                  "startLine": 161,
+                  "startColumn": 21,
+                  "endLine": 161,
+                  "endColumn": 88
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "IDE0161": {
+          "id": "IDE0161",
+          "shortDescription": "Convert to file-scoped namespace",
+          "defaultLevel": "note",
+          "helpUri": "https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0161",
+          "properties": {
+            "category": "Style",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Telemetry",
+              "EnforceOnBuild_HighlyRecommended",
+              "CustomSeverityConfigurable"
+            ]
+          }
+        },
+        "S3604": {
+          "id": "S3604",
+          "shortDescription": "Member initializer values should not be redundant",
+          "fullDescription": "Fields, properties and events can be initialized either inline or in the constructor. Initializing them inline and in the constructor at the same time is redundant; the inline initialization will be overridden.",
+          "defaultLevel": "warning",
+          "helpUri": "https://rules.sonarsource.com/csharp/RSPEC-3604",
+          "properties": {
+            "category": "Minor Code Smell",
+            "isEnabledByDefault": true,
+            "tags": [
+              "C#",
+              "MainSourceScope",
+              "TestSourceScope",
+              "SonarWay"
+            ]
+          }
+        },
+        "SA1413": {
+          "id": "SA1413",
+          "shortDescription": "Use trailing comma in multi-line initializers",
+          "fullDescription": "A multi-line initializer in a C# code file should use a comma on the last line.",
+          "defaultLevel": "warning",
+          "helpUri": "https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/documentation/SA1413.md",
+          "properties": {
+            "category": "StyleCop.CSharp.MaintainabilityRules",
+            "isEnabledByDefault": true
+          }
+        }
+      }
+    }
+  ]
+}
