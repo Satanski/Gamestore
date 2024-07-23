@@ -37,17 +37,8 @@ public static class JwtHelpers
             claims.AddRange(roleClaims);
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var generatedToken = GenerateToken(configuration, claims);
 
-        var token = new JwtSecurityToken(
-        issuer: configuration["Jwt:Issuer"],
-        audience: configuration["Jwt:Audience"],
-        claims: claims,
-        expires: DateTime.UtcNow.AddMinutes(10),
-        signingCredentials: creds);
-
-        var generatedToken = new JwtSecurityTokenHandler().WriteToken(token);
         return generatedToken;
     }
 
@@ -68,6 +59,13 @@ public static class JwtHelpers
         var roleClaims = await roleManager.GetClaimsAsync(appRole!);
         claims.AddRange(roleClaims);
 
+        var generatedToken = GenerateToken(configuration, claims);
+
+        return generatedToken;
+    }
+
+    private static string GenerateToken(IConfiguration configuration, List<Claim> claims)
+    {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
