@@ -263,7 +263,7 @@ public class GameServiceTests
             Sort = sortingOption,
         };
 
-        List<Game> expectedGames = [];
+        List<Product> expectedGames = [];
         switch (sortingOption)
         {
             case "Most popular":
@@ -325,7 +325,7 @@ public class GameServiceTests
         List<Game> games = [];
         for (int i = 0; i < 100; i++)
         {
-            games.Add(new Game()
+            games.Add(new Product()
             {
                 Id = Guid.NewGuid(),
                 Name = i.ToString(),
