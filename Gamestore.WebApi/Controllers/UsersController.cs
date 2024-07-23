@@ -43,10 +43,6 @@ public class UsersController(IUserService userService, UserManager<AppUser> user
     public async Task<IActionResult> LoginAsync([FromBody] LoginModelDto login)
     {
         var token = await userService.LoginAsync(userManager, roleManager, configuration, login);
-        if (token == null)
-        {
-            return Unauthorized();
-        }
 
         return Ok(new { Token = token });
     }

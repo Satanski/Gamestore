@@ -171,7 +171,7 @@ public class GameService(
         GameModelDto oldObjectState;
         GameDtoWrapper newObjectState = gameModel;
 
-        var existingGameInSQLServer = await unitOfWork.GameRepository.GetByIdAsync((Guid)gameModel.Game.Id!);
+        var existingGameInSQLServer = await unitOfWork.GameRepository.GetByOrderIdAsync((Guid)gameModel.Game.Id!);
         if (existingGameInSQLServer != null)
         {
             oldObjectState = automapper.Map<GameModelDto>(existingGameInSQLServer);
@@ -196,7 +196,7 @@ public class GameService(
     public async Task DeleteGameByIdAsync(Guid gameId)
     {
         logger.LogInformation("Deleting game by Id: {gameId}", gameId);
-        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        var game = await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
 
         if (game != null)
         {
@@ -214,7 +214,7 @@ public class GameService(
     public async Task SoftDeleteGameByIdAsync(Guid gameId)
     {
         logger.LogInformation("Deleting game by Id: {gameId}", gameId);
-        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        var game = await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
 
         if (game != null)
         {
@@ -332,7 +332,7 @@ public class GameService(
     {
         logger.LogInformation("Deleting comment: {@commentId}", commentId);
 
-        var comment = await unitOfWork.CommentRepository.GetByIdAsync(commentId);
+        var comment = await unitOfWork.CommentRepository.GetByOrderIdAsync(commentId);
 
         if ((comment != null && comment.Name == userName) || (comment != null && canModerate))
         {
@@ -355,7 +355,7 @@ public class GameService(
 
         if (game.Id is not null)
         {
-            var gameInSQLServer = await unitOfWork.GameRepository.GetByIdAsync((Guid)game.Id);
+            var gameInSQLServer = await unitOfWork.GameRepository.GetByOrderIdAsync((Guid)game.Id);
             if (gameInSQLServer is null)
             {
                 await SqlServerHelperService.CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, game, gameInSQLServer);

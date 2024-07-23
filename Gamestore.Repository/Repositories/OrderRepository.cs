@@ -20,7 +20,7 @@ public class OrderRepository(GamestoreContext context) : RepositoryBase<Order>(c
         return query.Where(x => x.Status == Enums.OrderStatus.Open && x.CustomerId == id).FirstOrDefaultAsync();
     }
 
-    public Task<Order?> GetByIdAsync(Guid id)
+    public Task<Order?> GetByOrderIdAsync(Guid id)
     {
         return _context.Orders.Include(x => x.OrderGames).Where(x => x.Id == id).FirstOrDefaultAsync();
     }

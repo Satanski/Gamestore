@@ -30,7 +30,7 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         return query.Where(x => x.Key == key).AsSplitQuery().FirstOrDefaultAsync();
     }
 
-    public Task<Game?> GetByIdAsync(Guid id)
+    public Task<Game?> GetByOrderIdAsync(Guid id)
     {
         var query = GameIncludes();
         return query.Where(x => x.Id == id).AsSplitQuery().FirstOrDefaultAsync();

@@ -48,7 +48,7 @@ public class GenreRepositoryTests : IDisposable
         var expectedGenreId = expectedGenre.Id;
 
         // Act
-        var actualGenre = await _genreRepository.GetByIdAsync(expectedGenreId);
+        var actualGenre = await _genreRepository.GetByOrderIdAsync(expectedGenreId);
 
         // Assert
         Assert.Equal(expectedGenre, actualGenre);

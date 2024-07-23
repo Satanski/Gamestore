@@ -95,7 +95,7 @@ public class GameRepositoryTests : IDisposable
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", "BG", "Rpg game");
 
         // Act
-        var resultGame = await _gameRepository.GetByIdAsync(expectedGameId);
+        var resultGame = await _gameRepository.GetByOrderIdAsync(expectedGameId);
 
         // Assert
         Assert.Equal(expectedGameId, resultGame.Id);
@@ -110,7 +110,7 @@ public class GameRepositoryTests : IDisposable
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", expectedGameKey, "Rpg game");
 
         // Act
-        var resultGame = await _gameRepository.GetByIdAsync(expectedGameId);
+        var resultGame = await _gameRepository.GetByOrderIdAsync(expectedGameId);
 
         // Assert
         Assert.Equal(expectedGameKey, resultGame.Key);

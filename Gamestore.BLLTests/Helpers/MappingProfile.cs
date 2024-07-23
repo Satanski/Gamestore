@@ -37,7 +37,8 @@ public class MappingProfile : Profile
             .ReverseMap();
 
         CreateMap<OrderGame, OrderGameModelDto>().ReverseMap();
-        CreateMap<OrderGame, OrderDetailsDto>();
+        CreateMap<OrderGame, OrderDetailsDto>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.OrderId));
 
         CreateMap<Game, GameModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))

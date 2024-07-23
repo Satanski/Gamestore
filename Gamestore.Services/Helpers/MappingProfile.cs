@@ -40,7 +40,10 @@ public class MappingProfile : Profile
 
         CreateMap<OrderGame, OrderGameModelDto>().ReverseMap();
         CreateMap<OrderGame, OrderDetailsDto>()
-            .ForMember(dest => dest.ProductId, src => src.MapFrom(x => x.GameId));
+            .ForMember(dest => dest.ProductId, src => src.MapFrom(x => x.GameId))
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
+            .ForMember(dest => dest.Key, src => src.MapFrom(x => x.Game.Key))
+            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Game.Name));
 
         CreateMap<Game, GameModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))

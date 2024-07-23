@@ -424,7 +424,7 @@ public class GameServiceTests
         var expectedId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63");
         var expected = BllHelpers.Games.First(x => x.Id == expectedId);
 
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
@@ -446,7 +446,7 @@ public class GameServiceTests
         var id = GuidHelpers.IntToGuid(expectedId);
         var expected = BllHelpers.MongoProducts.First(x => x.ProductId == expectedId);
 
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>()));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(BllHelpers.MongoProducts.First(x => x.ProductId == expectedId));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
@@ -544,7 +544,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         _unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == gameToDelete.Id));
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == gameToDelete.Id));
         _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync([]);
         _unitOfWork.Setup(x => x.GameGenreRepository.Delete(It.IsAny<GameGenres>()));
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync([]);
@@ -568,7 +568,7 @@ public class GameServiceTests
         // Arrange
         var gameToDelete = BllHelpers.Games[0];
 
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(gameToDelete);
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(gameToDelete);
         _unitOfWork.Setup(x => x.GameRepository.SoftDelete(It.IsAny<Game>())).Callback((Game game) => game.IsDeleted = true);
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
@@ -626,7 +626,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.GameId == gameToUpdate.Id).ToList());
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
@@ -807,7 +807,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         _unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
         // Assert
@@ -829,7 +829,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.GameId == gameToUpdate.Id).ToList());
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
@@ -852,7 +852,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameGenreRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GameGenres.Where(x => x.GameId == gameToUpdate.Id).ToList());
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 
@@ -869,7 +869,7 @@ public class GameServiceTests
         // Arrange
         var expectedId = new Guid("08b747fc-8a9b-4041-94ef-56a36fc0fa63");
 
-        _unitOfWork.Setup(x => x.GameRepository.GetByIdAsync(It.IsAny<Guid>()));
+        _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>()));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
         var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
 

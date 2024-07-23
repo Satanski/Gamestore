@@ -102,7 +102,7 @@ internal static class SqlServerHelperService
 
     internal static async Task<Game?> GetGameFromSQLServerByIdAsync(IUnitOfWork unitOfWork, Guid gameId)
     {
-        return await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        return await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
     }
 
     private static async Task IncreaseGameViewCounterAsync(IUnitOfWork unitOfWork, Game? game)
@@ -119,7 +119,7 @@ internal static class SqlServerHelperService
         var firstGenre = game.Genres[0];
         if (firstGenre != null && firstGenre.Id != null && game.Id != null)
         {
-            var existingGenre = await unitOfWork.GenreRepository.GetByIdAsync((Guid)firstGenre.Id);
+            var existingGenre = await unitOfWork.GenreRepository.GetByOrderIdAsync((Guid)firstGenre.Id);
             if (existingGenre is null)
             {
                 await unitOfWork.GenreRepository.AddAsync(new() { Id = (Guid)firstGenre.Id, Name = firstGenre.Name });
@@ -136,7 +136,7 @@ internal static class SqlServerHelperService
     {
         if (game.Publisher is not null && game.Publisher.Id is not null)
         {
-            var publisherInSQLServer = await unitOfWork.PublisherRepository.GetByIdAsync((Guid)game.Publisher.Id);
+            var publisherInSQLServer = await unitOfWork.PublisherRepository.GetByOrderIdAsync((Guid)game.Publisher.Id);
 
             if (publisherInSQLServer is null)
             {
@@ -149,7 +149,7 @@ internal static class SqlServerHelperService
                 var publisherId = game.Publisher.Id;
                 if (publisherId is not null)
                 {
-                    var pub = await unitOfWork.PublisherRepository.GetByIdAsync((Guid)publisherId);
+                    var pub = await unitOfWork.PublisherRepository.GetByOrderIdAsync((Guid)publisherId);
                     if (pub is not null)
                     {
                         await AttachPublisherFromSQLServerAsync(unitOfWork, game, gameInSQLServer);
@@ -164,7 +164,7 @@ internal static class SqlServerHelperService
         var publisherId = game.Publisher.Id;
         if (publisherId is not null)
         {
-            var pub = await unitOfWork.PublisherRepository.GetByIdAsync((Guid)publisherId);
+            var pub = await unitOfWork.PublisherRepository.GetByOrderIdAsync((Guid)publisherId);
             if (pub is not null)
             {
                 gameInSQLServer.Publisher = pub;
@@ -187,7 +187,7 @@ internal static class SqlServerHelperService
         {
             var expectedTotalQuantity = quantity < unitInStock ? quantity : unitInStock;
 
-            var gameInSQLServer = await unitOfWork.GameRepository.GetByIdAsync((Guid)game.Id);
+            var gameInSQLServer = await unitOfWork.GameRepository.GetByOrderIdAsync((Guid)game.Id);
             if (gameInSQLServer is null)
             {
                 await CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, game, gameInSQLServer);

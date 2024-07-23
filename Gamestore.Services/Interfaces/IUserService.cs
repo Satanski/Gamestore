@@ -20,5 +20,9 @@ public interface IUserService
 
     Task<string> LoginAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login);
 
+    Task<string> LoginInternalAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login);
+
+    Task<string> LoginExternalAsync(RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login);
+
     Task<IdentityResult> UpdateUserAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, UserDto user);
 }

@@ -18,7 +18,7 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
            .ToListAsync();
     }
 
-    public Task<Platform?> GetByIdAsync(Guid id)
+    public Task<Platform?> GetByOrderIdAsync(Guid id)
     {
         return _context.Platforms.Where(x => x.Id == id).FirstOrDefaultAsync();
     }

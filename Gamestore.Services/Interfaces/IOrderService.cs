@@ -23,6 +23,8 @@ public interface IOrderService
 
     Task RemoveGameFromCartAsync(Guid customerId, string gameKey, int quantity);
 
+    Task RemoveGameFromCartByOrderGameIdAsync(Guid orderGameId);
+
     PaymentMethodsDto GetPaymentMethods();
 
     Task<List<OrderModelDto>> GetOrdersHistoryAsync(string? startDate, string? endDate);
@@ -30,4 +32,6 @@ public interface IOrderService
     Task ShipAsync(string id);
 
     Task AddProductToOrderAsync(string orderId, string productKey);
+
+    Task UpdateDetailsQuantityAsync(Guid orderGameId, int count);
 }

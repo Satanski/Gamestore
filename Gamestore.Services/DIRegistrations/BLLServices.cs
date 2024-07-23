@@ -26,6 +26,7 @@ public static class BllServices
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<PaymentServiceConfiguration>();
+        services.AddScoped<ExternalAuthServiceConfiguration>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IBanService, BanService>();
         services.AddScoped<GenreFilterHandler>();

@@ -117,7 +117,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
     // DELETE: orders
     [HttpDelete("cart/{key}")]
     [Authorize(Policy = "EditOrders")]
-    public async Task<IActionResult> DeleteOrderByIdAsync(string key)
+    public async Task<IActionResult> DeleteOrderByKeyAsync(string key)
     {
         var userId = new Guid(User.GetJwtSubjectId());
 
@@ -126,13 +126,20 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
         return Ok();
     }
 
-    [HttpPatch("details/{detailId}/quantity")]
+    [HttpDelete("details/{orderGameId}")]
     [Authorize(Policy = "EditOrders")]
-    public async Task<IActionResult> UpdateDetailsQuantityAsync(string detailId)
+    public async Task<IActionResult> DeleteOrderDetailByIdAsync(string orderGameId)
     {
-        var userId = new Guid(User.GetJwtSubjectId());
+        await _orderService.RemoveGameFromCartByOrderGameIdAsync(new Guid(orderGameId));
 
-        await _orderService.RemoveGameFromCartAsync(userId, detailId, 1);
+        return Ok();
+    }
+
+    [HttpPatch("details/{orderGameId}/quantity")]
+    [Authorize(Policy = "EditOrders")]
+    public async Task<IActionResult> UpdateDetailsQuantityAsync([FromBody] CountDto count, string orderGameId)
+    {
+        await _orderService.UpdateDetailsQuantityAsync(new Guid(orderGameId), count.Count);
 
         return Ok();
     }

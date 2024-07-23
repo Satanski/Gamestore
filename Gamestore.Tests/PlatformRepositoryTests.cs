@@ -48,7 +48,7 @@ public class PlatformRepositoryTests : IDisposable
         var expectedPlatformId = expectedPlatform.Id;
 
         // Act
-        var actualPlatform = await _platformRepository.GetByIdAsync(expectedPlatformId);
+        var actualPlatform = await _platformRepository.GetByOrderIdAsync(expectedPlatformId);
 
         // Assert
         Assert.Equal(expectedPlatform, actualPlatform);

@@ -1,4 +1,7 @@
-﻿namespace Gamestore.MongoRepository.Helpers;
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace Gamestore.MongoRepository.Helpers;
 
 public static class GuidHelpers
 {
@@ -13,5 +16,13 @@ public static class GuidHelpers
     {
         var guidBytes = value.ToByteArray();
         return BitConverter.ToInt32(guidBytes, 0);
+    }
+
+    public static Guid GenerateGuidFromString(string input)
+    {
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(input));
+        byte[] truncatedHash = new byte[16];
+        Array.Copy(hash, truncatedHash, truncatedHash.Length);
+        return new Guid(truncatedHash);
     }
 }

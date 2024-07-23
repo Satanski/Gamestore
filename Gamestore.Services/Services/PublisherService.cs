@@ -20,7 +20,7 @@ public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnit
     public async Task DeletPublisherByIdAsync(Guid publisherId)
     {
         logger.LogInformation("Deleting publisher {publisherId}", publisherId);
-        var publisher = await unitOfWork.PublisherRepository.GetByIdAsync(publisherId);
+        var publisher = await unitOfWork.PublisherRepository.GetByOrderIdAsync(publisherId);
         if (publisher != null)
         {
             unitOfWork.PublisherRepository.Delete(publisher);
@@ -35,7 +35,7 @@ public class PublisherService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnit
     public async Task<PublisherModelDto> GetPublisherByIdAsync(Guid publisherId)
     {
         logger.LogInformation("Getting publisher by Id: {publisherId}", publisherId);
-        var publisher = await unitOfWork.PublisherRepository.GetByIdAsync(publisherId);
+        var publisher = await unitOfWork.PublisherRepository.GetByOrderIdAsync(publisherId);
 
         return publisher == null ? throw new GamestoreException($"No publisher found with given id: {publisherId}") : automapper.Map<PublisherModelDto>(publisher);
     }

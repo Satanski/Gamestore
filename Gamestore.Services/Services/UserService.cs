@@ -1,5 +1,8 @@
 ﻿using System.Globalization;
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
+using Gamestore.BLL.Configurations;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Identity.JWT;
 using Gamestore.BLL.Identity.Models;
@@ -12,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Gamestore.BLL.Services;
 
-public class UserService(IMapper automapper) : IUserService
+public class UserService(IMapper automapper, ExternalAuthServiceConfiguration externalAuthServiceConfiguration) : IUserService
 {
     private const string EmailStub = "default@default.com";
 
@@ -46,6 +49,22 @@ public class UserService(IMapper automapper) : IUserService
 
     public async Task<string> LoginAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login)
     {
+        string token;
+
+        if (login.Model.InternalAuth)
+        {
+            token = await LoginInternalAsync(userManager, roleManager, configuration, login);
+        }
+        else
+        {
+            token = await LoginExternalAsync(roleManager, configuration, login);
+        }
+
+        return token;
+    }
+
+    public async Task<string> LoginInternalAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login)
+    {
         var user = await userManager.FindByNameAsync(login.Model.Login);
         if (user == null || !await userManager.CheckPasswordAsync(user, login.Model.Password))
         {
@@ -53,6 +72,24 @@ public class UserService(IMapper automapper) : IUserService
         }
 
         var generatedToken = await JwtHelpers.GenerateJwtToken(userManager, roleManager, configuration, user);
+        string token = $"Bearer {generatedToken}";
+
+        return token;
+    }
+
+    public async Task<string> LoginExternalAsync(RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login)
+    {
+        var externalLoginDto = new ExternalLoginDto() { Email = login.Model.Login, Password = login.Model.Password };
+        var json = JsonSerializer.Serialize(externalLoginDto);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        HttpClient client = new HttpClient();
+        var serviceUrl = externalAuthServiceConfiguration.ServiceUrl;
+        var response = await client.PostAsync(serviceUrl, content);
+
+        response.EnsureSuccessStatusCode();
+
+        var generatedToken = await JwtHelpers.GenerateJwtTokenForExternalAuth(roleManager, configuration, login.Model.Login);
         string token = $"Bearer {generatedToken}";
 
         return token;
