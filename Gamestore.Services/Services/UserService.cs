@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.Json;
 using AutoMapper;
-using Gamestore.BLL.Configurations;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Identity.JWT;
 using Gamestore.BLL.Identity.Models;
@@ -15,7 +14,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Gamestore.BLL.Services;
 
-public class UserService(IMapper automapper, ExternalAuthServiceConfiguration externalAuthServiceConfiguration) : IUserService
+public class UserService(IMapper automapper) : IUserService
 {
     private const string EmailStub = "default@default.com";
 
@@ -84,7 +83,7 @@ public class UserService(IMapper automapper, ExternalAuthServiceConfiguration ex
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         HttpClient client = new HttpClient();
-        var serviceUrl = externalAuthServiceConfiguration.ServiceUrl;
+        var serviceUrl = configuration["ExternalAuthServiceUrl"];
         var response = await client.PostAsync(serviceUrl, content);
 
         response.EnsureSuccessStatusCode();

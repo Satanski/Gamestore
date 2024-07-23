@@ -11,8 +11,8 @@ public class IdentityUnitOfWork(IdentityDbContext context, IRoleClaimRepository 
 
     public IRoleRepository RoleRepository => roleRepository;
 
-    public async Task SaveAsync()
+    public Task SaveAsync()
     {
-        await _context.SaveChangesAsync();
+        return _context.SaveChangesAsync();
     }
 }
