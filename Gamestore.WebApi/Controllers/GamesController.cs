@@ -23,7 +23,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     public async Task<IActionResult> GetGamesAsync([FromQuery] GameFiltersDto filters)
     {
         bool canSeeDeletedGames = false;
-        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")))
+        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault(Permissions.PermissionDeletedGames)))
         {
             canSeeDeletedGames = true;
         }
@@ -39,7 +39,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     {
         List<GameModelDto> games;
         bool canSeeDeletedGames = false;
-        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault("permissions.deleted.games")))
+        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault(Permissions.PermissionDeletedGames)))
         {
             canSeeDeletedGames = true;
         }
@@ -208,7 +208,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     {
         bool canModerate = false;
         var userName = User.GetJwtSubject();
-        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault("permissions.moderate.comments")))
+        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault(Permissions.PermissionModerateComments)))
         {
             canModerate = true;
         }

@@ -22,7 +22,7 @@ public static class IdentityInitializer
     {
         var userRole = roleManager.Roles.FirstOrDefault(x => x.Name == roleNames[2]);
         var claims = await roleManager.GetClaimsAsync(userRole!);
-        var claimKey = "permissions.delete.comment";
+        var claimKey = Permissions.PermissionDeleteComment;
         var claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
 
         if (!claims.Any(x => x.Type == claimKey))
@@ -30,14 +30,14 @@ public static class IdentityInitializer
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.ban.users";
+        claimKey = Permissions.PermissionBanUsers;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.moderate.comments";
+        claimKey = Permissions.PermissionModerateComments;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
@@ -49,7 +49,7 @@ public static class IdentityInitializer
     {
         var userRole = roleManager.Roles.FirstOrDefault(x => x.Name == roleNames[3]);
         var claims = await roleManager.GetClaimsAsync(userRole!);
-        var claimKey = "permissions.manage.entities";
+        var claimKey = Permissions.PermissionManageEntities;
         var claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
 
         if (!claims.Any(x => x.Type == claimKey))
@@ -57,21 +57,21 @@ public static class IdentityInitializer
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.edit.orders";
+        claimKey = Permissions.PermissionEditOrders;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.order.history";
+        claimKey = Permissions.PermissionOrderHistory;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.order.status";
+        claimKey = Permissions.PermissionOrderStatus;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
@@ -83,7 +83,7 @@ public static class IdentityInitializer
     {
         var userRole = roleManager.Roles.FirstOrDefault(x => x.Name == roleNames[4]);
         var claims = await roleManager.GetClaimsAsync(userRole!);
-        var claimKey = "permissions.manage.users";
+        var claimKey = Permissions.PermissionManageUsers;
         var claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
 
         if (!claims.Any(x => x.Type == claimKey))
@@ -91,14 +91,14 @@ public static class IdentityInitializer
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.deleted.games";
+        claimKey = Permissions.PermissionDeletedGames;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.manage.roles";
+        claimKey = Permissions.PermissionManageRoles;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
@@ -110,7 +110,7 @@ public static class IdentityInitializer
     {
         var userRole = roleManager.Roles.FirstOrDefault(x => x.Name == roleNames[1]);
         var claims = await roleManager.GetClaimsAsync(userRole!);
-        var claimKey = "permissions.delete.comment";
+        var claimKey = Permissions.PermissionDeleteComment;
         var claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
 
         if (!claims.Any(x => x.Type == claimKey))
@@ -118,14 +118,14 @@ public static class IdentityInitializer
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.buy.game";
+        claimKey = Permissions.PermissionBuyGame;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
             await roleManager.AddClaimAsync(userRole!, new System.Security.Claims.Claim(claimKey, claimValue!));
         }
 
-        claimKey = "permissions.order.status";
+        claimKey = Permissions.PermissionOrderStatus;
         claimValue = Permissions.PermissionList.GetValueOrDefault(claimKey);
         if (!claims.Any(x => x.Type == claimKey))
         {
