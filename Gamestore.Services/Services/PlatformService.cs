@@ -35,7 +35,7 @@ public class PlatformService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitO
     public async Task<PlatformModelDto> GetPlatformByIdAsync(Guid platformId)
     {
         logger.LogInformation("Getting platform by id: {platformId}", platformId);
-        var platform = await unitOfWork.PlatformRepository.GetByIdAsync(platformId);
+        var platform = await unitOfWork.PlatformRepository.GetByOrderIdAsync(platformId);
 
         return platform == null ? throw new GamestoreException($"No platform found with given id: {platformId}") : automapper.Map<PlatformModelDto>(platform);
     }
@@ -52,7 +52,7 @@ public class PlatformService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitO
     public async Task DeletePlatformByIdAsync(Guid platformId)
     {
         logger.LogInformation("Deleting platform by id: {platformId}", platformId);
-        var platform = await unitOfWork.PlatformRepository.GetByIdAsync(platformId);
+        var platform = await unitOfWork.PlatformRepository.GetByOrderIdAsync(platformId);
         if (platform != null)
         {
             unitOfWork.PlatformRepository.Delete(platform);

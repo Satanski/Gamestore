@@ -13,7 +13,7 @@ public class PlatformRepositoryTests : IDisposable
 
     public PlatformRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("PlatformRepoTest").Options;
+        var options = new DbContextOptionsBuilder<GamestoreContext>().UseInMemoryDatabase("PlatformRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _platformRepository = new(_context);
@@ -48,7 +48,7 @@ public class PlatformRepositoryTests : IDisposable
         var expectedPlatformId = expectedPlatform.Id;
 
         // Act
-        var actualPlatform = await _platformRepository.GetByIdAsync(expectedPlatformId);
+        var actualPlatform = await _platformRepository.GetByOrderIdAsync(expectedPlatformId);
 
         // Assert
         Assert.Equal(expectedPlatform, actualPlatform);

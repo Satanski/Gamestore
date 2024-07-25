@@ -6,4 +6,5 @@ public enum OrderStatus
     Checkout,
     Paid,
     Cancelled,
+    Shipped,
 }

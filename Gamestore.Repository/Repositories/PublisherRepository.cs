@@ -8,7 +8,7 @@ public class PublisherRepository(GamestoreContext context) : RepositoryBase<Publ
 {
     private readonly GamestoreContext _context = context;
 
-    public Task<Publisher?> GetByIdAsync(Guid id)
+    public Task<Publisher?> GetByOrderIdAsync(Guid id)
     {
         return _context.Publishers.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
