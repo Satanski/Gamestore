@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
+using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
 using Gamestore.WebApi.Interfaces;
-using Gamestore.WebApi.Stubs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Strategies;
@@ -10,13 +10,13 @@ public class PaymentContext(IEnumerable<IPaymentStrategy> strategies)
 {
     private readonly Dictionary<string, IPaymentStrategy> _strategies = strategies.ToDictionary(s => s.GetType().Name.Replace("PaymentStrategy", string.Empty), s => s);
 
-    public async Task<IActionResult> ExecuteStrategyAsync(string method, PaymentModelDto payment, CustomerStub customerStub)
+    public async Task<IActionResult> ExecuteStrategyAsync(string method, PaymentModelDto payment, CustomerDto customer)
     {
         method = MakeMethodNameFromRequestClassNameFriendly(method);
 
         if (_strategies.TryGetValue(method, out var strategy))
         {
-            return await strategy.ExecuteAsync(payment, customerStub);
+            return await strategy.ExecuteAsync(payment, customer);
         }
 
         return new BadRequestResult();

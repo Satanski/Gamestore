@@ -1,5 +1,7 @@
-﻿using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Identity.Models;
+using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -20,6 +22,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // POST: platforms
     [HttpPost]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddPlatformAsync([FromBody] PlatformDtoWrapper platform)
     {
         await _platformService.AddPlatformAsync(platform);
@@ -46,6 +49,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // PUT: platforms
     [HttpPut]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdatePlatformAsync([FromBody] PlatformDtoWrapper platformModel)
     {
         await _platformService.UpdatePlatformAsync(platformModel);
@@ -55,6 +59,7 @@ public class PlatformsController([FromServices] IPlatformService platformService
 
     // DELETE: platforms
     [HttpDelete("{id}")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeletePlatformByIdAsync(Guid id)
     {
         await _platformService.DeletePlatformByIdAsync(id);

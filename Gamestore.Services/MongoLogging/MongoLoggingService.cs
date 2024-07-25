@@ -76,7 +76,7 @@ public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoU
 
     public async Task LogGameDeleteAsync(Guid gameId)
     {
-        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        var game = await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
 
         GameDeleteLogEntry mongoLogEntry = new GameDeleteLogEntry()
         {
@@ -101,7 +101,7 @@ public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoU
     {
         foreach (var genreId in source.Genres)
         {
-            var name = (await unitOfWork.GenreRepository.GetByIdAsync(genreId)).Name;
+            var name = (await unitOfWork.GenreRepository.GetByOrderIdAsync(genreId)).Name;
             destination.Add(new() { Id = genreId.ToString(), Name = name });
         }
     }
@@ -118,7 +118,7 @@ public class MongoLoggingService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoU
     {
         foreach (var platformId in source.Platforms)
         {
-            var type = (await unitOfWork.PlatformRepository.GetByIdAsync(platformId)).Type;
+            var type = (await unitOfWork.PlatformRepository.GetByOrderIdAsync(platformId)).Type;
             destination.Add(new() { Id = platformId.ToString(), Type = type });
         }
     }

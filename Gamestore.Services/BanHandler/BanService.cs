@@ -1,6 +1,8 @@
 ﻿using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Models;
-using Gamestore.WebApi.Stubs;
+using Gamestore.IdentityRepository.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.BLL.BanHandler;
 
@@ -20,11 +22,13 @@ public class BanService : IBanService
         { PermanentBanKeyWord, 9999999 },
     };
 
-    public void BanCustomerFromCommenting(BanDto banDetails, CustomerStub customerStub)
+    public async Task BanCustomerFromCommentingAsync(BanDto banDetails, UserManager<AppUser> userManager)
     {
-        if (_banDuration.TryGetValue(banDetails.Duration, out int duration))
+        var u = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == banDetails.User);
+        if (u is not null && _banDuration.TryGetValue(banDetails.Duration, out int duration))
         {
-            CustomerStub.BannedTill = DateTime.Now.AddHours(duration);
+            u.BannedTill = DateTime.Now.AddHours(duration);
+            await userManager.UpdateAsync(u);
         }
         else
         {
