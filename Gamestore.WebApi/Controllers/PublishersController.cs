@@ -1,4 +1,5 @@
-﻿using Gamestore.BLL.Interfaces;
+﻿using Gamestore.BLL.Identity.Models;
+using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // POST: publishers
     [HttpPost]
-    [Authorize(Policy = "ManageEntities")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddPublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.AddPublisherAsync(publisherModel);
@@ -57,7 +58,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // PUT: publishers
     [HttpPut]
-    [Authorize(Policy = "ManageEntities")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdatePublisherAsync([FromBody] PublisherDtoWrapper publisherModel)
     {
         await publisherService.UpdatePublisherAsync(publisherModel);
@@ -67,7 +68,7 @@ public class PublishersController([FromServices] IPublisherService publisherServ
 
     // DELETE: publishers
     [HttpDelete("{id}")]
-    [Authorize(Policy = "ManageEntities")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeletePublisherByIdAsync(Guid id)
     {
         await publisherService.DeletPublisherByIdAsync(id);

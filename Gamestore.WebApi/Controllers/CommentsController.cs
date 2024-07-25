@@ -1,4 +1,5 @@
-﻿using Gamestore.BLL.Interfaces;
+﻿using Gamestore.BLL.Identity.Models;
+using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
 using Gamestore.IdentityRepository.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +23,7 @@ public class CommentsController([FromServices] ICommentService commentService, U
 
     // POST: comments/ban
     [HttpPost("ban")]
-    [Authorize(Policy = "BanUsers")]
+    [Authorize(Policy = Permissions.PermissionValueBanUsers)]
     public async Task<IActionResult> BanCustomerAsync([FromBody] BanDto ban)
     {
         await commentService.BanCustomerFromCommentingAsync(ban, userManager);

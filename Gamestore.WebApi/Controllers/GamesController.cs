@@ -34,7 +34,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     }
 
     [HttpGet("all")]
-    [Authorize(Policy = "ManageEntitiesOrDeletedGames")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntitiesOrDeletedGames)]
     public async Task<IActionResult> GetAllGamesAsync()
     {
         List<GameModelDto> games;
@@ -152,7 +152,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // POST: games
     [HttpPost]
-    [Authorize(Policy = "ManageEntities")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
@@ -162,7 +162,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // POST: games/STRING/buy
     [HttpPost("{key}/buy")]
-    [Authorize(Policy = "BuyGame")]
+    [Authorize(Policy = Permissions.PermissionValueBuyGame)]
     public async Task<IActionResult> AddGameToCartAsync(string key)
     {
         var userId = new Guid(User.GetJwtSubjectId());
@@ -183,7 +183,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // PUT: games
     [HttpPut]
-    [Authorize(Policy = "ManageEntities")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
@@ -193,7 +193,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // DELETE: games
     [HttpDelete("{key}")]
-    [Authorize(Policy = "ManageEntities")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
         await _gameService.SoftDeleteGameByKeyAsync(key);
@@ -203,7 +203,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // DELETE: games
     [HttpDelete("{key}/comments/{id}")]
-    [Authorize(Policy = "DeleteComment")]
+    [Authorize(Policy = Permissions.PermissionValueDeleteComment)]
     public async Task<IActionResult> DeleteCommentAsync(string key, Guid id)
     {
         bool canModerate = false;

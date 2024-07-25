@@ -2,18 +2,19 @@
 
 public static class Permissions
 {
-    private const string PermissionValueAddComment = "AddComment";
-    private const string PermissionValueDeleteComment = "permissions.delete.comment";
-    private const string PermissionValueBuyGame = "permissions.buy.game";
-    private const string PermissionValueManageUsers = "permissions.manage.users";
-    private const string PermissionValueManageRoles = "permissions.manage.roles";
-    private const string PermissionValueDeletedGames = "permissions.deleted.games";
-    private const string PermissionValueManageEntities = "permissions.manage.entities";
-    private const string PermissionValueEditOrders = "permissions.edit.orders";
-    private const string PermissionValueOrderHistory = "permissions.order.history";
-    private const string PermissionValueOrderStatus = "permissions.order.status";
-    private const string PermissionValueBanUsers = "permissions.ban.users";
-    private const string PermissionValueModerateComments = "permissions.moderate.comments";
+    public const string PermissionValueAddComment = "AddComment";
+    public const string PermissionValueDeleteComment = "DeleteComment";
+    public const string PermissionValueBuyGame = "BuyGame";
+    public const string PermissionValueManageUsers = "ManageUsers";
+    public const string PermissionValueManageRoles = "ManageRoles";
+    public const string PermissionValueDeletedGames = "DeletedGames";
+    public const string PermissionValueManageEntities = "ManageEntities";
+    public const string PermissionValueEditOrders = "EditOrders";
+    public const string PermissionValueOrderHistory = "OrderHistory";
+    public const string PermissionValueOrderStatus = "OrderStatus";
+    public const string PermissionValueBanUsers = "BanUsers";
+    public const string PermissionValueModerateComments = "ModerateComments";
+    public const string PermissionValueManageEntitiesOrDeletedGames = "ManageEntitiesOrDeletedGames";
 
     private static readonly Dictionary<string, string> PermissionListDictionary = new()
     {
