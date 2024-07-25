@@ -2,7 +2,7 @@
 
 public interface IRepository<T>
 {
-    Task<T?> GetByIdAsync(Guid id);
+    Task<T?> GetByOrderIdAsync(Guid id);
 
     Task UpdateAsync(T entity);
 }

@@ -13,7 +13,7 @@ public class GenreRepositoryTests : IDisposable
 
     public GenreRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("GenreRepoTest").Options;
+        var options = new DbContextOptionsBuilder<GamestoreContext>().UseInMemoryDatabase("GenreRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _genreRepository = new(_context);
@@ -48,7 +48,7 @@ public class GenreRepositoryTests : IDisposable
         var expectedGenreId = expectedGenre.Id;
 
         // Act
-        var actualGenre = await _genreRepository.GetByIdAsync(expectedGenreId);
+        var actualGenre = await _genreRepository.GetByOrderIdAsync(expectedGenreId);
 
         // Assert
         Assert.Equal(expectedGenre, actualGenre);

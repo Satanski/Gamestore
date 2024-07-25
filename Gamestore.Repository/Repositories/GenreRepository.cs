@@ -25,7 +25,7 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
         return _context.Genres.Where(x => x.ParentGenreId == id).ToListAsync();
     }
 
-    public Task<Genre?> GetByIdAsync(Guid id)
+    public Task<Genre?> GetByOrderIdAsync(Guid id)
     {
         return _context.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
     }

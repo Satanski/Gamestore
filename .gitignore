@@ -371,3 +371,4 @@ FodyWeavers.xsd
 /Gamestore.Repository/Migrations/GamestoreContextModelSnapshot.cs
 /Gamestore.Repository/Migrations/20240617150445_InitialCreate.cs
 /Gamestore.Repository/Migrations/20240617150445_InitialCreate.Designer.cs
+/Gamestore.IdentityRepository/Migrations/IdentityMigrations

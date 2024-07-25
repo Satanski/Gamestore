@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gamestore.DAL.Entities;
 
-public class GamestoreContext(DbContextOptions options) : DbContext(options)
+public class GamestoreContext(DbContextOptions<GamestoreContext> options) : DbContext(options)
 {
     public DbSet<Game> Games { get; set; }
 

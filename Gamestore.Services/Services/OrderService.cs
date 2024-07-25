@@ -16,7 +16,6 @@ using Gamestore.DAL.Interfaces;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
-using Gamestore.WebApi.Stubs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
@@ -69,7 +68,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
     {
         logger.LogInformation("Deleting order by id: {orderId}", orderId);
 
-        var order = await unitOfWork.OrderRepository.GetByIdAsync(orderId);
+        var order = await unitOfWork.OrderRepository.GetByOrderIdAsync(orderId);
         if (order != null)
         {
             await DeleteOrder(unitOfWork, order);
@@ -117,6 +116,17 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return orederDetails;
     }
 
+    public async Task RemoveGameFromCartByOrderGameIdAsync(Guid orderGameId)
+    {
+        var orderDetail = await unitOfWork.OrderGameRepository.GetByIdAsync(orderGameId);
+        if (orderDetail is not null)
+        {
+            unitOfWork.OrderGameRepository.Delete(orderDetail);
+        }
+
+        await unitOfWork.SaveAsync();
+    }
+
     public async Task RemoveGameFromCartAsync(Guid customerId, string gameKey, int quantity)
     {
         logger.LogInformation("Removing game from cart: {@gameKey}", gameKey);
@@ -151,7 +161,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         }
     }
 
-    public async Task<byte[]> CreateInvoicePdf(PaymentModelDto payment, CustomerStub customer)
+    public async Task<byte[]> CreateInvoicePdf(PaymentModelDto payment, CustomerDto customer)
     {
         logger.LogInformation("Creating invoice {@payment}", payment);
 
@@ -165,7 +175,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return pdfBytes;
     }
 
-    public async Task PayWithIboxAsync(PaymentModelDto payment, CustomerStub customer)
+    public async Task PayWithIboxAsync(PaymentModelDto payment, CustomerDto customer)
     {
         logger.LogInformation("Executing payment by IBox {@payment}", payment);
 
@@ -177,7 +187,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         await ProcessOrderAfterPayment(unitOfWork, customer);
     }
 
-    public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerStub customer)
+    public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerDto customer)
     {
         logger.LogInformation("Executing payment by Visa {@payment.Model}", payment.Model);
         await _visaPaymentValidator.ValidateVisaPayment(payment);
@@ -219,6 +229,51 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return paymentMethods;
     }
 
+    public async Task ShipAsync(string id)
+    {
+        var order = await unitOfWork.OrderRepository.GetByOrderIdAsync(new Guid(id));
+        order.Status = OrderStatus.Shipped;
+        await unitOfWork.OrderRepository.UpdateAsync(order);
+        await unitOfWork.SaveAsync();
+    }
+
+    public async Task AddProductToOrderAsync(string orderId, string productKey)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(productKey);
+        if (game == null)
+        {
+            var gameFromMongoDB = await MongoDbHelperService.GetGameWithDetailsFromMongoDBByKeyAsync(mongoUnitOfWork, automapper, productKey);
+            await SqlServerHelperService.CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, gameFromMongoDB, game);
+            game = await unitOfWork.GameRepository.GetGameByKeyAsync(productKey);
+        }
+
+        var gameId = game.Id;
+        await CreateOrderGameAsync(unitOfWork, orderId, game);
+        await SetProductCountAsync(unitOfWork, orderId, gameId);
+        await unitOfWork.SaveAsync();
+    }
+
+    public async Task UpdateDetailsQuantityAsync(Guid orderGameId, int count)
+    {
+        if (count > 0)
+        {
+            var orderDetail = await unitOfWork.OrderGameRepository.GetByIdAsync(orderGameId);
+            orderDetail.Quantity = count;
+            await unitOfWork.SaveAsync();
+        }
+    }
+
+    private static async Task SetProductCountAsync(IUnitOfWork unitOfWork, string orderId, Guid gameId, int count = 1)
+    {
+        var order = await unitOfWork.OrderRepository.GetByOrderIdAsync(new Guid(orderId));
+        order.OrderGames.First(x => x.OrderId == new Guid(orderId) && x.GameId == gameId).Quantity = count;
+    }
+
+    private static async Task CreateOrderGameAsync(IUnitOfWork unitOfWork, string orderId, Game game)
+    {
+        await unitOfWork.OrderGameRepository.AddAsync(new OrderGame() { OrderId = new Guid(orderId), GameId = game.Id, Price = game.Price, Discount = game.Discount });
+    }
+
     private static void DeleteOrderGames(IUnitOfWork unitOfWork, Order? order)
     {
         foreach (var item in order.OrderGames)
@@ -234,7 +289,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerStub customer)
+    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerDto customer)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
         if (order != null)
@@ -253,10 +308,10 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
     private static async Task UpdateProductQuanityInSQLServer(IUnitOfWork unitOfWork, Order? order)
     {
-        var gameOrders = await unitOfWork.OrderGameRepository.GetByOrderIdAsync(order.Id);
+        var gameOrders = await unitOfWork.OrderGameRepository.GetOrderGamesByOrderIdAsync(order.Id);
         foreach (var gameOrder in gameOrders)
         {
-            var product = await unitOfWork.GameRepository.GetByIdAsync(gameOrder.GameId);
+            var product = await unitOfWork.GameRepository.GetByOrderIdAsync(gameOrder.GameId);
             if (product != null)
             {
                 product.UnitInStock -= gameOrder.Quantity;
@@ -307,10 +362,10 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         orderModels.AddRange(filteredMOngoOrders);
     }
 
-    private static async Task<double?> CalculateAmountToPay(IUnitOfWork unitOfWork, CustomerStub customer)
+    private static async Task<double?> CalculateAmountToPay(IUnitOfWork unitOfWork, CustomerDto customer)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
-        var orderGames = await unitOfWork.OrderGameRepository.GetByOrderIdAsync(order.Id);
+        var orderGames = await unitOfWork.OrderGameRepository.GetOrderGamesByOrderIdAsync(order.Id);
 
         double? sum = 0;
         foreach (var orderGame in orderGames)
@@ -338,7 +393,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         response.EnsureSuccessStatusCode();
     }
 
-    private static async Task<VisaMicroservicePaymentModel> CreateVisaPaymentModel(IUnitOfWork unitOfWork, IMapper automapper, PaymentModelDto payment, CustomerStub customer)
+    private static async Task<VisaMicroservicePaymentModel> CreateVisaPaymentModel(IUnitOfWork unitOfWork, IMapper automapper, PaymentModelDto payment, CustomerDto customer)
     {
         var visaPaymentModel = automapper.Map<VisaMicroservicePaymentModel>(payment);
 
@@ -347,7 +402,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         return visaPaymentModel;
     }
 
-    private static async Task<IboxPaymentModel> CreateIboxPaymentModel(IUnitOfWork unitOfWork, CustomerStub customer, Order order)
+    private static async Task<IboxPaymentModel> CreateIboxPaymentModel(IUnitOfWork unitOfWork, CustomerDto customer, Order order)
     {
         var iboxPaymentModel = new IboxPaymentModel()
         {
@@ -395,6 +450,6 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
     private static async Task<Order?> GetOrderFromSQLServerById(IUnitOfWork unitOfWork, Guid orderId)
     {
-        return await unitOfWork.OrderRepository.GetByIdAsync(orderId);
+        return await unitOfWork.OrderRepository.GetByOrderIdAsync(orderId);
     }
 }

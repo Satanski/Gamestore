@@ -1,8 +1,10 @@
 ﻿using System.Globalization;
 using AutoMapper;
+using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
 using Gamestore.DAL.Entities;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.Services.Models;
@@ -38,7 +40,10 @@ public class MappingProfile : Profile
 
         CreateMap<OrderGame, OrderGameModelDto>().ReverseMap();
         CreateMap<OrderGame, OrderDetailsDto>()
-            .ForMember(dest => dest.ProductId, src => src.MapFrom(x => x.GameId));
+            .ForMember(dest => dest.ProductId, src => src.MapFrom(x => x.GameId))
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
+            .ForMember(dest => dest.Key, src => src.MapFrom(x => x.Game.Key))
+            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Game.Name));
 
         CreateMap<Game, GameModelDto>()
             .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
@@ -149,5 +154,12 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CustomerId, src => src.MapFrom(x => x.CustomerId))
             .ForMember(dest => dest.Date, src => src.MapFrom(x => DateTime.ParseExact(x.OrderDate, "yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)))
             .ReverseMap();
+
+        CreateMap<AppUser, CustomerDto>()
+            .ForMember(dest => dest.Id, src => src.MapFrom(x => x.Id))
+            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.UserName));
+
+        CreateMap<AppRole, RoleModel>()
+            .ForMember(dest => dest.Name, src => src.MapFrom(x => x.Name));
     }
 }

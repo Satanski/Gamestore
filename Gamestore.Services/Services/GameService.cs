@@ -10,11 +10,13 @@ using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
-using Gamestore.WebApi.Stubs;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -33,23 +35,34 @@ public class GameService(
     private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
     private readonly CommentModelDtoValidator _commentModelDtoValidator = new();
 
-    public async Task<IEnumerable<GameModelDto>> GetAllGamesAsync()
+    public async Task<List<GameModelDto>> GetAllGamesAsync(bool canSeeDeletedGames)
     {
         logger.LogInformation("Getting all games");
-        var games = await unitOfWork.GameRepository.GetAllAsync();
-        var gameModels = automapper.Map<List<GameModelDto>>(games);
 
-        return gameModels.AsEnumerable();
+        List<GameModelDto> gameModels;
+        if (canSeeDeletedGames)
+        {
+            gameModels = automapper.Map<List<GameModelDto>>(await unitOfWork.GameRepository.GetAllWithDeletedAsync());
+        }
+        else
+        {
+            gameModels = automapper.Map<List<GameModelDto>>(await unitOfWork.GameRepository.GetAllAsync());
+        }
+
+        var productsFromMongoDB = automapper.Map<List<GameModelDto>>(await mongoUnitOfWork.ProductRepository.GetAllAsync());
+        gameModels.AddRange(productsFromMongoDB);
+
+        return gameModels;
     }
 
-    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters)
+    public async Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters, bool canSeeDeletedGames)
     {
         logger.LogInformation("Getting games by filter");
 
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
         FilteredGamesDto filteredGameDtos = new();
-        await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, canSeeDeletedGames);
         await MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
         SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
         CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
@@ -158,7 +171,7 @@ public class GameService(
         GameModelDto oldObjectState;
         GameDtoWrapper newObjectState = gameModel;
 
-        var existingGameInSQLServer = await unitOfWork.GameRepository.GetByIdAsync((Guid)gameModel.Game.Id!);
+        var existingGameInSQLServer = await unitOfWork.GameRepository.GetByOrderIdAsync((Guid)gameModel.Game.Id!);
         if (existingGameInSQLServer != null)
         {
             oldObjectState = automapper.Map<GameModelDto>(existingGameInSQLServer);
@@ -183,7 +196,7 @@ public class GameService(
     public async Task DeleteGameByIdAsync(Guid gameId)
     {
         logger.LogInformation("Deleting game by Id: {gameId}", gameId);
-        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        var game = await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
 
         if (game != null)
         {
@@ -201,7 +214,7 @@ public class GameService(
     public async Task SoftDeleteGameByIdAsync(Guid gameId)
     {
         logger.LogInformation("Deleting game by Id: {gameId}", gameId);
-        var game = await unitOfWork.GameRepository.GetByIdAsync(gameId);
+        var game = await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
 
         if (game != null)
         {
@@ -280,13 +293,15 @@ public class GameService(
         return commentList.AsEnumerable();
     }
 
-    public async Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment)
+    public async Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment, UserManager<AppUser> userManager)
     {
         logger.LogInformation("Adding comment: {@comment} to game {@gameKey}", comment, gameKey);
         await _commentModelDtoValidator.ValidateComment(comment);
-        if (CheckIfUserIsBanned(comment))
+
+        var banCheckResult = await CheckIfUserIsBanned(userName, userManager);
+        if (banCheckResult.IsBanned)
         {
-            return $"User banned till {CustomerStub.BannedTill}";
+            return $"User banned till {banCheckResult.BannedTill}";
         }
         else
         {
@@ -298,6 +313,7 @@ public class GameService(
                 await SqlServerHelperService.CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, gameModelDto, game);
             }
 
+            comment.Comment.Name = userName;
             game = await unitOfWork.GameRepository.GetGameByKeyAsync(@gameKey);
             var commenttoAdd = ConvertCommentModelDtoToComment(comment, game.Id);
 
@@ -312,17 +328,21 @@ public class GameService(
         return string.Empty;
     }
 
-    public async Task DeleteCommentAsync(string gameKey, Guid commentId)
+    public async Task DeleteCommentAsync(string userName, string gameKey, Guid commentId, bool canModerate)
     {
         logger.LogInformation("Deleting comment: {@commentId}", commentId);
 
-        var comment = await unitOfWork.CommentRepository.GetByIdAsync(commentId);
+        var comment = await unitOfWork.CommentRepository.GetByOrderIdAsync(commentId);
 
-        if (comment != null)
+        if ((comment != null && comment.Name == userName) || (comment != null && canModerate))
         {
             comment.Body = DeletedMessageTemplate;
             await unitOfWork.CommentRepository.UpdateAsync(comment);
             await unitOfWork.SaveAsync();
+        }
+        else
+        {
+            throw new GamestoreException("Action forbidden");
         }
     }
 
@@ -335,7 +355,7 @@ public class GameService(
 
         if (game.Id is not null)
         {
-            var gameInSQLServer = await unitOfWork.GameRepository.GetByIdAsync((Guid)game.Id);
+            var gameInSQLServer = await unitOfWork.GameRepository.GetByOrderIdAsync((Guid)game.Id);
             if (gameInSQLServer is null)
             {
                 await SqlServerHelperService.CopyGameFromMongoDBToSQLServerIfDoesntExistThereAsync(unitOfWork, automapper, game, gameInSQLServer);
@@ -459,7 +479,7 @@ public class GameService(
             GameId = gameId,
             ParentCommentId = comment.ParentId,
             Body = comment.Comment.Body,
-            Name = comment.Comment.Name,
+            Name = comment.Comment.Name!,
         };
     }
 
@@ -474,14 +494,21 @@ public class GameService(
         await unitOfWork.SaveAsync();
     }
 
-    private static bool CheckIfUserIsBanned(CommentModelDto comment)
+    private static async Task<(bool IsBanned, string BannedTill)> CheckIfUserIsBanned(string userName, UserManager<AppUser> userManager)
     {
-        if (comment.Comment.Name == CustomerStub.Name && CustomerStub.BannedTill > DateTime.Now)
+        bool isBanned = false;
+        string bannedTill = string.Empty;
+
+        var u = await userManager.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+        if (u is not null && userName == u.UserName && u.BannedTill > DateTime.Now)
         {
-            return true;
+            isBanned = true;
+            bannedTill = u.BannedTill.ToString();
+
+            return (isBanned, bannedTill);
         }
 
-        return false;
+        return (false, bannedTill);
     }
 
     private static void SetTotalNumberOfPagesAfterFiltering(GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos)

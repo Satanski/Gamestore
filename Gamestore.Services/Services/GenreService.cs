@@ -28,7 +28,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
             throw new GamestoreException($"You can't delete genre when it has child genres {genreId}");
         }
 
-        var genre = await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+        var genre = await unitOfWork.GenreRepository.GetByOrderIdAsync(genreId);
         if (genre != null)
         {
             unitOfWork.GenreRepository.Delete(genre);
@@ -112,7 +112,7 @@ public class GenreService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
     private static async Task<Genre?> GetGenreFromSQLServerById(IUnitOfWork unitOfWork, Guid genreId)
     {
-        return await unitOfWork.GenreRepository.GetByIdAsync(genreId);
+        return await unitOfWork.GenreRepository.GetByOrderIdAsync(genreId);
     }
 
     private static async Task<Genre?> GetGenreFromMongoDB(IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, Guid genreId)

@@ -10,6 +10,9 @@ namespace Gamestore.DAL.Entities;
 public class OrderGame
 {
     [Required]
+    public Guid Id { get; set; }
+
+    [Required]
     public Guid OrderId { get; set; }
 
     [Required]
