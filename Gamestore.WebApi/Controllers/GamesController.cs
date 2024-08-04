@@ -1,15 +1,20 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Filtering.Models;
+using Gamestore.BLL.Identity.Extensions;
+using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Models;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.Services.Interfaces;
-using Gamestore.WebApi.Stubs;
+using Gamestore.Services.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class GamesController([FromServices] IGameService gameService) : ControllerBase
+public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager) : ControllerBase
 {
     private readonly IGameService _gameService = gameService;
 
@@ -17,7 +22,29 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpGet]
     public async Task<IActionResult> GetGamesAsync([FromQuery] GameFiltersDto filters)
     {
-        var games = await _gameService.GetFilteredGamesAsync(filters);
+        bool canSeeDeletedGames = false;
+        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault(Permissions.PermissionDeletedGames)))
+        {
+            canSeeDeletedGames = true;
+        }
+
+        var games = await _gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
+
+        return Ok(games);
+    }
+
+    [HttpGet("all")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntitiesOrDeletedGames)]
+    public async Task<IActionResult> GetAllGamesAsync()
+    {
+        List<GameModelDto> games;
+        bool canSeeDeletedGames = false;
+        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault(Permissions.PermissionDeletedGames)))
+        {
+            canSeeDeletedGames = true;
+        }
+
+        games = await _gameService.GetAllGamesAsync(canSeeDeletedGames);
 
         return Ok(games);
     }
@@ -55,7 +82,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     {
         var platforms = await _gameService.GetPlatformsByGameKeyAsync(key);
 
-        return platforms.Any() ? Ok(platforms) : NotFound();
+        return Ok(platforms);
     }
 
     // GET: games/GUID/publisher
@@ -63,11 +90,6 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     public async Task<IActionResult> GetPublisherByGameKeyAsync(string key)
     {
         var publisher = await _gameService.GetPublisherByGameKeyAsync(key);
-
-        if (publisher == null)
-        {
-            return NotFound();
-        }
 
         return Ok(publisher);
     }
@@ -130,6 +152,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games
     [HttpPost]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.AddGameAsync(gameModel);
@@ -139,10 +162,11 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // POST: games/STRING/buy
     [HttpPost("{key}/buy")]
+    [Authorize(Policy = Permissions.PermissionValueBuyGame)]
     public async Task<IActionResult> AddGameToCartAsync(string key)
     {
-        var customerStub = new CustomerStub();
-        await _gameService.AddGameToCartAsync(customerStub.Id, key, 1);
+        var userId = new Guid(User.GetJwtSubjectId());
+        await _gameService.AddGameToCartAsync(userId, key, 1);
 
         return Ok();
     }
@@ -151,13 +175,15 @@ public class GamesController([FromServices] IGameService gameService) : Controll
     [HttpPost("{key}/comments")]
     public async Task<IActionResult> AddCommentToGameAsync([FromBody] CommentModelDto comment, string key)
     {
-        var result = await _gameService.AddCommentToGameAsync(key, comment);
+        var userName = User.GetJwtSubject();
+        var result = await _gameService.AddCommentToGameAsync(userName, key, comment, userManager);
 
         return Ok(result);
     }
 
     // PUT: games
     [HttpPut]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
     {
         await _gameService.UpdateGameAsync(gameModel);
@@ -167,6 +193,7 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // DELETE: games
     [HttpDelete("{key}")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
         await _gameService.SoftDeleteGameByKeyAsync(key);
@@ -176,9 +203,17 @@ public class GamesController([FromServices] IGameService gameService) : Controll
 
     // DELETE: games
     [HttpDelete("{key}/comments/{id}")]
+    [Authorize(Policy = Permissions.PermissionValueDeleteComment)]
     public async Task<IActionResult> DeleteCommentAsync(string key, Guid id)
     {
-        await _gameService.DeleteCommentAsync(key, id);
+        bool canModerate = false;
+        var userName = User.GetJwtSubject();
+        if (User.Claims.Any(x => x.Value == Permissions.PermissionList.GetValueOrDefault(Permissions.PermissionModerateComments)))
+        {
+            canModerate = true;
+        }
+
+        await _gameService.DeleteCommentAsync(userName, key, id, canModerate);
 
         return Ok();
     }

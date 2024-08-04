@@ -13,7 +13,7 @@ public class CommentRepository(GamestoreContext context) : RepositoryBase<Commen
         return _context.Comments.ToListAsync();
     }
 
-    public Task<Comment?> GetByIdAsync(Guid id)
+    public Task<Comment?> GetByOrderIdAsync(Guid id)
     {
         return _context.Comments.Where(x => x.Id == id).FirstOrDefaultAsync();
     }
@@ -25,7 +25,7 @@ public class CommentRepository(GamestoreContext context) : RepositoryBase<Commen
 
     public Task<List<Comment>> GetByGameKeyAsync(string key)
     {
-        return _context.Comments.Where(x => x.Game.Key == key).ToListAsync();
+        return _context.Comments.Where(x => x.Product.Key == key).ToListAsync();
     }
 
     public async Task UpdateAsync(Comment entity)

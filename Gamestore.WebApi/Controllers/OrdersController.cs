@@ -1,7 +1,10 @@
-﻿using Gamestore.BLL.Interfaces;
+﻿using Gamestore.BLL.Identity.Extensions;
+using Gamestore.BLL.Identity.Models;
+using Gamestore.BLL.Interfaces;
+using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
 using Gamestore.WebApi.Strategies;
-using Gamestore.WebApi.Stubs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -14,6 +17,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders
     [HttpGet]
+    [Authorize(Policy = Permissions.PermissionValueOrderHistory)]
     public async Task<IActionResult> GetOrdersAsync()
     {
         var orders = await _orderService.GetAllOrdersAsync();
@@ -23,6 +27,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders/GUID
     [HttpGet("{id}")]
+    [Authorize(Policy = Permissions.PermissionValueOrderStatus)]
     public async Task<IActionResult> GetOrderByIdAsync(Guid id)
     {
         var order = await _orderService.GetOrderByIdAsync(id);
@@ -30,8 +35,19 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
         return order == null ? NotFound() : Ok(order);
     }
 
+    // GET: orders
+    [HttpGet("history")]
+    [Authorize(Policy = Permissions.PermissionValueOrderHistory)]
+    public async Task<IActionResult> GetOrdersHistoryAsync([FromQuery] string? start, [FromQuery] string? end)
+    {
+        var orders = await _orderService.GetOrdersHistoryAsync(start, end);
+
+        return Ok(orders);
+    }
+
     // GET: orders/GUID/details
     [HttpGet("{id}/details")]
+    [Authorize(Policy = Permissions.PermissionValueOrderStatus)]
     public async Task<IActionResult> GetOrderDetailsByOrderIdAsync(Guid id)
     {
         var order = await _orderService.GetOrderDetailsByOrderIdAsync(id);
@@ -41,21 +57,43 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // GET: orders/cart
     [HttpGet("cart")]
+    [Authorize(Policy = Permissions.PermissionValueOrderStatus)]
     public async Task<IActionResult> GetCartAsync()
     {
-        var customerStub = new CustomerStub();
-        var orders = await _orderService.GetCartByCustomerIdAsync(customerStub.Id);
+        var userId = new Guid(User.GetJwtSubjectId());
+        var orders = await _orderService.GetCartByCustomerIdAsync(userId);
 
         return Ok(orders);
     }
 
     // POST: orders
     [HttpPost("payment")]
+    [Authorize(Policy = Permissions.PermissionValueOrderStatus)]
     public async Task<IActionResult> PayAsync([FromBody] PaymentModelDto payment)
     {
-        var customerStub = new CustomerStub();
+        var id = User.GetJwtSubjectId();
+        var userName = User.GetJwtSubject();
+        var customer = new CustomerDto() { Id = new Guid(id!), Name = userName };
 
-        return await paymentContext.ExecuteStrategyAsync(payment.Method, payment, customerStub);
+        return await paymentContext.ExecuteStrategyAsync(payment.Method, payment, customer);
+    }
+
+    [HttpPost("{id}/ship")]
+    [Authorize(Policy = Permissions.PermissionValueEditOrders)]
+    public async Task<IActionResult> ShipAsync(string id)
+    {
+        await _orderService.ShipAsync(id);
+
+        return Ok();
+    }
+
+    [HttpPost("{orderId}/details/{productName}")]
+    [Authorize(Policy = Permissions.PermissionValueEditOrders)]
+    public async Task<IActionResult> AddProductToOrderAsync(string orderId, string productName)
+    {
+        await _orderService.AddProductToOrderAsync(orderId, productName);
+
+        return Ok();
     }
 
     // GET: orders/cart
@@ -69,6 +107,7 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // DELETE: orders
     [HttpDelete("{id}")]
+    [Authorize(Policy = Permissions.PermissionValueEditOrders)]
     public async Task<IActionResult> DeleteOrderByIdAsync(Guid id)
     {
         await _orderService.DeleteOrderByIdAsync(id);
@@ -78,10 +117,30 @@ public class OrdersController([FromServices] IOrderService orderService, [FromSe
 
     // DELETE: orders
     [HttpDelete("cart/{key}")]
-    public async Task<IActionResult> DeleteOrderByIdAsync(string key)
+    [Authorize(Policy = Permissions.PermissionValueEditOrders)]
+    public async Task<IActionResult> DeleteOrderByKeyAsync(string key)
     {
-        var customerStub = new CustomerStub();
-        await _orderService.RemoveGameFromCartAsync(customerStub.Id, key, 1);
+        var userId = new Guid(User.GetJwtSubjectId());
+
+        await _orderService.RemoveGameFromCartAsync(userId, key, 1);
+
+        return Ok();
+    }
+
+    [HttpDelete("details/{orderGameId}")]
+    [Authorize(Policy = Permissions.PermissionValueEditOrders)]
+    public async Task<IActionResult> DeleteOrderDetailByIdAsync(string orderGameId)
+    {
+        await _orderService.RemoveGameFromCartByOrderGameIdAsync(new Guid(orderGameId));
+
+        return Ok();
+    }
+
+    [HttpPatch("details/{orderGameId}/quantity")]
+    [Authorize(Policy = Permissions.PermissionValueEditOrders)]
+    public async Task<IActionResult> UpdateDetailsQuantityAsync([FromBody] CountDto count, string orderGameId)
+    {
+        await _orderService.UpdateDetailsQuantityAsync(new Guid(orderGameId), count.Count);
 
         return Ok();
     }

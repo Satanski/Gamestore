@@ -13,7 +13,7 @@ public class GameRepositoryTests : IDisposable
 
     public GameRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder().UseInMemoryDatabase("GameRepoTest").Options;
+        var options = new DbContextOptionsBuilder<GamestoreContext>().UseInMemoryDatabase("GameRepoTest").Options;
 
         _context = new GamestoreContext(options);
         _gameRepository = new(_context);
@@ -33,7 +33,7 @@ public class GameRepositoryTests : IDisposable
         var expectedGameId = Guid.NewGuid();
         var genre = _context.Genres.First();
         var expectedGenreId = genre.Id;
-        var expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
+        var expectedGameGenre = new GameGenres() { GameId = expectedGameId, GenreId = expectedGenreId };
 
         var platform = _context.Platforms.First();
         var expectedPlatformId = platform.Id;
@@ -43,10 +43,8 @@ public class GameRepositoryTests : IDisposable
         var expectedKey = "BG";
         var expectedDescription = "Rpg game";
 
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-        List<GameGenre> gameGenres = [expectedGameGenre];
+        List<GameGenres> gameGenres = [expectedGameGenre];
         List<GamePlatform> gamePlatforms = [expectedGamePlatform];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
         // Act
         await _gameRepository.AddAsync(new Game()
@@ -55,8 +53,8 @@ public class GameRepositoryTests : IDisposable
             Name = expectedName,
             Key = expectedKey,
             Description = expectedDescription,
-            GameGenres = gameGenres,
-            GamePlatforms = gamePlatforms,
+            ProductCategories = gameGenres,
+            ProductPlatforms = gamePlatforms,
         });
         await _context.SaveChangesAsync();
 
@@ -68,8 +66,8 @@ public class GameRepositoryTests : IDisposable
         Assert.Equal(expectedName, resultGame.Name);
         Assert.Equal(expectedKey, resultGame.Key);
         Assert.Equal(expectedDescription, resultGame.Description);
-        Assert.Contains(expectedGameGenre, resultGame.GameGenres);
-        Assert.Contains(expectedGamePlatform, resultGame.GamePlatforms);
+        Assert.Contains(expectedGameGenre, resultGame.ProductCategories);
+        Assert.Contains(expectedGamePlatform, resultGame.ProductPlatforms);
     }
 
     [Fact]
@@ -97,7 +95,7 @@ public class GameRepositoryTests : IDisposable
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", "BG", "Rpg game");
 
         // Act
-        var resultGame = await _gameRepository.GetByIdAsync(expectedGameId);
+        var resultGame = await _gameRepository.GetByOrderIdAsync(expectedGameId);
 
         // Assert
         Assert.Equal(expectedGameId, resultGame.Id);
@@ -112,7 +110,7 @@ public class GameRepositoryTests : IDisposable
         await TestGameHelpers.AddTestGameAsync(_context, expectedGameId, "Baldurs Gate", expectedGameKey, "Rpg game");
 
         // Act
-        var resultGame = await _gameRepository.GetByIdAsync(expectedGameId);
+        var resultGame = await _gameRepository.GetByOrderIdAsync(expectedGameId);
 
         // Assert
         Assert.Equal(expectedGameKey, resultGame.Key);

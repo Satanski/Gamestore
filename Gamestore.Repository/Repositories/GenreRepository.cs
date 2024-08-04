@@ -11,11 +11,11 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
     public Task<List<Game>> GetGamesByGenreAsync(Guid id)
     {
         return _context.Games
-            .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
-            .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
+            .Include(x => x.ProductCategories).ThenInclude(x => x.Category)
+            .Include(x => x.ProductPlatforms).ThenInclude(x => x.Platform)
             .Include(x => x.Publisher)
             .Include(x => x.Comments)
-            .Where(x => x.GameGenres.Any(gg => gg.GenreId == id && gg.GameId == x.Id) && !x.IsDeleted)
+            .Where(x => x.ProductCategories.Any(gg => gg.GenreId == id && gg.GameId == x.Id) && !x.IsDeleted)
             .AsSplitQuery()
             .ToListAsync();
     }
@@ -25,7 +25,7 @@ public class GenreRepository(GamestoreContext context) : RepositoryBase<Genre>(c
         return _context.Genres.Where(x => x.ParentGenreId == id).ToListAsync();
     }
 
-    public Task<Genre?> GetByIdAsync(Guid id)
+    public Task<Genre?> GetByOrderIdAsync(Guid id)
     {
         return _context.Genres.Where(x => x.Id == id).FirstOrDefaultAsync();
     }

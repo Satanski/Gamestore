@@ -2,12 +2,13 @@
 using Gamestore.BLL.Filtering.Models;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Interfaces;
+using Gamestore.MongoRepository.Interfaces;
 
 namespace Gamestore.BLL.Filtering.Handlers;
 
 public class PriceFilterHandler : GameProcessingPipelineHandlerBase
 {
-    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, GameFiltersDto filters, IQueryable<Game> query)
+    public override async Task<IQueryable<Game>> HandleAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, GameFiltersDto filters, IQueryable<Game> query)
     {
         if (filters.MaxPrice < filters.MinPrice)
         {
@@ -24,7 +25,7 @@ public class PriceFilterHandler : GameProcessingPipelineHandlerBase
             query = query.Where(x => x.Price <= filters.MaxPrice);
         }
 
-        query = await base.HandleAsync(unitOfWork, filters, query);
+        query = await base.HandleAsync(unitOfWork, mongoUnitOfWork, filters, query);
 
         return query;
     }

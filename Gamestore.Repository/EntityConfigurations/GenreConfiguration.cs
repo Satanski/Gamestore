@@ -8,7 +8,7 @@ internal class GenreConfiguration : IEntityTypeConfiguration<Genre>
 {
     public void Configure(EntityTypeBuilder<Genre> builder)
     {
-        builder.HasMany(x => x.GameGenres).WithOne(x => x.Genre).OnDelete(DeleteBehavior.Restrict);
+        builder.HasMany(x => x.GameGenres).WithOne(x => x.Category).OnDelete(DeleteBehavior.Restrict);
         Seed(builder);
     }
 

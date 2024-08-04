@@ -1,16 +1,16 @@
 ﻿using Gamestore.BLL.BanHandler;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
-using Gamestore.WebApi.Stubs;
+using Gamestore.IdentityRepository.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gamestore.BLL.Services;
 
 public class CommentService(IBanService banService) : ICommentService
 {
-    public void BanCustomerFromCommenting(BanDto banDetails)
+    public async Task BanCustomerFromCommentingAsync(BanDto banDetails, UserManager<AppUser> userManager)
     {
-        var customerStub = new CustomerStub();
-        banService.BanCustomerFromCommenting(banDetails, customerStub);
+        await banService.BanCustomerFromCommentingAsync(banDetails, userManager);
     }
 
     public List<string> GetBanDurations()

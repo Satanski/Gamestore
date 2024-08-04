@@ -1,6 +1,8 @@
-﻿using Gamestore.BLL.Models;
+﻿using Gamestore.BLL.Identity.Models;
+using Gamestore.BLL.Models;
 using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gamestore.WebApi.Controllers;
@@ -33,6 +35,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // POST: genres
     [HttpPost]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.AddGenreAsync(genreModel);
@@ -60,6 +63,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // PUT: genres
     [HttpPut]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdateGenreAsync([FromBody] GenreDtoWrapper genreModel)
     {
         await _genreService.UpdateGenreAsync(genreModel);
@@ -69,6 +73,7 @@ public class GenresController([FromServices] IGenreService genreService) : Contr
 
     // DELETE: genres
     [HttpDelete("{id}")]
+    [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeleteGenreByIdAsync(Guid id)
     {
         await _genreService.DeleteGenreAsync(id);

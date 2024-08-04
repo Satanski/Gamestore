@@ -11,15 +11,13 @@ internal static class TestGameHelpers
 
         var expectedGenreId = expectedGenre.Id;
 
-        var expectedGameGenre = new GameGenre() { GameId = expectedGameId, GenreId = expectedGenreId };
+        var expectedGameGenre = new GameGenres() { GameId = expectedGameId, GenreId = expectedGenreId };
 
         var expectedPlatformId = expectedPlatform.Id;
         var expectedGamePlatform = new GamePlatform() { GameId = expectedGameId, PlatformId = expectedPlatformId };
 
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-        List<GameGenre> gameGenres = [expectedGameGenre];
+        List<GameGenres> gameGenres = [expectedGameGenre];
         List<GamePlatform> gamePlatforms = [expectedGamePlatform];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
         var game = new Game()
         {
@@ -27,8 +25,8 @@ internal static class TestGameHelpers
             Name = expectedName,
             Key = expectedKey,
             Description = expectedDescription,
-            GameGenres = gameGenres,
-            GamePlatforms = gamePlatforms,
+            ProductCategories = gameGenres,
+            ProductPlatforms = gamePlatforms,
             Publisher = new Publisher() { Id = Guid.NewGuid(), CompanyName = "Test company" },
             Comments = [],
             IsDeleted = false,

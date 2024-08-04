@@ -12,13 +12,13 @@ public class PlatformRepository(GamestoreContext context) : RepositoryBase<Platf
     {
         return _context.Games
            .Include(x => x.Publisher)
-           .Include(x => x.GameGenres).ThenInclude(x => x.Genre)
-           .Include(x => x.GamePlatforms).ThenInclude(x => x.Platform)
-           .Where(x => x.GamePlatforms.Any(gp => gp.PlatformId == id && gp.GameId == x.Id) && !x.IsDeleted)
+           .Include(x => x.ProductCategories).ThenInclude(x => x.Category)
+           .Include(x => x.ProductPlatforms).ThenInclude(x => x.Platform)
+           .Where(x => x.ProductPlatforms.Any(gp => gp.PlatformId == id && gp.GameId == x.Id) && !x.IsDeleted)
            .ToListAsync();
     }
 
-    public Task<Platform?> GetByIdAsync(Guid id)
+    public Task<Platform?> GetByOrderIdAsync(Guid id)
     {
         return _context.Platforms.Where(x => x.Id == id).FirstOrDefaultAsync();
     }

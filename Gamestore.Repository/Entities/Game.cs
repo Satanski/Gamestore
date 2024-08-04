@@ -37,15 +37,21 @@ public class Game
 
     public int NumberOfViews { get; set; }
 
+    public int? ReorderLevel { get; set; }
+
+    public string? QuantityPerUnit { get; set; }
+
+    public int? UnitsOnOrder { get; set; }
+
     public bool IsDeleted { get; set; }
 
     public Publisher Publisher { get; set; }
 
-    public List<GameGenre> GameGenres { get; set; }
+    public List<GameGenres> ProductCategories { get; set; }
 
-    public List<GamePlatform> GamePlatforms { get; set; }
+    public List<GamePlatform> ProductPlatforms { get; set; }
 
-    public List<OrderGame> OrderGames { get; set; }
+    public List<OrderGame> OrderProducts { get; set; }
 
     public List<Comment> Comments { get; set; }
 

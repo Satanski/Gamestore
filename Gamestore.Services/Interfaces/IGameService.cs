@@ -1,6 +1,8 @@
 ﻿using Gamestore.BLL.Filtering.Models;
 using Gamestore.BLL.Models;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.Services.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Gamestore.Services.Interfaces;
 
@@ -14,9 +16,9 @@ public interface IGameService
 
     Task DeleteGameByKeyAsync(string gameKey);
 
-    Task<IEnumerable<GameModelDto>> GetAllGamesAsync();
+    Task<List<GameModelDto>> GetAllGamesAsync(bool canSeeDeletedGames);
 
-    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters);
+    Task<FilteredGamesDto> GetFilteredGamesAsync(GameFiltersDto gameFilters, bool canSeeDeletedGames);
 
     Task<GameModelDto> GetGameByIdAsync(Guid gameId);
 
@@ -34,11 +36,11 @@ public interface IGameService
 
     Task UpdateGameAsync(GameDtoWrapper gameModel);
 
-    Task<string> AddCommentToGameAsync(string gameKey, CommentModelDto comment);
+    Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment, UserManager<AppUser> userManager);
 
     Task<IEnumerable<CommentModel>> GetCommentsByGameKeyAsync(string gameKey);
 
-    Task DeleteCommentAsync(string gameKey, Guid commentId);
+    Task DeleteCommentAsync(string userName, string gameKey, Guid commentId, bool canModerate);
 
     List<string> GetPaginationOptions();
 
