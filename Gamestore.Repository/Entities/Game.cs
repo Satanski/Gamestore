@@ -57,12 +57,7 @@ public class Game
 
     public override bool Equals(object? obj)
     {
-        if (obj is Game other)
-        {
-            return Id.Equals(other.Id) && Key.Equals(other.Key, StringComparison.OrdinalIgnoreCase);
-        }
-
-        return false;
+        return obj is Game other && Id.Equals(other.Id) && Key.Equals(other.Key, StringComparison.OrdinalIgnoreCase);
     }
 
     public override int GetHashCode()

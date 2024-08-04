@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Gamestore.MongoRepository.Entities;
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1010:Opening square brackets should be spaced correctly", Justification = "No way to get rid of warning")]
 
 [BsonIgnoreExtraElements]
 public class MongoProduct
@@ -15,13 +16,7 @@ public class MongoProduct
     public int ProductId { get; set; }
 
     [BsonIgnore]
-    public Guid ProductIdGuid
-    {
-        get
-        {
-            return GuidHelpers.IntToGuid(ProductId);
-        }
-    }
+    public Guid ProductIdGuid => GuidHelpers.IntToGuid(ProductId);
 
     [BsonElement("ProductName")]
     public string ProductName { get; set; }
@@ -30,25 +25,13 @@ public class MongoProduct
     public int SupplierID { get; set; }
 
     [BsonIgnore]
-    public MongoPublisher Supplier
-    {
-        get
-        {
-            return new MongoPublisher() { Id = GuidHelpers.IntToGuid(SupplierID) };
-        }
-    }
+    public MongoPublisher Supplier => new() { Id = GuidHelpers.IntToGuid(SupplierID) };
 
     [BsonElement("CategoryID")]
     public int CategoryID { get; set; }
 
     [BsonIgnore]
-    public Guid CategoryIDGuid
-    {
-        get
-        {
-            return GuidHelpers.IntToGuid(CategoryID);
-        }
-    }
+    public Guid CategoryIDGuid => GuidHelpers.IntToGuid(CategoryID);
 
     [BsonElement("UnitPrice")]
     public double UnitPrice { get; set; }
@@ -69,24 +52,8 @@ public class MongoProduct
     public string QuantityPerUnit { get; set; }
 
     [BsonIgnore]
-    public List<MongoProductCategory> ProductGenres
-    {
-        get
-        {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-            return [new() { ProductId = GuidHelpers.IntToGuid(ProductId), CategoryId = GuidHelpers.IntToGuid(CategoryID) }];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
-        }
-    }
+    public List<MongoProductCategory> ProductGenres => [new() { ProductId = GuidHelpers.IntToGuid(ProductId), CategoryId = GuidHelpers.IntToGuid(CategoryID) }];
 
     [BsonIgnore]
-    public List<MongoProductPlatform> ProductPlatforms
-    {
-        get
-        {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
-            return [new() { ProductId = GuidHelpers.IntToGuid(ProductId), PlatformId = Guid.Empty }];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
-        }
-    }
+    public List<MongoProductPlatform> ProductPlatforms => [new() { ProductId = GuidHelpers.IntToGuid(ProductId), PlatformId = Guid.Empty }];
 }

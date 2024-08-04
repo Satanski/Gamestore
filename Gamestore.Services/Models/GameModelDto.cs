@@ -11,21 +11,11 @@ public record GameModelDto
 
     public string? Key
     {
-        get
-        {
-            return _key;
-        }
+        get => _key;
 
         set
         {
-            if (string.IsNullOrEmpty(value))
-            {
-                _key = AutoGenrateGameKeyHelpers.GenerateGameKey(Name);
-            }
-            else
-            {
-                _key = value;
-            }
+            _key = string.IsNullOrEmpty(value) ? AutoGenrateGameKeyHelpers.GenerateGameKey(Name) : value;
         }
     }
 
@@ -49,17 +39,17 @@ public record GameModelDto
 
     public virtual bool Equals(GameModelDto? other)
     {
-        if (ReferenceEquals(this, other))
+        if (!ReferenceEquals(this, other))
         {
-            return true;
+            if (other is null)
+            {
+                return false;
+            }
+
+            return Id == other.Id && Key == other.Key;
         }
 
-        if (other is null)
-        {
-            return false;
-        }
-
-        return Id == other.Id && Key == other.Key;
+        return true;
     }
 
     public override int GetHashCode()
