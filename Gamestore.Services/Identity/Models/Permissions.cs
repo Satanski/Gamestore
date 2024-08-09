@@ -16,21 +16,23 @@ public static class Permissions
     public const string PermissionValueModerateComments = "ModerateComments";
     public const string PermissionValueManageEntitiesOrDeletedGames = "ManageEntitiesOrDeletedGames";
 
-    private static readonly Dictionary<string, string> PermissionListDictionary = new()
-    {
-        { PermissionAddComment!, PermissionValueAddComment },
-        { PermissionDeleteComment!, PermissionValueDeleteComment },
-        { PermissionBuyGame!, PermissionValueBuyGame },
-        { PermissionManageUsers!, PermissionValueManageUsers },
-        { PermissionManageRoles!, PermissionValueManageRoles },
-        { PermissionDeletedGames!, PermissionValueDeletedGames },
-        { PermissionManageEntities!, PermissionValueManageEntities },
-        { PermissionEditOrders!, PermissionValueEditOrders },
-        { PermissionOrderHistory!, PermissionValueOrderHistory },
-        { PermissionOrderStatus!, PermissionValueOrderStatus },
-        { PermissionBanUsers!, PermissionValueBanUsers },
-        { PermissionModerateComments!, PermissionValueModerateComments },
-    };
+    private static readonly Dictionary<string, string> PermissionListDictionary;
+
+    static Permissions() => PermissionListDictionary = new Dictionary<string, string>
+        {
+            { PermissionAddComment, PermissionValueAddComment },
+            { PermissionDeleteComment, PermissionValueDeleteComment },
+            { PermissionBuyGame, PermissionValueBuyGame },
+            { PermissionManageUsers, PermissionValueManageUsers },
+            { PermissionManageRoles, PermissionValueManageRoles },
+            { PermissionDeletedGames, PermissionValueDeletedGames },
+            { PermissionManageEntities, PermissionValueManageEntities },
+            { PermissionEditOrders, PermissionValueEditOrders },
+            { PermissionOrderHistory, PermissionValueOrderHistory },
+            { PermissionOrderStatus, PermissionValueOrderStatus },
+            { PermissionBanUsers, PermissionValueBanUsers },
+            { PermissionModerateComments, PermissionValueModerateComments },
+        };
 
     public static string PermissionAddComment { get; } = "permissions.add.comment";
 
