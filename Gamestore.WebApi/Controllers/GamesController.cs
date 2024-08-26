@@ -10,12 +10,13 @@ using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager, IConfiguration configuration) : ControllerBase
+public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager, IConfiguration configuration, IMemoryCache memoryCache) : ControllerBase
 {
     private readonly IGameService _gameService = gameService;
 
@@ -79,13 +80,22 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // GET: games/Key/image
     [HttpGet("{key}/image")]
-    [ResponseCache(Duration = 20, Location = ResponseCacheLocation.Any, NoStore = false)]
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, NoStore = false)]
     public async Task<IActionResult> GetPictureByGameKeyAsync(string key)
     {
-        var picture = await _gameService.GetPictureByGameKeyAsync(key, configuration);
-        var mimeType = MimeTypeHelpers.GetMimeTypeFromBytes(picture);
+        if (!memoryCache.TryGetValue(key, out byte[] picture))
+        {
+            picture = await _gameService.GetPictureByGameKeyAsync(key, configuration);
 
-        return File(picture, mimeType);
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromSeconds(20));
+
+            memoryCache.Set(key, picture, cacheEntryOptions);
+        }
+
+        var mimeType = MimeTypeHelpers.GetMimeTypeFromBytes(picture!);
+
+        return File(picture!, mimeType);
     }
 
     // GET: games/GUID/platforms
