@@ -130,6 +130,8 @@ public static class Program
             .AllowAnyMethod()
             .AllowAnyHeader());
 
+        app.UseResponseCaching();
+
         app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.UseMiddleware<GameCounterMiddleware>();

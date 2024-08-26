@@ -79,6 +79,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
 
     // GET: games/Key/image
     [HttpGet("{key}/image")]
+    [ResponseCache(Duration = 20, Location = ResponseCacheLocation.Any, NoStore = false)]
     public async Task<IActionResult> GetPictureByGameKeyAsync(string key)
     {
         var picture = await _gameService.GetPictureByGameKeyAsync(key, configuration);
