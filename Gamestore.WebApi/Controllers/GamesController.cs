@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Filtering.Models;
+using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Identity.Extensions;
 using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Models;
@@ -14,7 +15,7 @@ namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager) : ControllerBase
+public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager, IConfiguration configuration) : ControllerBase
 {
     private readonly IGameService _gameService = gameService;
 
@@ -74,6 +75,16 @@ public class GamesController([FromServices] IGameService gameService, UserManage
         var genres = await _gameService.GetGenresByGameKeyAsync(key);
 
         return genres.Any() ? Ok(genres) : NotFound();
+    }
+
+    // GET: games/Key/image
+    [HttpGet("{key}/image")]
+    public async Task<IActionResult> GetPictureByGameKeyAsync(string key)
+    {
+        var picture = await _gameService.GetPictureByGameKeyAsync(key, configuration);
+        var mimeType = MimeTypeHelpers.GetMimeTypeFromBytes(picture);
+
+        return File(picture, mimeType);
     }
 
     // GET: games/GUID/platforms
@@ -155,7 +166,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
-        await _gameService.AddGameAsync(gameModel);
+        await _gameService.AddGameAsync(gameModel, configuration);
 
         return Ok();
     }
@@ -186,7 +197,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
     {
-        await _gameService.UpdateGameAsync(gameModel);
+        await _gameService.UpdateGameAsync(gameModel, configuration);
 
         return Ok();
     }
@@ -196,7 +207,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
-        await _gameService.SoftDeleteGameByKeyAsync(key);
+        await _gameService.DeleteGameByKeyAsync(key, configuration);
 
         return Ok();
     }

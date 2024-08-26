@@ -3,18 +3,19 @@ using Gamestore.BLL.Models;
 using Gamestore.IdentityRepository.Identity;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Gamestore.Services.Interfaces;
 
 public interface IGameService
 {
-    Task AddGameAsync(GameDtoWrapper gameModel);
+    Task AddGameAsync(GameDtoWrapper gameModel, IConfiguration configuration);
 
     Task AddGameToCartAsync(Guid customerId, string gameKey, int quantity);
 
-    Task DeleteGameByIdAsync(Guid gameId);
+    Task DeleteGameByIdAsync(Guid gameId, IConfiguration configuration);
 
-    Task DeleteGameByKeyAsync(string gameKey);
+    Task DeleteGameByKeyAsync(string gameKey, IConfiguration configuration);
 
     Task<List<GameModelDto>> GetAllGamesAsync(bool canSeeDeletedGames);
 
@@ -34,7 +35,7 @@ public interface IGameService
 
     Task SoftDeleteGameByKeyAsync(string gameKey);
 
-    Task UpdateGameAsync(GameDtoWrapper gameModel);
+    Task UpdateGameAsync(GameDtoWrapper gameModel, IConfiguration configuration);
 
     Task<string> AddCommentToGameAsync(string userName, string gameKey, CommentModelDto comment, UserManager<AppUser> userManager);
 
@@ -47,4 +48,6 @@ public interface IGameService
     List<string> GetPublishDateOptions();
 
     List<string> GetSortingOptions();
+
+    Task<byte[]> GetPictureByGameKeyAsync(string key, IConfiguration configuration);
 }

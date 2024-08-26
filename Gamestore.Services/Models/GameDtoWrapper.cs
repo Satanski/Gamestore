@@ -8,6 +8,8 @@ public record GameDtoWrapper
 
     public Guid Publisher { get; set; }
 
+    public string Image { get; set; }
+
     public List<Guid> Genres { get; set; }
 
     public List<Guid> Platforms { get; set; }

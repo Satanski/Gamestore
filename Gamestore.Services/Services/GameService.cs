@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
+using Gamestore.BLL.Azure;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Filtering.Models;
@@ -17,6 +19,7 @@ using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -131,6 +134,16 @@ public class GameService(
         return game ?? throw new GamestoreException($"No game found with given key: {key}");
     }
 
+    public async Task<byte[]> GetPictureByGameKeyAsync(string key, IConfiguration configuration)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
+        string fileName = game.Id.ToString();
+
+        var imageBytes = await GetPictureFromBlobAsync(configuration, fileName);
+
+        return imageBytes;
+    }
+
     public List<string> GetPaginationOptions()
     {
         return PaginationOptionsDto.PaginationOptions;
@@ -146,7 +159,7 @@ public class GameService(
         return SortingOptionsDto.SortingOptions;
     }
 
-    public async Task AddGameAsync(GameDtoWrapper gameModel)
+    public async Task AddGameAsync(GameDtoWrapper gameModel, IConfiguration configuration)
     {
         logger.LogInformation("Adding game {@gameModel}", gameModel);
 
@@ -154,6 +167,8 @@ public class GameService(
 
         var game = automapper.Map<Game>(gameModel.Game);
         var addedGame = await AddGameToRepositoryAsync(unitOfWork, gameModel, game);
+
+        await AddPictureToBlobAsync(gameModel, configuration, addedGame);
 
         var genres = gameModel.Genres;
         var platforms = gameModel.Platforms;
@@ -163,7 +178,7 @@ public class GameService(
         await mongoLoggingService.LogGameAddAsync(gameModel);
     }
 
-    public async Task UpdateGameAsync(GameDtoWrapper gameModel)
+    public async Task UpdateGameAsync(GameDtoWrapper gameModel, IConfiguration configuration)
     {
         logger.LogInformation("Updating game {@gameModel}", gameModel);
         await _gameDtoWrapperValidator.ValidateGame(gameModel);
@@ -190,10 +205,12 @@ public class GameService(
         var game = automapper.Map<Game>(gameModel.Game);
         await UpdateGameInrepositoryAsync(unitOfWork, gameModel, game);
 
+        await UpdatePictureInBlobAsync(gameModel, configuration);
+
         await mongoLoggingService.LogGameUpdateAsync(oldObjectState, newObjectState);
     }
 
-    public async Task DeleteGameByIdAsync(Guid gameId)
+    public async Task DeleteGameByIdAsync(Guid gameId, IConfiguration configuration)
     {
         logger.LogInformation("Deleting game by Id: {gameId}", gameId);
         var game = await unitOfWork.GameRepository.GetByOrderIdAsync(gameId);
@@ -204,6 +221,7 @@ public class GameService(
             await DeleteGameGenresFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGameFromRepositoryAsync(unitOfWork, game);
+            await DeletePictureFromBlobAsync(gameId, configuration);
         }
         else
         {
@@ -227,7 +245,7 @@ public class GameService(
         }
     }
 
-    public async Task DeleteGameByKeyAsync(string gameKey)
+    public async Task DeleteGameByKeyAsync(string gameKey, IConfiguration configuration)
     {
         logger.LogInformation("Deleting game by Key: {gameKey}", gameKey);
         var game = await unitOfWork.GameRepository.GetGameByKeyAsync(gameKey);
@@ -238,6 +256,7 @@ public class GameService(
             await DeleteGameGenresFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGameFromRepositoryAsync(unitOfWork, game);
+            await DeletePictureFromBlobAsync(game.Id, configuration);
         }
         else
         {
@@ -526,5 +545,67 @@ public class GameService(
         {
             filteredGameDtos.CurrentPage = gameFilters.NumberOfPagesAfterFiltration;
         }
+    }
+
+    private static async Task<byte[]> GetPictureFromBlobAsync(IConfiguration configuration, string fileName)
+    {
+        byte[] imageBytes;
+        var blobClient = GetBlobClient(configuration, fileName);
+        using (MemoryStream blobStream = new MemoryStream())
+        {
+            await blobClient.DownloadToAsync(blobStream);
+
+            imageBytes = blobStream.ToArray();
+        }
+
+        return imageBytes;
+    }
+
+    private static async Task AddPictureToBlobAsync(GameDtoWrapper gameModel, IConfiguration configuration, Game addedGame)
+    {
+        var img = CreateUploadableImage(gameModel);
+        string fileName = addedGame.Id.ToString();
+
+        BlobClient blobClient = GetBlobClient(configuration, fileName);
+
+        using MemoryStream uploadFileStream = new MemoryStream(img);
+        await blobClient.UploadAsync(uploadFileStream);
+    }
+
+    private static byte[] CreateUploadableImage(GameDtoWrapper gameModel)
+    {
+        return Convert.FromBase64String(gameModel.Image[(gameModel.Image.IndexOf(',') + 1)..]);
+    }
+
+    private static async Task UpdatePictureInBlobAsync(GameDtoWrapper gameModel, IConfiguration configuration)
+    {
+        var img = CreateUploadableImage(gameModel);
+        string fileName = gameModel.Game.Id.ToString();
+
+        BlobClient blobClient = GetBlobClient(configuration, fileName!);
+
+        using MemoryStream uploadFileStream = new MemoryStream(img);
+        await blobClient.UploadAsync(uploadFileStream, overwrite: true);
+    }
+
+    private static async Task DeletePictureFromBlobAsync(Guid gameId, IConfiguration configuration)
+    {
+        string fileName = gameId.ToString();
+
+        BlobClient blobClient = GetBlobClient(configuration, fileName!);
+
+        await blobClient.DeleteIfExistsAsync();
+    }
+
+    private static BlobClient GetBlobClient(IConfiguration configuration, string fileName)
+    {
+        string connectionString = configuration["Azure:BlobConnectionString"];
+        string containerName = configuration["Azure:PicturesContainer"];
+
+        BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+        var blobContainerClient = BlobService.GetBlobContainerClient(blobServiceClient, containerName!);
+        BlobClient blobClient = blobContainerClient.GetBlobClient(fileName);
+
+        return blobClient;
     }
 }
