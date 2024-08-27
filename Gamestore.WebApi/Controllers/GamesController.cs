@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Gamestore.BLL.Filtering.Models;
-using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Identity.Extensions;
 using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Models;
@@ -16,7 +15,7 @@ namespace Gamestore.WebApi.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager, IConfiguration configuration, IMemoryCache memoryCache) : ControllerBase
+public class GamesController([FromServices] IGameService gameService, UserManager<AppUser> userManager, IMemoryCache memoryCache) : ControllerBase
 {
     private readonly IGameService _gameService = gameService;
 
@@ -83,19 +82,17 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, NoStore = false)]
     public async Task<IActionResult> GetPictureByGameKeyAsync(string key)
     {
-        if (!memoryCache.TryGetValue(key, out byte[] picture))
+        if (!memoryCache.TryGetValue(key, out (byte[] Picture, string MimeType) result))
         {
-            picture = await _gameService.GetPictureByGameKeyAsync(key, configuration);
+            result = await _gameService.GetPictureByGameKeyAsync(key);
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromSeconds(20));
 
-            memoryCache.Set(key, picture, cacheEntryOptions);
+            memoryCache.Set(key, result, cacheEntryOptions);
         }
 
-        var mimeType = MimeTypeHelpers.GetMimeTypeFromBytes(picture!);
-
-        return File(picture!, mimeType);
+        return File(result.Picture, result.MimeType);
     }
 
     // GET: games/GUID/platforms
@@ -177,7 +174,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
-        await _gameService.AddGameAsync(gameModel, configuration);
+        await _gameService.AddGameAsync(gameModel);
 
         return Ok();
     }
@@ -208,7 +205,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> UpdateGameAsync([FromBody] GameDtoWrapper gameModel)
     {
-        await _gameService.UpdateGameAsync(gameModel, configuration);
+        await _gameService.UpdateGameAsync(gameModel);
 
         return Ok();
     }
@@ -218,7 +215,7 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
     public async Task<IActionResult> DeleteGameByKeyAsync(string key)
     {
-        await _gameService.DeleteGameByKeyAsync(key, configuration);
+        await _gameService.DeleteGameByKeyAsync(key);
 
         return Ok();
     }
