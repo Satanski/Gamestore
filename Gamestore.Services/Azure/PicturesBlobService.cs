@@ -65,7 +65,7 @@ public class PicturesBlobService(IConfiguration configuration) : IPicturesBlobSe
 
     private static BlobClient GetPicturesBlobClient(string fileName, IConfiguration configuration)
     {
-        string connectionString = configuration["Azure:BlobConnectionString"];
+        string connectionString = configuration["BlobConnectionString"];
         string containerName = configuration["Azure:PicturesContainer"];
 
         BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);

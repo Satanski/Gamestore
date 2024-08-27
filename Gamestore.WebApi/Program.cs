@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Azure.Identity;
 using Gamestore.BLL.DiRegistrations;
 using Gamestore.BLL.Identity.Models;
 using Gamestore.DAL.DIRegistrations;
@@ -106,6 +107,13 @@ public static class Program
         builder.Services.AddScoped<IPaymentStrategy, IboxPaymentStrategy>();
         builder.Services.AddScoped<IPaymentStrategy, BankPaymentStrategy>();
         builder.Services.AddScoped<PaymentContext>();
+
+        var keyVaultName = builder.Configuration["Azure:KeyVaultName"];
+        if (!string.IsNullOrEmpty(keyVaultName))
+        {
+            var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+            builder.Configuration.AddAzureKeyVault(keyVaultUri, new DefaultAzureCredential());
+        }
 
         var app = builder.Build();
 
