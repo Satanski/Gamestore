@@ -30,17 +30,6 @@ public class PicturesBlobService(IConfiguration configuration) : IPicturesBlobSe
         BlobClient blobClient = GetPicturesBlobClient(fileName, configuration);
 
         using MemoryStream uploadFileStream = new MemoryStream(img);
-        await blobClient.UploadAsync(uploadFileStream);
-        await SetFileMimeTypeAsync(stringifiedImage, blobClient);
-    }
-
-    public async Task UpdatePictureAsync(string stringifiedImage, string fileName)
-    {
-        var img = CreateUploadableImage(stringifiedImage);
-
-        BlobClient blobClient = GetPicturesBlobClient(fileName!, configuration);
-
-        using MemoryStream uploadFileStream = new MemoryStream(img);
         await blobClient.UploadAsync(uploadFileStream, overwrite: true);
         await SetFileMimeTypeAsync(stringifiedImage, blobClient);
     }

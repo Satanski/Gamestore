@@ -7,6 +7,4 @@ public interface IPicturesBlobService
     Task DeletePictureAsync(string fileName);
 
     Task<(byte[] ImageBytes, string MimeType)> DownloadPictureAsync(string fileName);
-
-    Task UpdatePictureAsync(string stringifiedImage, string fileName);
 }

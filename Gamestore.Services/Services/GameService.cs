@@ -203,7 +203,7 @@ public class GameService(
         var game = automapper.Map<Game>(gameModel.Game);
         await UpdateGameInrepositoryAsync(unitOfWork, gameModel, game);
 
-        await blobService.UpdatePictureAsync(gameModel.Image, gameModel.Game.Id.ToString()!);
+        await blobService.UploadPictureAsync(gameModel.Image, gameModel.Game.Id.ToString()!);
 
         await mongoLoggingService.LogGameUpdateAsync(oldObjectState, newObjectState);
     }
