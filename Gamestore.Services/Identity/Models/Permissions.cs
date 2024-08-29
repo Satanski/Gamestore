@@ -42,7 +42,7 @@ public static class Permissions
 
     public static string PermissionManageEntitiesOrDeletedGames { get; } = "ManageEntitiesOrDeletedGames";
 
-    public static Dictionary<string, string> PermissionList { get; } = new Dictionary<string, string>()
+    public static IReadOnlyDictionary<string, string> PermissionList { get; } = new Dictionary<string, string>()
         {
             { PermissionAddComment, PermissionValueAddComment },
             { PermissionDeleteComment, PermissionValueDeleteComment },
