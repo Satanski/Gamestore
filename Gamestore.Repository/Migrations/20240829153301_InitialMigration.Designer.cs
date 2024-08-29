@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Gamestore.DAL.Migrations
 {
     [DbContext(typeof(GamestoreContext))]
-    [Migration("20240619082208_Comments")]
-    partial class Comments
+    [Migration("20240829153301_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,6 +66,9 @@ namespace Gamestore.DAL.Migrations
                     b.Property<int>("Discount")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -74,13 +77,28 @@ namespace Gamestore.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("NumberOfViews")
+                        .HasColumnType("int");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
+
+                    b.Property<DateOnly>("PublishDate")
+                        .HasColumnType("date");
 
                     b.Property<Guid>("PublisherId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("QuantityPerUnit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ReorderLevel")
+                        .HasColumnType("int");
+
                     b.Property<int>("UnitInStock")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UnitsOnOrder")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -95,29 +113,35 @@ namespace Gamestore.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ea63c0ce-2fda-450d-a347-6eabbe6047fc"),
+                            Id = new Guid("73ebc259-405c-4118-9542-afd14681a50e"),
                             Description = "Rpg game",
                             Discount = 10,
+                            IsDeleted = false,
                             Key = "BG",
                             Name = "Baldurs Gate",
+                            NumberOfViews = 0,
                             Price = 250.0,
+                            PublishDate = new DateOnly(1, 1, 1),
                             PublisherId = new Guid("22222222-2222-2222-2222-222222222222"),
                             UnitInStock = 15
                         },
                         new
                         {
-                            Id = new Guid("223b4e32-52c9-4611-9e7e-f9a4ec915344"),
+                            Id = new Guid("77bfd847-fe75-4bbb-9dce-46f6407ff992"),
                             Description = "Racing game",
                             Discount = 0,
+                            IsDeleted = false,
                             Key = "TD",
                             Name = "Tedt Drive",
+                            NumberOfViews = 0,
                             Price = 150.0,
+                            PublishDate = new DateOnly(1, 1, 1),
                             PublisherId = new Guid("11111111-1111-1111-1111-111111111111"),
                             UnitInStock = 2
                         });
                 });
 
-            modelBuilder.Entity("Gamestore.DAL.Entities.GameGenre", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.GameGenres", b =>
                 {
                     b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
@@ -170,85 +194,85 @@ namespace Gamestore.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("421b1e76-8965-4388-ae35-f7c448369d72"),
+                            Id = new Guid("3dc5a59e-0bfa-498a-899c-25b91266a680"),
                             Name = "Strategy"
                         },
                         new
                         {
-                            Id = new Guid("744c3168-e8be-4310-aa75-52a8baa3372f"),
+                            Id = new Guid("496d7e78-9326-44bc-b3a3-b1bcd6cefb6f"),
                             Name = "RTS",
-                            ParentGenreId = new Guid("421b1e76-8965-4388-ae35-f7c448369d72")
+                            ParentGenreId = new Guid("3dc5a59e-0bfa-498a-899c-25b91266a680")
                         },
                         new
                         {
-                            Id = new Guid("9d8acf79-75db-41b1-847c-f4f83a971e32"),
+                            Id = new Guid("6c8a9150-a1bd-424f-ac06-c187b2105313"),
                             Name = "TBS",
-                            ParentGenreId = new Guid("421b1e76-8965-4388-ae35-f7c448369d72")
+                            ParentGenreId = new Guid("3dc5a59e-0bfa-498a-899c-25b91266a680")
                         },
                         new
                         {
-                            Id = new Guid("27a4a84a-0ae5-41be-8904-dc6d6bb276b3"),
+                            Id = new Guid("0abae6f9-3329-405d-9e01-a372ec794962"),
                             Name = "RPG"
                         },
                         new
                         {
-                            Id = new Guid("3d9ee804-9049-4e2b-91ca-f09a8732450a"),
+                            Id = new Guid("8c7d99fb-9f66-4797-a8c1-8cb26c1f80e2"),
                             Name = "Sports"
                         },
                         new
                         {
-                            Id = new Guid("c4800eaf-aea5-43ad-be2b-169151480b26"),
+                            Id = new Guid("8a767f88-e79e-4340-a6de-f363b82232f7"),
                             Name = "Races"
                         },
                         new
                         {
-                            Id = new Guid("16b79069-baca-4324-a2e5-221353fa7500"),
+                            Id = new Guid("2e50ac36-269b-4b31-924b-55535cba03b7"),
                             Name = "Rally",
-                            ParentGenreId = new Guid("c4800eaf-aea5-43ad-be2b-169151480b26")
+                            ParentGenreId = new Guid("8a767f88-e79e-4340-a6de-f363b82232f7")
                         },
                         new
                         {
-                            Id = new Guid("9319f56e-0ddd-40ce-b9c3-34586b1d2101"),
+                            Id = new Guid("4ef7e78e-edac-4ff9-baad-53d48e198318"),
                             Name = "Arcade",
-                            ParentGenreId = new Guid("c4800eaf-aea5-43ad-be2b-169151480b26")
+                            ParentGenreId = new Guid("8a767f88-e79e-4340-a6de-f363b82232f7")
                         },
                         new
                         {
-                            Id = new Guid("477d11ca-35e8-4e95-8996-947954af2866"),
+                            Id = new Guid("b1fa0d7b-1ac1-4f9f-8fbb-e1702afe26c8"),
                             Name = "Formula",
-                            ParentGenreId = new Guid("c4800eaf-aea5-43ad-be2b-169151480b26")
+                            ParentGenreId = new Guid("8a767f88-e79e-4340-a6de-f363b82232f7")
                         },
                         new
                         {
-                            Id = new Guid("5c1d3cc3-cf1d-4f1a-abb7-217f948516cf"),
+                            Id = new Guid("4268dd68-ac12-4c76-98d1-757e8bbc96fe"),
                             Name = "Off-road",
-                            ParentGenreId = new Guid("c4800eaf-aea5-43ad-be2b-169151480b26")
+                            ParentGenreId = new Guid("8a767f88-e79e-4340-a6de-f363b82232f7")
                         },
                         new
                         {
-                            Id = new Guid("b6daa2ce-6e33-483c-b1c0-f2cd3c017263"),
+                            Id = new Guid("802bcf55-b599-4877-802e-d1d80055fdca"),
                             Name = "Action"
                         },
                         new
                         {
-                            Id = new Guid("aeeedc4f-283e-47cd-8dbb-0c553ad8a9c2"),
+                            Id = new Guid("9a3f8bbb-2522-4809-8c89-2f1fa00d5b13"),
                             Name = "FPS",
-                            ParentGenreId = new Guid("b6daa2ce-6e33-483c-b1c0-f2cd3c017263")
+                            ParentGenreId = new Guid("802bcf55-b599-4877-802e-d1d80055fdca")
                         },
                         new
                         {
-                            Id = new Guid("75b7c0a6-ef90-496b-9fcb-020f6ad07a5b"),
+                            Id = new Guid("420a447b-c138-41a6-81d4-37e11490f270"),
                             Name = "TPS",
-                            ParentGenreId = new Guid("b6daa2ce-6e33-483c-b1c0-f2cd3c017263")
+                            ParentGenreId = new Guid("802bcf55-b599-4877-802e-d1d80055fdca")
                         },
                         new
                         {
-                            Id = new Guid("68a47073-982e-43f2-879b-1807a50f8afd"),
+                            Id = new Guid("c76a84b7-647e-4574-8a7e-adb3c3edb3d0"),
                             Name = "Adventure"
                         },
                         new
                         {
-                            Id = new Guid("35c25707-b1fc-4bd6-a8e0-be61aa11bc95"),
+                            Id = new Guid("0cf312ae-1773-4a84-89d3-5c117201f7b5"),
                             Name = "Puzzle & Skill"
                         });
                 });
@@ -262,7 +286,40 @@ namespace Gamestore.DAL.Migrations
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<float?>("Freight")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RequiredDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ShipAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipCity")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipCountry")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipPostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShipRegion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ShipVia")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ShippedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
@@ -278,11 +335,14 @@ namespace Gamestore.DAL.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("Discount")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -290,9 +350,9 @@ namespace Gamestore.DAL.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.HasKey("OrderId", "GameId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("GameId");
 
                     b.ToTable("OrderGames");
                 });
@@ -317,22 +377,22 @@ namespace Gamestore.DAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1d952415-6372-4f4e-a42c-e70c2b2c1837"),
+                            Id = new Guid("efdef1b8-8077-4faf-a4db-dc9102bee14b"),
                             Type = "Mobile"
                         },
                         new
                         {
-                            Id = new Guid("5595b8e3-51c0-47d6-9a3b-54ab894b861d"),
+                            Id = new Guid("c6bb34c8-14dd-4227-9430-6bdee1934db0"),
                             Type = "Browser"
                         },
                         new
                         {
-                            Id = new Guid("2a7b743c-a4cb-497e-a828-04207ecd1fb2"),
+                            Id = new Guid("674fd7f3-47d4-4aaf-bd89-798a2a9bbc4b"),
                             Type = "Desktop"
                         },
                         new
                         {
-                            Id = new Guid("ef916963-98ee-44ae-a6c0-7f42239c649f"),
+                            Id = new Guid("1ec1fc35-9be8-4d08-8a30-7d4068775846"),
                             Type = "Console"
                         });
                 });
@@ -343,14 +403,41 @@ namespace Gamestore.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContactTitle")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Fax")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("HomePage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Region")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -377,7 +464,7 @@ namespace Gamestore.DAL.Migrations
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Comment", b =>
                 {
-                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Product")
                         .WithMany("Comments")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -387,9 +474,9 @@ namespace Gamestore.DAL.Migrations
                         .WithMany()
                         .HasForeignKey("ParentCommentId");
 
-                    b.Navigation("Game");
-
                     b.Navigation("ParentComment");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
@@ -403,29 +490,29 @@ namespace Gamestore.DAL.Migrations
                     b.Navigation("Publisher");
                 });
 
-            modelBuilder.Entity("Gamestore.DAL.Entities.GameGenre", b =>
+            modelBuilder.Entity("Gamestore.DAL.Entities.GameGenres", b =>
                 {
-                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
-                        .WithMany("GameGenres")
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Product")
+                        .WithMany("ProductCategories")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Gamestore.DAL.Entities.Genre", "Genre")
+                    b.HasOne("Gamestore.DAL.Entities.Genre", "Category")
                         .WithMany("GameGenres")
                         .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Game");
+                    b.Navigation("Category");
 
-                    b.Navigation("Genre");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.GamePlatform", b =>
                 {
                     b.HasOne("Gamestore.DAL.Entities.Game", "Game")
-                        .WithMany("GamePlatforms")
+                        .WithMany("ProductPlatforms")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -443,32 +530,32 @@ namespace Gamestore.DAL.Migrations
 
             modelBuilder.Entity("Gamestore.DAL.Entities.OrderGame", b =>
                 {
+                    b.HasOne("Gamestore.DAL.Entities.Game", "Game")
+                        .WithMany("OrderProducts")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Gamestore.DAL.Entities.Order", "Order")
                         .WithMany("OrderGames")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Gamestore.DAL.Entities.Game", "Product")
-                        .WithMany("OrderGames")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Navigation("Game");
 
                     b.Navigation("Order");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Game", b =>
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("GameGenres");
+                    b.Navigation("OrderProducts");
 
-                    b.Navigation("GamePlatforms");
+                    b.Navigation("ProductCategories");
 
-                    b.Navigation("OrderGames");
+                    b.Navigation("ProductPlatforms");
                 });
 
             modelBuilder.Entity("Gamestore.DAL.Entities.Genre", b =>

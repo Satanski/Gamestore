@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Azure;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Filtering.Handlers;
@@ -26,6 +27,7 @@ public class GameServiceTests
     private readonly Mock<IMongoLoggingService> _mongoLoggingService = new();
     private readonly Mock<IMongoUnitOfWork> _mongoUnitOfWork = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IPicturesBlobService> _picturesBlobService = new();
     private readonly IMapper _autoMapper;
 
     public GameServiceTests()
@@ -76,7 +78,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Single(result.Games);
@@ -101,7 +103,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Empty(result.Games);
@@ -124,7 +126,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Equal(2, result.Games.Count);
@@ -143,7 +145,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Equal(6, result.Games.Count);
@@ -162,7 +164,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Equal(2, result.Games.Count);
@@ -189,7 +191,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Single(result.Games);
@@ -238,7 +240,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Equal(expectedNumberOfGames, result.Games.Count);
@@ -292,7 +294,7 @@ public class GameServiceTests
 
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames);
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         for (var i = 0; i < result.Games.Count; i++)
@@ -372,7 +374,7 @@ public class GameServiceTests
         SetupUnitOfWorkForFilterTests(_unitOfWork, _mongoUnitOfWork, canSeeDeletedGames, games);
         _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync(games.Where(x => x.IsDeleted == canSeeDeletedGames).ToList());
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
         var result = await gameService.GetFilteredGamesAsync(filters, canSeeDeletedGames);
 
         Assert.Equal(expectedNumberOfPages, filters.NumberOfPagesAfterFiltration);
@@ -389,7 +391,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Games.Where(x => !x.IsDeleted).ToList());
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.MongoProducts]);
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var actual = await gameService.GetAllGamesAsync(canSeeDeletedGames: false);
@@ -408,7 +410,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync(BllHelpers.Games.Where(x => x.IsDeleted).ToList());
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.MongoProducts]);
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var actual = await gameService.GetAllGamesAsync(canSeeDeletedGames: false);
@@ -426,7 +428,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First(x => x.Id == expectedId));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var actual = await gameService.GetGameByIdAsync(expectedId);
@@ -448,7 +450,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>()));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(BllHelpers.MongoProducts.First(x => x.ProductId == expectedId));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var actual = await gameService.GetGameByIdAsync(id);
@@ -466,7 +468,7 @@ public class GameServiceTests
         var expected = BllHelpers.Games.First(x => x.Key == expectedKey);
 
         _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(BllHelpers.Games.First(x => x.Key == expectedKey));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var actual = await gameService.GetGameByKeyAsync(expectedKey);
@@ -489,7 +491,7 @@ public class GameServiceTests
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(BllHelpers.MongoProducts.First(x => x.ProductName == expectedKey));
         _mongoUnitOfWork.Setup(x => x.SupplierRepository.GetByIdAsync(It.IsAny<int>())).Returns((int id) => Task.FromResult(BllHelpers.GetMongoSupplierById(id)));
         _mongoUnitOfWork.Setup(x => x.CategoryRepository.GetById(It.IsAny<int>())).Returns((int id) => Task.FromResult(BllHelpers.GetMongoCategoryById(id)));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var actual = await gameService.GetGameByKeyAsync(expectedKey);
@@ -524,7 +526,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GameRepository.GetAllAsync()).ReturnsAsync([.. BllHelpers.Games]);
         _unitOfWork.Setup(x => x.GameGenreRepository.AddAsync(It.IsAny<GameGenres>()));
         _unitOfWork.Setup(x => x.GamePlatformRepository.AddAsync(It.IsAny<GamePlatform>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         await gameService.AddGameAsync(gameToAddWrapper);
@@ -552,7 +554,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.OrderGameRepository.GetAllAsync()).ReturnsAsync([]);
         _unitOfWork.Setup(x => x.OrderGameRepository.Delete(It.IsAny<OrderGame>()));
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         await gameService.DeleteGameByIdAsync(gameToDelete.Id);
@@ -570,7 +572,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(gameToDelete);
         _unitOfWork.Setup(x => x.GameRepository.SoftDelete(It.IsAny<Game>())).Callback((Game game) => game.IsDeleted = true);
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         await gameService.SoftDeleteGameByIdAsync(gameToDelete.Id);
@@ -588,7 +590,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(gameToDelete);
         _unitOfWork.Setup(x => x.GameRepository.SoftDelete(It.IsAny<Game>())).Callback((Game game) => game.IsDeleted = true);
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         await gameService.SoftDeleteGameByKeyAsync(gameToDelete.Key);
@@ -628,7 +630,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         await gameService.UpdateGameAsync(gameToUpdateWrapper);
@@ -654,7 +656,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.OrderRepository.GetByCustomerIdAsync(It.IsAny<Guid>())).ReturnsAsync(order);
         _unitOfWork.Setup(x => x.OrderGameRepository.GetByOrderIdAndProductIdAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(orderGames[0]);
         _unitOfWork.Setup(x => x.OrderGameRepository.UpdateAsync(It.IsAny<OrderGame>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         await gameService.AddGameToCartAsync(customerId, gameToBuy.Key, quantity);
@@ -671,7 +673,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
         _unitOfWork.Setup(x => x.GameRepository.GetGenresByGameAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetGenresByGameAsync(id)));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var resultGenres = await gameService.GetGenresByGameKeyAsync(game.Key);
@@ -689,7 +691,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
         _unitOfWork.Setup(x => x.GameRepository.GetPlatformsByGameAsync(It.IsAny<Guid>())).Returns((Guid id) => Task.FromResult(BllHelpers.GetPlatformsByGameAsync(id)));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var resultPlatforms = await gameService.GetPlatformsByGameKeyAsync(game.Key);
@@ -707,7 +709,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetGameByKeyAsync(It.IsAny<string>())).ReturnsAsync(game);
         _unitOfWork.Setup(x => x.GameRepository.GetPublisherByGameAsync(It.IsAny<Guid>())).ReturnsAsync((Guid id) => BllHelpers.GetPublisherByGameAsync(id));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var reultPublisher = await gameService.GetPublisherByGameKeyAsync(game.Key);
@@ -722,7 +724,7 @@ public class GameServiceTests
         // Arrange
         var options = PaginationOptionsDto.PaginationOptions;
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var result = gameService.GetPaginationOptions();
@@ -737,7 +739,7 @@ public class GameServiceTests
         // Arrange
         var options = PublishDateOptionsDto.PublishDateOptions;
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var result = gameService.GetPublishDateOptions();
@@ -752,7 +754,7 @@ public class GameServiceTests
         // Arrange
         var options = SortingOptionsDto.SortingOptions;
 
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Act
         var result = gameService.GetSortingOptions();
@@ -771,7 +773,7 @@ public class GameServiceTests
         var gameToAddWrapper = new GameDtoWrapper() { Game = gameToAdd };
 
         _unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -790,7 +792,7 @@ public class GameServiceTests
         var gameToAddWrapper = new GameDtoWrapper() { Game = gameToAdd };
 
         _unitOfWork.Setup(x => x.GameRepository.AddAsync(It.IsAny<Game>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -808,7 +810,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>()));
         _unitOfWork.Setup(x => x.GameRepository.Delete(It.IsAny<Game>()));
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -831,7 +833,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -854,7 +856,7 @@ public class GameServiceTests
         _unitOfWork.Setup(x => x.GamePlatformRepository.GetByGameIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.GamePlatforms.Where(x => x.GameId == gameToUpdate.Id).ToList());
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>())).ReturnsAsync(BllHelpers.Games.First);
         _unitOfWork.Setup(x => x.GameRepository.UpdateAsync(It.IsAny<Game>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
@@ -871,7 +873,7 @@ public class GameServiceTests
 
         _unitOfWork.Setup(x => x.GameRepository.GetByOrderIdAsync(It.IsAny<Guid>()));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
@@ -890,7 +892,7 @@ public class GameServiceTests
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByIdAsync(It.IsAny<int>()));
         _mongoUnitOfWork.Setup(x => x.ProductRepository.GetByNameAsync(It.IsAny<string>()));
-        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector);
+        var gameService = new GameService(_unitOfWork.Object, _mongoUnitOfWork.Object, BllHelpers.CreateMapperProfile(), _logger.Object, _mongoLoggingService.Object, _gameProcessingPipelineDirector, _picturesBlobService.Object);
 
         // Assert
         await Assert.ThrowsAsync<GamestoreException>(async () =>
