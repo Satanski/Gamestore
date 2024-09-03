@@ -12,14 +12,17 @@ namespace Gamestore.BLL.Services;
 
 internal static class MongoDbHelperService
 {
-    internal static async Task FilterProductsFromMongoDBAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService)
+    internal static async Task FilterProductsFromMongoDBAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService, object gameListLock)
     {
         var products = await GetProductsFromMongoDBThatDoesntExistInSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper);
 
         var filterdProducts = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, products.AsQueryable())).ToList();
         if (filterdProducts.Count != 0)
         {
-            filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(filterdProducts));
+            lock (gameListLock)
+            {
+                filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(filterdProducts));
+            }
         }
     }
 
