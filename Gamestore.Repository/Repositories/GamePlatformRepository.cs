@@ -17,4 +17,13 @@ public class GamePlatformRepository(GamestoreContext context) : RepositoryBase<G
     {
         return _context.GamePlatforms.Include(x => x.Platform).ToListAsync();
     }
+
+    public Task BulkInsert(List<GamePlatform> gamePlatforms)
+    {
+        return _context.BulkInsertAsync(gamePlatforms, options =>
+        {
+            options.InsertIfNotExists = true;
+            options.ColumnPrimaryKeyExpression = c => new { c.GameId, c.PlatformId };
+        });
+    }
 }

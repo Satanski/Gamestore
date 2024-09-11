@@ -17,4 +17,13 @@ public class GameGenreRepository(GamestoreContext context) : RepositoryBase<Game
     {
         return _context.GameGenres.ToListAsync();
     }
+
+    public Task BulkInsert(List<GameGenres> gameGenres)
+    {
+        return _context.BulkInsertAsync(gameGenres, options =>
+        {
+            options.InsertIfNotExists = true;
+            options.ColumnPrimaryKeyExpression = c => new { c.GameId, c.GenreId };
+        });
+    }
 }

@@ -36,6 +36,15 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         return query.Where(x => x.Id == id).AsSplitQuery().FirstOrDefaultAsync();
     }
 
+    public Task BulkInsert(List<Game> games)
+    {
+        return _context.BulkInsertAsync(games, options =>
+        {
+            options.InsertIfNotExists = true;
+            options.ColumnPrimaryKeyExpression = c => c.Id;
+        });
+    }
+
     public async Task UpdateAsync(Game entity)
     {
         var g = await _context.Games.Include(x => x.ProductCategories).Include(x => x.ProductPlatforms).Where(p => p.Id == entity.Id).FirstAsync();

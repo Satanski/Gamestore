@@ -192,6 +192,9 @@ public class GameService(
         var publisherModelDto = automapper.Map<PublisherModelDto>(publishers[0]);
         var publisherId = (Guid)publisherModelDto.Id!;
 
+        List<Game> gamesToInsert = [];
+        List<GameGenres> gameGenresToInsert = [];
+        List<GamePlatform> gamePlatformsToInsert = [];
         for (var i = 1; i < 100000; i++)
         {
             GameDtoWrapper gameModel = new GameDtoWrapper()
@@ -205,21 +208,20 @@ public class GameService(
                     Discontinued = 0,
                     Price = 100,
                     PublishDate = DateOnly.FromDateTime(DateTime.Now),
+                    Genres = [new GenreModelDto() { Id = genreId }],
+                    Platforms = [new PlatformModelDto() { Id = platformId }],
+                    Publisher = new PublisherModelDto() { Id = publisherId },
                 },
-                Genres = [genreId],
-                Platforms = [platformId],
-                Publisher = publisherId,
             };
 
-            var addedGame = await AddGameToRepositoryAsync(unitOfWork, gameModel, automapper.Map<Game>(gameModel.Game));
-
-            var genresToAdd = gameModel.Genres;
-            var platformsToAdd = gameModel.Platforms;
-            await AddGameGenresTorepositoryAsync(unitOfWork, addedGame, genresToAdd);
-            await AddGamePlatformsToRepositoryAsync(unitOfWork, addedGame, platformsToAdd);
+            gamesToInsert.Add(automapper.Map<Game>(gameModel.Game));
+            gameGenresToInsert.Add(new GameGenres() { GameId = (Guid)gameModel.Game.Id, GenreId = genreId });
+            gamePlatformsToInsert.Add(new GamePlatform() { GameId = (Guid)gameModel.Game.Id, PlatformId = platformId });
         }
 
-        await unitOfWork.SaveAsync();
+        await unitOfWork.GameRepository.BulkInsert(gamesToInsert);
+        await unitOfWork.GameGenreRepository.BulkInsert(gameGenresToInsert);
+        await unitOfWork.GamePlatformRepository.BulkInsert(gamePlatformsToInsert);
     }
 
     public async Task UpdateGameAsync(GameDtoWrapper gameModel)
