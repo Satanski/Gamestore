@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Azure;
 using Gamestore.BLL.Exceptions;
 using Gamestore.BLL.Filtering;
 using Gamestore.BLL.Filtering.Models;
@@ -17,6 +18,7 @@ using Gamestore.Services.Interfaces;
 using Gamestore.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,7 +30,8 @@ public class GameService(
     IMapper automapper,
     ILogger<GameService> logger,
     IMongoLoggingService mongoLoggingService,
-    IGameProcessingPipelineDirector gameProcessingPipelineDirector) : IGameService
+    IGameProcessingPipelineDirector gameProcessingPipelineDirector,
+    IPicturesBlobService blobService) : IGameService
 {
     private const string QuoteActionName = "Quote";
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
@@ -131,6 +134,14 @@ public class GameService(
         return game ?? throw new GamestoreException($"No game found with given key: {key}");
     }
 
+    public async Task<(byte[] ImageBytes, string MimeType)> GetPictureByGameKeyAsync(string key)
+    {
+        var game = await unitOfWork.GameRepository.GetGameByKeyAsync(key);
+        string fileName = game.Id.ToString();
+
+        return await blobService.DownloadPictureAsync(fileName);
+    }
+
     public List<string> GetPaginationOptions()
     {
         return PaginationOptionsDto.PaginationOptions;
@@ -154,6 +165,8 @@ public class GameService(
 
         var game = automapper.Map<Game>(gameModel.Game);
         var addedGame = await AddGameToRepositoryAsync(unitOfWork, gameModel, game);
+
+        await blobService.UploadPictureAsync(gameModel.Image, addedGame.Id.ToString());
 
         var genres = gameModel.Genres;
         var platforms = gameModel.Platforms;
@@ -190,6 +203,8 @@ public class GameService(
         var game = automapper.Map<Game>(gameModel.Game);
         await UpdateGameInrepositoryAsync(unitOfWork, gameModel, game);
 
+        await blobService.UploadPictureAsync(gameModel.Image, gameModel.Game.Id.ToString()!);
+
         await mongoLoggingService.LogGameUpdateAsync(oldObjectState, newObjectState);
     }
 
@@ -204,6 +219,7 @@ public class GameService(
             await DeleteGameGenresFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGameFromRepositoryAsync(unitOfWork, game);
+            await blobService.DeletePictureAsync(gameId.ToString());
         }
         else
         {
@@ -238,6 +254,7 @@ public class GameService(
             await DeleteGameGenresFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGamePlatformsFromRepositoryAsync(unitOfWork, game.Id);
             await DeleteGameFromRepositoryAsync(unitOfWork, game);
+            await blobService.DeletePictureAsync(game.Id.ToString());
         }
         else
         {

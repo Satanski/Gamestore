@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Gamestore.BLL.Azure;
 using Gamestore.BLL.BanHandler;
 using Gamestore.BLL.Configurations;
 using Gamestore.BLL.Filtering;
@@ -39,6 +40,7 @@ public static class BllServices
         services.AddScoped<IGameProcessingPipelineBuilder, GameProcessingPipelineBuilder>();
         services.AddScoped<IGameProcessingPipelineDirector, GameProcessingPipelineDirector>();
         services.AddScoped<IMongoLoggingService, MongoLoggingService>();
+        services.AddScoped<IPicturesBlobService, PicturesBlobService>();
 
         var autoMapperConfiguration = new MapperConfiguration(m => m.AddProfile(new MappingProfile()));
         var autoMapper = autoMapperConfiguration.CreateMapper();

@@ -47,4 +47,6 @@ public interface IGameService
     List<string> GetPublishDateOptions();
 
     List<string> GetSortingOptions();
+
+    Task<(byte[] ImageBytes, string MimeType)> GetPictureByGameKeyAsync(string key);
 }
