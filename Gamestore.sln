@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.BLL.Tests", "Game
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.MongoRepository", "Gamestore.MongoRepository\Gamestore.MongoRepository.csproj", "{6451294A-0504-4296-87F3-AA677F80A113}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gamestore.IdentityRepository", "Gamestore.IdentityRepository\Gamestore.IdentityRepository.csproj", "{5AF81385-D26A-41E7-A3C0-1245E691F821}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gamestore.IdentityRepository", "Gamestore.IdentityRepository\Gamestore.IdentityRepository.csproj", "{5AF81385-D26A-41E7-A3C0-1245E691F821}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "NotificationService\NotificationService.csproj", "{51953022-A19C-4F42-B171-A51161790D68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +57,10 @@ Global
 		{5AF81385-D26A-41E7-A3C0-1245E691F821}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5AF81385-D26A-41E7-A3C0-1245E691F821}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5AF81385-D26A-41E7-A3C0-1245E691F821}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51953022-A19C-4F42-B171-A51161790D68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51953022-A19C-4F42-B171-A51161790D68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51953022-A19C-4F42-B171-A51161790D68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51953022-A19C-4F42-B171-A51161790D68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

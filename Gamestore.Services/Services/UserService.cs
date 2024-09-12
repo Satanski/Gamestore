@@ -7,32 +7,35 @@ using Gamestore.BLL.Identity.JWT;
 using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
+using Gamestore.BLL.Models.Notifications;
+using Gamestore.IdentityRepository.Entities;
 using Gamestore.IdentityRepository.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using NotificationService.Models;
 
 namespace Gamestore.BLL.Services;
 
-public class UserService(IMapper automapper) : IUserService
+public class UserService(IMapper automapper, UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration) : IUserService
 {
     private const string EmailStub = "default@default.com";
 
-    public List<CustomerDto> GetAllUsers(UserManager<AppUser> userManager)
+    public List<CustomerDto> GetAllUsers()
     {
         var users = userManager.Users.ToList();
 
         return automapper.Map<List<CustomerDto>>(users);
     }
 
-    public async Task<CustomerDto> GetUserByIdAsync(UserManager<AppUser> userManager, string userId)
+    public async Task<CustomerDto> GetUserByIdAsync(string userId)
     {
         var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
         return automapper.Map<CustomerDto>(user);
     }
 
-    public async Task<List<UserRoleDto>> GetUserRolesByUserId(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, string userId)
+    public async Task<List<UserRoleDto>> GetUserRolesByUserId(string userId)
     {
         var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
         if (user == null)
@@ -46,23 +49,23 @@ public class UserService(IMapper automapper) : IUserService
         return userRoles;
     }
 
-    public async Task<string> LoginAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login)
+    public async Task<string> LoginAsync(LoginModelDto login)
     {
         string token;
 
         if (login.Model.InternalAuth)
         {
-            token = await LoginInternalAsync(userManager, roleManager, configuration, login);
+            token = await LoginInternalAsync(login);
         }
         else
         {
-            token = await LoginExternalAsync(roleManager, configuration, login);
+            token = await LoginExternalAsync(login);
         }
 
         return token;
     }
 
-    public async Task<string> LoginInternalAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login)
+    public async Task<string> LoginInternalAsync(LoginModelDto login)
     {
         var user = await userManager.FindByNameAsync(login.Model.Login);
         if (user == null || !await userManager.CheckPasswordAsync(user, login.Model.Password))
@@ -76,7 +79,7 @@ public class UserService(IMapper automapper) : IUserService
         return token;
     }
 
-    public async Task<string> LoginExternalAsync(RoleManager<AppRole> roleManager, IConfiguration configuration, LoginModelDto login)
+    public async Task<string> LoginExternalAsync(LoginModelDto login)
     {
         var externalLoginDto = new ExternalLoginDto() { Email = login.Model.Login, Password = login.Model.Password };
         var json = JsonSerializer.Serialize(externalLoginDto);
@@ -94,7 +97,7 @@ public class UserService(IMapper automapper) : IUserService
         return token;
     }
 
-    public async Task<IdentityResult> UpdateUserAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, UserDto user)
+    public async Task<IdentityResult> UpdateUserAsync(UserDto user)
     {
         var userToUpdate = await userManager.FindByIdAsync(user.User.Id);
         if (userToUpdate == null)
@@ -109,7 +112,7 @@ public class UserService(IMapper automapper) : IUserService
         return await userManager.UpdateAsync(userToUpdate);
     }
 
-    public async Task DeleteUserAsync(UserManager<AppUser> userManager, string userId)
+    public async Task DeleteUserAsync(string userId)
     {
         var user = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
         if (user == null)
@@ -120,7 +123,7 @@ public class UserService(IMapper automapper) : IUserService
         await userManager.DeleteAsync(user);
     }
 
-    public async Task AddUserAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, UserDto user)
+    public async Task AddUserAsync(UserDto user)
     {
         var appUser = new AppUser
         {
@@ -133,6 +136,30 @@ public class UserService(IMapper automapper) : IUserService
         await userManager.CreateAsync(appUser);
         await AddUserToSelectedRolesAsync(userManager, roleManager, user, appUser);
         await AddUserPasswordAsync(userManager, user, appUser);
+    }
+
+    public IEnumerable<string> GetNotificationMethods()
+    {
+        return NotificationMethods.Methods.Select(x => x.Name);
+    }
+
+    public IEnumerable<string> GetUserNotificationMethods(AppUser user)
+    {
+        var userNotificationMethods = user.NotificationMethods;
+
+        return userNotificationMethods?.Select(x => x.NotificationType) ?? [];
+    }
+
+    public async Task SetUserNotificationMethodsAsync(NotificationsDto notificaltionList, AppUser user)
+    {
+        user.NotificationMethods.Clear();
+
+        foreach (var notification in notificaltionList.Notifications)
+        {
+            user.NotificationMethods.Add(new UserNotificationMethod() { UserId = user.Id, NotificationType = notification });
+        }
+
+        await userManager.UpdateAsync(user);
     }
 
     private static async Task UpdateUserRolesAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, UserDto user, AppUser userToUpdate)
