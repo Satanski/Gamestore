@@ -65,8 +65,12 @@ public class GameService(
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
         FilteredGamesDto filteredGameDtos = new();
-        await SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, canSeeDeletedGames);
-        await MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService);
+        var sqlFilterTask = SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, canSeeDeletedGames);
+        FilteredGamesDto filteredGamesDtosFromMongo = new();
+        var mongoFilterTask = MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGamesDtosFromMongo, gameProcessingPipelineService);
+        await Task.WhenAll(sqlFilterTask, mongoFilterTask);
+        filteredGameDtos.Games.AddRange(filteredGamesDtosFromMongo.Games);
+
         SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
         CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
 
@@ -173,7 +177,53 @@ public class GameService(
         await AddGameGenresTorepositoryAsync(unitOfWork, addedGame, genres);
         await AddGamePlatformsToRepositoryAsync(unitOfWork, addedGame, platforms);
 
+        await unitOfWork.SaveAsync();
+
         await mongoLoggingService.LogGameAddAsync(gameModel);
+    }
+
+    public async Task AddHundredThousendGamesAsync()
+    {
+        var genres = await unitOfWork.GenreRepository.GetAllAsync();
+        var genreModelDto = automapper.Map<GenreModelDto>(genres[0]);
+        var genreId = (Guid)genreModelDto.Id!;
+        var platforms = await unitOfWork.PlatformRepository.GetAllAsync();
+        var platformModelDto = automapper.Map<PlatformModelDto>(platforms[0]);
+        var platformId = (Guid)platformModelDto.Id!;
+        var publishers = await unitOfWork.PublisherRepository.GetAllAsync();
+        var publisherModelDto = automapper.Map<PublisherModelDto>(publishers[0]);
+        var publisherId = (Guid)publisherModelDto.Id!;
+
+        List<Game> gamesToInsert = [];
+        List<GameGenres> gameGenresToInsert = [];
+        List<GamePlatform> gamePlatformsToInsert = [];
+        for (var i = 1; i < 100000; i++)
+        {
+            GameDtoWrapper gameModel = new GameDtoWrapper()
+            {
+                Game = new GameModelDto()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = i.ToString(),
+                    Key = i.ToString(),
+                    Description = i.ToString(),
+                    Discontinued = 0,
+                    Price = 100,
+                    PublishDate = DateOnly.FromDateTime(DateTime.Now),
+                    Genres = [new GenreModelDto() { Id = genreId }],
+                    Platforms = [new PlatformModelDto() { Id = platformId }],
+                    Publisher = new PublisherModelDto() { Id = publisherId },
+                },
+            };
+
+            gamesToInsert.Add(automapper.Map<Game>(gameModel.Game));
+            gameGenresToInsert.Add(new GameGenres() { GameId = (Guid)gameModel.Game.Id, GenreId = genreId });
+            gamePlatformsToInsert.Add(new GamePlatform() { GameId = (Guid)gameModel.Game.Id, PlatformId = platformId });
+        }
+
+        await unitOfWork.GameRepository.BulkInsert(gamesToInsert);
+        await unitOfWork.GameGenreRepository.BulkInsert(gameGenresToInsert);
+        await unitOfWork.GamePlatformRepository.BulkInsert(gamePlatformsToInsert);
     }
 
     public async Task UpdateGameAsync(GameDtoWrapper gameModel)
@@ -394,7 +444,7 @@ public class GameService(
         game.PublisherId = gameModel.Publisher;
 
         var addedGame = await unitOfWork.GameRepository.AddAsync(game);
-        await unitOfWork.SaveAsync();
+
         return addedGame;
     }
 
@@ -404,8 +454,6 @@ public class GameService(
         {
             await unitOfWork.GamePlatformRepository.AddAsync(new GamePlatform() { GameId = addedGame.Id, PlatformId = platformId });
         }
-
-        await unitOfWork.SaveAsync();
     }
 
     private static async Task AddGameGenresTorepositoryAsync(IUnitOfWork unitOfWork, Game addedGame, List<Guid> genres)
@@ -414,8 +462,6 @@ public class GameService(
         {
             await unitOfWork.GameGenreRepository.AddAsync(new GameGenres() { GameId = addedGame.Id, GenreId = genreId });
         }
-
-        await unitOfWork.SaveAsync();
     }
 
     private static async Task UpdateGameInrepositoryAsync(IUnitOfWork unitOfWork, GameDtoWrapper gameModel, Game game)

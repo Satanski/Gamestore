@@ -140,7 +140,6 @@ public static class Program
 
         app.UseResponseCaching();
 
-        app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionHandlerMiddleware>();
         app.UseMiddleware<GameCounterMiddleware>();
 

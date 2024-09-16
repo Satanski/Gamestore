@@ -4,6 +4,8 @@ namespace Gamestore.DAL.Interfaces;
 
 public interface IGameRepository : IRepository<Game>, IRepositoryBase<Game>
 {
+    Task BulkInsert(IEnumerable<Game> games);
+
     Task<List<Game>> GetAllWithDeletedAsync();
 
     Task<Game?> GetGameByKeyAsync(string key);
