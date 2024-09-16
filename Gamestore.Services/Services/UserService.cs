@@ -8,12 +8,12 @@ using Gamestore.BLL.Identity.Models;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Notifications;
+using Gamestore.BLL.Notifications;
 using Gamestore.IdentityRepository.Entities;
 using Gamestore.IdentityRepository.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using NotificationService.Models;
 
 namespace Gamestore.BLL.Services;
 
@@ -140,14 +140,12 @@ public class UserService(IMapper automapper, UserManager<AppUser> userManager, R
 
     public IEnumerable<string> GetNotificationMethods()
     {
-        return NotificationMethods.Methods.Select(x => x.Name);
+        return NotificationHelpers.GetNotificationMethods();
     }
 
     public IEnumerable<string> GetUserNotificationMethods(AppUser user)
     {
-        var userNotificationMethods = user.NotificationMethods;
-
-        return userNotificationMethods?.Select(x => x.NotificationType) ?? [];
+        return NotificationHelpers.GetUserNotificationMethods(user);
     }
 
     public async Task SetUserNotificationMethodsAsync(NotificationsDto notificaltionList, AppUser user)

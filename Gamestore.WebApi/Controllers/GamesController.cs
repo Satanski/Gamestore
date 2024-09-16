@@ -172,9 +172,9 @@ public class GamesController([FromServices] IGameService gameService, UserManage
     // POST: games
     [HttpPost]
     [Authorize(Policy = Permissions.PermissionValueManageEntities)]
-    public async Task<IActionResult> AddGameAsync()
+    public async Task<IActionResult> AddGameAsync([FromBody] GameDtoWrapper gameModel)
     {
-        await _gameService.AddHundredThousendGamesAsync();
+        await _gameService.AddGameAsync(gameModel);
 
         return Ok();
     }
