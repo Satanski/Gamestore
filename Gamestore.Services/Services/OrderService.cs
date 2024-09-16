@@ -247,6 +247,7 @@ public class OrderService(IUnitOfWork unitOfWork,
         order.Status = OrderStatus.Shipped;
         await unitOfWork.OrderRepository.UpdateAsync(order);
         await unitOfWork.SaveAsync();
+        await NotificationHelpers.NotifyUserOrderStatusChanged(order, Enum.GetName(order.Status)!, notificationService, httpContextAccessor, userManager);
     }
 
     public async Task AddProductToOrderAsync(string orderId, string productKey)
@@ -316,7 +317,7 @@ public class OrderService(IUnitOfWork unitOfWork,
     {
         order.Status = OrderStatus.Paid;
         await unitOfWork.OrderRepository.UpdateAsync(order);
-        await NotificationHelpers.NotifyUserOrderStatusChanged(order, order.Status.ToString(), notificationService, httpContextAccessor, userManager);
+        await NotificationHelpers.NotifyUserOrderStatusChanged(order, Enum.GetName(order.Status)!, notificationService, httpContextAccessor, userManager);
     }
 
     private static async Task UpdateProductQuanityInSQLServer(IUnitOfWork unitOfWork, Order? order)

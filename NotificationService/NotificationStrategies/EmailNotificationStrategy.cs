@@ -10,7 +10,7 @@ public class EmailNotificationStrategy(IConfiguration configuration) : INotifica
 {
     public async Task ExecuteAsync(NotificationMessage message)
     {
-        Debug.WriteLine($"Sending email to {message.To}: {message.Subject}");
+        Debug.WriteLine($"Sending email to {message.To}: {message.Subject} {message.Body}");
 
         var apiKey = configuration["SendGridApiKey"];
         var client = new SendGridClient(apiKey);
