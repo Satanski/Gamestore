@@ -11,7 +11,7 @@ namespace Gamestore.BLL.Services;
 
 internal static class SqlServerHelperService
 {
-    internal static async Task FilterGamesFromSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService, bool canSeeDeletedGames, object gameListLock)
+    internal static async Task FilterGamesFromSQLServerAsync(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, GameFiltersDto gameFilters, FilteredGamesDto filteredGameDtos, IGameProcessingPipelineService gameProcessingPipelineService, bool canSeeDeletedGames)
     {
         IQueryable<Game> games;
         if (canSeeDeletedGames)
@@ -26,10 +26,7 @@ internal static class SqlServerHelperService
         var gamesFromSQLServer = (await gameProcessingPipelineService.ProcessGamesAsync(unitOfWork, mongoUnitOfWork, gameFilters, games)).ToList();
         if (gamesFromSQLServer.Count != 0)
         {
-            lock (gameListLock)
-            {
-                filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(gamesFromSQLServer));
-            }
+            filteredGameDtos.Games.AddRange(automapper.Map<List<GameModelDto>>(gamesFromSQLServer));
         }
     }
 

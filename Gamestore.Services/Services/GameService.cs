@@ -37,7 +37,6 @@ public class GameService(
     private const string DeletedMessageTemplate = "A comment/quote was deleted";
     private readonly GameDtoWrapperValidator _gameDtoWrapperValidator = new();
     private readonly CommentModelDtoValidator _commentModelDtoValidator = new();
-    private readonly object _gameListLock = new();
 
     public async Task<List<GameModelDto>> GetAllGamesAsync(bool canSeeDeletedGames)
     {
@@ -66,9 +65,12 @@ public class GameService(
         var gameProcessingPipelineService = gameProcessingPipelineDirector.ConstructGameCollectionPipelineService();
 
         FilteredGamesDto filteredGameDtos = new();
-        var sqlFilterTask = SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, canSeeDeletedGames, _gameListLock);
-        var mongoFilterTask = MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, _gameListLock);
+        var sqlFilterTask = SqlServerHelperService.FilterGamesFromSQLServerAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGameDtos, gameProcessingPipelineService, canSeeDeletedGames);
+        FilteredGamesDto filteredGamesDtosFromMongo = new();
+        var mongoFilterTask = MongoDbHelperService.FilterProductsFromMongoDBAsync(unitOfWork, mongoUnitOfWork, automapper, gameFilters, filteredGamesDtosFromMongo, gameProcessingPipelineService);
         await Task.WhenAll(sqlFilterTask, mongoFilterTask);
+        filteredGameDtos.Games.AddRange(filteredGamesDtosFromMongo.Games);
+
         SetTotalNumberOfPagesAfterFiltering(gameFilters, filteredGameDtos);
         CheckIfCurrentPageDoesntExceedTotalNumberOfPages(gameFilters, filteredGameDtos);
 

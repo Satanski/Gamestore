@@ -36,7 +36,7 @@ public class GameRepository(GamestoreContext context) : RepositoryBase<Game>(con
         return query.Where(x => x.Id == id).AsSplitQuery().FirstOrDefaultAsync();
     }
 
-    public Task BulkInsert(List<Game> games)
+    public Task BulkInsert(IEnumerable<Game> games)
     {
         return _context.BulkInsertAsync(games, options =>
         {
