@@ -14,6 +14,7 @@ using Gamestore.WebApi.Strategies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using NotificationService.DIRegistrations;
 using Serilog;
 using Serilog.Events;
 
@@ -97,6 +98,7 @@ public static class Program
         IdentityRepositoryServices.Configure(builder.Services, builder.Configuration.GetConnectionString("IdentityDatabase")!);
         MongoRepositoryServices.Configure(builder.Services, builder.Configuration.GetSection("MongoDB"));
         BllServices.Congigure(builder.Services);
+        NotificationServices.Configure(builder.Services);
 
         builder.Services.AddControllers().AddNewtonsoftJson();
 
