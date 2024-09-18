@@ -535,7 +535,7 @@ public class GameServiceTests
         _unitOfWork.Verify(x => x.GameRepository.AddAsync(It.Is<Game>(x => x.Id == gameToAdd.Id && x.Name == gameToAdd.Name
         && x.Key == gameToAdd.Key && x.Description == gameToAdd.Description && x.PublisherId == gameToAdd.Publisher.Id
         && x.Price == gameToAdd.Price && x.UnitInStock == gameToAdd.UnitInStock && x.Discount == gameToAdd.Discontinued)));
-        _unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(3));
+        _unitOfWork.Verify(x => x.SaveAsync(), Times.Exactly(1));
     }
 
     [Fact]

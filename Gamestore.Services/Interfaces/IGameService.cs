@@ -49,4 +49,6 @@ public interface IGameService
     List<string> GetSortingOptions();
 
     Task<(byte[] ImageBytes, string MimeType)> GetPictureByGameKeyAsync(string key);
+
+    Task AddHundredThousendGamesAsync();
 }
