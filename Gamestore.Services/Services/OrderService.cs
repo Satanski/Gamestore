@@ -9,21 +9,33 @@ using Gamestore.BLL.Helpers;
 using Gamestore.BLL.Interfaces;
 using Gamestore.BLL.Models;
 using Gamestore.BLL.Models.Payment;
+using Gamestore.BLL.Notifications;
 using Gamestore.BLL.Validation;
 using Gamestore.DAL.Entities;
 using Gamestore.DAL.Enums;
 using Gamestore.DAL.Interfaces;
+using Gamestore.IdentityRepository.Identity;
 using Gamestore.MongoRepository.Entities;
 using Gamestore.MongoRepository.Helpers;
 using Gamestore.MongoRepository.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NotificationService;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
 namespace Gamestore.BLL.Services;
 
-public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWork, IMapper automapper, ILogger<OrderService> logger, IOptions<PaymentServiceConfiguration> paymentServiceConfiguration) : IOrderService
+public class OrderService(IUnitOfWork unitOfWork,
+    IMongoUnitOfWork mongoUnitOfWork,
+    IMapper automapper,
+    ILogger<OrderService> logger,
+    IOptions<PaymentServiceConfiguration> paymentServiceConfiguration,
+    INotificationService notificationService,
+    UserManager<AppUser> userManager,
+    IHttpContextAccessor httpContextAccessor) : IOrderService
 {
     private readonly VisaPaymentValidator _visaPaymentValidator = new();
 
@@ -184,7 +196,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
 
         string serviceUrl = paymentServiceConfiguration.Value.IboxServiceUrl;
         await MakePaymentServiceRequest(iboxPaymentModel, serviceUrl);
-        await ProcessOrderAfterPayment(unitOfWork, customer);
+        await ProcessOrderAfterPayment(unitOfWork, customer, notificationService, httpContextAccessor, userManager);
     }
 
     public async Task PayWithVisaAsync(PaymentModelDto payment, CustomerDto customer)
@@ -196,7 +208,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         string serviceUrl = paymentServiceConfiguration.Value.VisaServiceUrl;
 
         await MakePaymentServiceRequest(visaPaymentModel, serviceUrl);
-        await ProcessOrderAfterPayment(unitOfWork, customer);
+        await ProcessOrderAfterPayment(unitOfWork, customer, notificationService, httpContextAccessor, userManager);
     }
 
     public PaymentMethodsDto GetPaymentMethods()
@@ -235,6 +247,7 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         order.Status = OrderStatus.Shipped;
         await unitOfWork.OrderRepository.UpdateAsync(order);
         await unitOfWork.SaveAsync();
+        await NotificationHelpers.NotifyUserOrderStatusChanged(order, Enum.GetName(order.Status)!, notificationService, httpContextAccessor, userManager);
     }
 
     public async Task AddProductToOrderAsync(string orderId, string productKey)
@@ -289,21 +302,22 @@ public class OrderService(IUnitOfWork unitOfWork, IMongoUnitOfWork mongoUnitOfWo
         await unitOfWork.SaveAsync();
     }
 
-    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerDto customer)
+    private static async Task ProcessOrderAfterPayment(IUnitOfWork unitOfWork, CustomerDto customer, INotificationService notificationService, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
     {
         var order = await unitOfWork.OrderRepository.GetByCustomerIdAsync(customer.Id);
         if (order != null)
         {
-            await SetOrderStatusToPaidInSQLServer(unitOfWork, order);
+            await SetOrderStatusToPaidInSQLServer(unitOfWork, order, notificationService, httpContextAccessor, userManager);
             await UpdateProductQuanityInSQLServer(unitOfWork, order);
             await unitOfWork.SaveAsync();
         }
     }
 
-    private static async Task SetOrderStatusToPaidInSQLServer(IUnitOfWork unitOfWork, Order? order)
+    private static async Task SetOrderStatusToPaidInSQLServer(IUnitOfWork unitOfWork, Order? order, INotificationService notificationService, IHttpContextAccessor httpContextAccessor, UserManager<AppUser> userManager)
     {
         order.Status = OrderStatus.Paid;
         await unitOfWork.OrderRepository.UpdateAsync(order);
+        await NotificationHelpers.NotifyUserOrderStatusChanged(order, Enum.GetName(order.Status)!, notificationService, httpContextAccessor, userManager);
     }
 
     private static async Task UpdateProductQuanityInSQLServer(IUnitOfWork unitOfWork, Order? order)
